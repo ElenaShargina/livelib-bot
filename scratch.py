@@ -1,8 +1,5 @@
-from livelib import SimpleWeb
-from livelib import Offline
+from livelib import *
 
-of = Offline(site='http://www.fontanka.ru', encoding='utf-8', folder='test_offline')
-f = of.get_page_text('http://www.fontanka.ru/')
-print(f)
-print(type(f))
+r = Reader('qwerty5677890', connection=Offline(folder='offline',encoding='utf-8'), bsparser=BSParser() )
+print(r.get_main_page())
 

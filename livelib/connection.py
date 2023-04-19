@@ -21,6 +21,10 @@ class Connection:
 
 class SimpleWeb(Connection):
     def _get_page(self, url):
+        # если начало url - не ссылка на сайт, то добавляем
+        if url[0]=='/':
+            url = self.site + url
+            logging.debug(f'Add site prefix to url')
         try:
             headers = requests.utils.default_headers()
             headers.update(
