@@ -18,6 +18,7 @@ class Connection:
     def get_page_text(self, url):
         pass
 
+
 class SimpleWeb(Connection):
     def _get_page(self, url):
         try:

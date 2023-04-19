@@ -56,8 +56,9 @@ class Test_Offline(unittest.TestCase):
 
     def setUp(self) -> None:
         logging.basicConfig(filename='log.log', level=logging.DEBUG, filemode='w', format="%(asctime)s %(levelname)s %(message)s")
-        # if os.path.isdir(self.test_folder):
-        #     self._remove_folder(self.test_folder)
+        logging.debug('Starting to test')
+        if os.path.isdir(self.test_folder):
+            self._remove_folder(self.test_folder)
         self.test_values = [
             ['http://www.livelib.ru/', [self.test_folder + '/', 'index.html']],
             ['http://www.livelib.ru/foo/bar', [self.test_folder + '/foo/', 'bar.html']],
@@ -70,6 +71,7 @@ class Test_Offline(unittest.TestCase):
         ]
 
     def tearDown(self) -> None:
+        logging.debug('Cleaning dirs and files after testing')
         if os.path.exists(self.test_folder):
             self._remove_folder(self.test_folder)
         pass

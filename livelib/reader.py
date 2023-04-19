@@ -1,14 +1,10 @@
 import re
-
-import requests
 from bs4 import BeautifulSoup as bs
+from connection import *
 
-
-
-# @TODO url-constructor?
 
 class Reader:
-    def __init__(self, login, connection:LL_connection):
+    def __init__(self, login, connection:Connection):
         self.login = login
         self.connection = connection
 
@@ -50,10 +46,4 @@ class Reader:
             for url in book_list_pages:
                 print(url)
                 print(self.get_books_from_page(url))
-
-
-if __name__ == '__main__':
-    my_connection = Simple()
-    r = Reader('Feana', my_connection)
-    print(r.get_all_books())
 
