@@ -16,6 +16,9 @@ jobs:
         uses: actions/setup-python@v4
         with:
           python-version: ${{ matrix.python-version }}
-      - name: Test class connection with unittest
+      - name: Install requirements
         run: |
-          python -m unittest tests/test_connection.py
+          python -m pip install --upgrade pip
+          pip install -r requirements.txt
+      - name: Test class Connection with unittest
+        run: python -m unittest tests/test_connection.py
