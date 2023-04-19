@@ -1,6 +1,9 @@
+import sys
+
 import requests
 import os
 import re
+import logging
 
 class Connection:
     def __init__(self, site='http://www.livelib.ru', bs_parser='lxml', encoding='utf-8'):
@@ -8,7 +11,7 @@ class Connection:
         self.bs_parser = bs_parser
         self.encoding = encoding
 
-    def get_page(self,url):
+    def _get_page(self,url):
         pass
 
     def get_page_status(self, url):
@@ -18,7 +21,7 @@ class Connection:
         pass
 
 class SimpleWeb(Connection):
-    def get_page(self, url):
+    def _get_page(self, url):
         try:
             headers = requests.utils.default_headers()
             headers.update(
@@ -30,18 +33,18 @@ class SimpleWeb(Connection):
             result.encoding = self.encoding
             return result
         except Exception as exc:
-            print(f'Can not open this page! {exc}')
+            logging.debug(f'Can not open this page! {exc}')
             return False
 
     def get_page_status(self, url):
         try:
-            return self.get_page(url).status_code
+            return self._get_page(url).status_code
         except Exception:
             return 0
 
     def get_page_text(self, url):
         try:
-            return self.get_page(url).text
+            return self._get_page(url).text
         except Exception:
             return None
 
@@ -50,8 +53,14 @@ class Offline(Connection):
     default_file_name = 'index'
     default_file_extension = '.html'
 
+    def __init__(self, site='http://www.livelib.ru', bs_parser='lxml', encoding='utf-8', folder = 'offline'):
+        self.site = site
+        self.bs_parser = bs_parser
+        self.encoding = encoding
+        self.folder = folder
+
     # возвращает [str: путь к файлу, str: имя файла]
-    def parse_url_in_filepath(self,url):
+    def _parse_url_in_filepath_and_filename(self,url):
         # убираем префикс с именем сайта
         url = url.removeprefix(self.site)
         r_ext = re.compile(r'\.[^\.]+$')
@@ -73,23 +82,73 @@ class Offline(Connection):
         file_name = file_name + self.default_file_extension
         return [path, file_name]
 
-    def create_file(self, url):
-        pass
-        # убираем первый слеш, если есть
-        # if url[0]=='/':
-        #     url = url[1:]
-        # проверяем, есть ли папка с оффлайн версиями страниц
-        # if not os.path.exists(self.folder):
-        #     os.mkdir(self.folder)
+    def _create_file(self, url, text=''):
+        path, file_name = self._parse_url_in_filepath_and_filename(url)
+        # проверяем, существует ли файл
+        if not os.path.isfile(path + file_name):
+            # создадим весь путь из папок до нужного файла
+            dirs = path.split('/')
+            path_dir = ''
+            for i in range(len(dirs)):
+                path_dir = '/'.join(dirs[:i+1])
+                logging.debug(f'Dir {path_dir} is found? {os.path.isdir(path_dir)}')
+                if not os.path.isdir(path_dir):
+                    logging.debug(f'Create dir {path_dir}')
+                    os.mkdir(path_dir)
+            # создаем файл
+            try:
+                my_file = open(path+file_name, mode='x', encoding=self.encoding)
+                my_file.write(text)
+                logging.debug(f'Create file {my_file} ')
+                my_file.close()
+            except Exception as exc:
+                logging.exception(f'Can not open file for offline connection at {path}{file_name} . {exc}')
+                return False
+        # открываем вновь созданный или имеющийся файл
+        try:
+            logging.debug(f'already have {path+file_name}')
+            f = open(path + file_name, mode='r', encoding=self.encoding)
+            return f
+        except Exception as exc:
+            logging.exception(f'Can not open file for offline connection at {path}{file_name} . {exc}')
+            return False
 
-        # os.makedirs(self.folder+url)
 
-    def get_page(self,url):
-        pass
+    def _get_page(self, url):
+        path, file_name = self._parse_url_in_filepath_and_filename(url)
+        # если страница уже есть в дампе, то возвращаем текст из файла
+        if os.path.isfile(path+file_name):
+            logging.debug(f'Page {url} is in dump.')
+            try:
+                f = open(path+file_name, mode='r', encoding=self.encoding)
+                result = f.read()
+                f.close()
+                return result
+            except Exception as exc:
+                logging.exception(f'Can not load file {path}{file_name} , {exc}')
+        # если нет, вызываем ее через simpleweb и сохраняем в дампе
+        else:
+            web = SimpleWeb(site=self.site,bs_parser=self.bs_parser, encoding=self.encoding)
+            web_text = web.get_page_text(url)
+            if web_text:
+                f = self._create_file(url, web_text)
+                result = f.read()
+                f.close()
+                return result
+            else:
+                return None
+
 
     def get_page_status(self, url):
-        pass
+        result = self._get_page(url)
+        if len(result)>0:
+            return 200
+        else:
+            return 0
+        return result
+
 
     def get_page_text(self, url):
-        pass
+        result = self._get_page(url)
+        return result
 
