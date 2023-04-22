@@ -1,19 +1,12 @@
 from livelib import *
 
 import unittest
+
+
+
 # r = Reader('qwerty5677890', connection=WebWithCache(folder='cache',encoding='utf-8'), bsparser=BSParser() )
 # print(r.get_main_page())
 
-
-
-class st(unittest.TestCase):
-    def test_1(self):
-        con = WebWithCache()
-        with self.assertRaises(Exception):
-            con.get_page_text('http://example1234.com')
-
-if __name__=='__main__':
-    unittest.main()
 
 # def func1(x):
 #     print('func1')

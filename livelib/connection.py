@@ -1,3 +1,4 @@
+import bs4
 import requests
 import os
 import re
@@ -20,6 +21,16 @@ class Connection:
     # возвращает либо текст, либо исключение
     def get_page_text(self, url):
         pass
+
+    # возвращает либо объект BeautifulSoup, либо None
+    def get_page_bs(self,url):
+        try:
+            result = bs4.BeautifulSoup(self.get_page_text(url), features=self.bs_parser)
+        except Exception:
+            logging.exception(f'Can not get BS object from {url}', exc_info=True)
+            return None
+        else:
+            return result
 
 
 class SimpleWeb(Connection):

@@ -45,6 +45,18 @@ class Test_SimpleWeb(unittest.TestCase):
                     with self.assertRaises(Exception):
                         con.get_page_text(i[0])
 
+    def test_get_page_bs(self):
+        con = SimpleWeb()
+        for i in self.test_values:
+            with self.subTest(msg=f'Okey with {i[0]}'):
+                if i[1]:
+                    # сайт существует
+                    self.assertGreater(len(con.get_page_bs(i[0])), 0, msg=f'BeautifulSoup should be found! {i[0]}')
+                else:
+                    # сайт не существует
+                    self.assertEqual(None, con.get_page_bs(i[0]))
+
+
 
 class Test_WebWithCache(unittest.TestCase):
     test_folder = 'web_with_cache_test'
@@ -61,7 +73,7 @@ class Test_WebWithCache(unittest.TestCase):
         logging.debug('Starting to test')
         if os.path.isdir(self.test_folder):
             self._remove_folder(self.test_folder)
-        self.test_values = [
+        self.values_path = [
             ['http://www.livelib.ru/', [self.test_folder + '/', 'index.html']],
             ['http://www.livelib.ru/foo/bar', [self.test_folder + '/foo/', 'bar.html']],
             ['http://www.livelib.ru/foo/bar.html', [self.test_folder + '/foo/', 'bar.html']],
@@ -70,6 +82,12 @@ class Test_WebWithCache(unittest.TestCase):
             ['http://www.livelib.ru/foo/bar/1.htm', [self.test_folder + '/foo/bar/', '1.html']],
             ['http://www.livelib.ru/1.htm', [self.test_folder+'/', '1.html']],
             ['http://www.livelib.ru/foo/~12', [self.test_folder + '/foo/', '~12.html']],
+        ]
+        self.values_text = [
+            ['1', 'http://www.fontanka.ru', 'http://www.fontanka.ru/', True],
+            ['2', 'https://award.fontanka.ru', 'https://award.fontanka.ru/', True],
+            ['3', 'http://www.uiiiiioo.ru', 'http://www.uiiiiioo.ru/', False],
+            ['4', 'https://www.fontanka.ru', 'https://www.fontanka.ru/theme/ratings/', True]
         ]
 
     def tearDown(self) -> None:
@@ -81,14 +99,14 @@ class Test_WebWithCache(unittest.TestCase):
 
     def test_parse_url_in_filepath_and_filename(self):
         con = WebWithCache(folder = self.test_folder)
-        for i in self.test_values:
+        for i in self.values_path:
             with self.subTest(msg=f'Okey with {i[0]}'):
                 self.assertEqual(i[1], con._parse_url_in_filepath_and_filename(i[0]))
 
 
     def test_create_file(self):
         con = WebWithCache(folder = self.test_folder)
-        for i in self.test_values:
+        for i in self.values_path:
             with self.subTest(msg=f'Okey with {i[0]}'):
                 new_file = con._create_file(i[0])
                 self.assertEqual(True, os.path.isfile(i[1][0]+i[1][1]))
@@ -98,13 +116,7 @@ class Test_WebWithCache(unittest.TestCase):
         # тестовые данные вида [подпапка, сайт, адрес_страницы, ожидается_ли_ответ]
         # подпапки нужны так как в тестовых данных встречаются разные сайты и их нужно разделить
         # в самой программе при штатной работе будет только один сайт
-        values = [
-            ['1', 'http://www.fontanka.ru', 'http://www.fontanka.ru/', True],
-            ['2','https://award.fontanka.ru', 'https://award.fontanka.ru/', True],
-            ['3','http://www.uiiiiioo.ru', 'http://www.uiiiiioo.ru/', False],
-            ['4','https://www.fontanka.ru', 'https://www.fontanka.ru/theme/ratings/', True]
-        ]
-        for i in values:
+        for i in self.values_text:
             with self.subTest(msg=f'Okey with {i[0]}'):
                 con = WebWithCache(site=i[1], folder=self.test_folder + '/' + i[0])
                 if i[3]:
@@ -114,6 +126,20 @@ class Test_WebWithCache(unittest.TestCase):
                     # сайт не существует
                     with self.assertRaises(Exception):
                         con.get_page_text(i[2])
+
+    def test_get_page_bs(self):
+        # тестовые данные вида [подпапка, сайт, адрес_страницы, ожидается_ли_ответ]
+        # подпапки нужны так как в тестовых данных встречаются разные сайты и их нужно разделить
+        # в самой программе при штатной работе будет только один сайт
+        for i in self.values_text:
+            with self.subTest(msg=f'Okey with {i[0]}'):
+                con = WebWithCache(site=i[1], folder=self.test_folder + '/' + i[0])
+                if i[3]:
+                    # сайт существует
+                    self.assertGreater(len(con.get_page_bs(i[2])), 0, msg=f'BeautifulSoup should be found! {i[0]}')
+                else:
+                    # сайт не существует
+                    self.assertEqual(con.get_page_bs(i[2]), None, msg=f'BeautifulSoup should be found! {i[0]}')
 
 if __name__ == '__main__':
     unittest.main()
