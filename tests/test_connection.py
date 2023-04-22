@@ -1,12 +1,11 @@
 import os
 import shutil
-from livelib import Connection
 from livelib import SimpleWeb, WebWithCache
 import unittest
 import logging
 
 
-class Test_SimpleWeb(unittest.TestCase):
+class TestSimpleWeb(unittest.TestCase):
     # структура тестовых данных: адрес_сайта, наличие_сайта, код_отзыва
     test_values = [
         ['http://www.example.com', True, 200],
@@ -58,7 +57,7 @@ class Test_SimpleWeb(unittest.TestCase):
 
 
 
-class Test_WebWithCache(unittest.TestCase):
+class TestWebWithCache(unittest.TestCase):
     test_folder = 'web_with_cache_test'
     test_values = []
 

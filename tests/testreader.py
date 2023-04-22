@@ -2,7 +2,7 @@ import unittest
 from livelib import *
 
 
-class Test_Reader(unittest.TestCase):
+class TestReader(unittest.TestCase):
     def setUp(self) -> None:
         self.connection = WebWithCache(folder='data')
         # структура тестовых данных:

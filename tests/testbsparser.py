@@ -3,7 +3,7 @@ from livelib import BSParser, WebWithCache
 from bs4 import BeautifulSoup as bs
 import logging
 
-class Test_BSParser(unittest.TestCase):
+class TestBSParser(unittest.TestCase):
     def setUp(self) -> None:
         self.connection = WebWithCache(folder='data')
         # структура тестовых данных:
