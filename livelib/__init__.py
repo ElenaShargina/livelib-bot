@@ -1,5 +1,5 @@
 from .urlparser import Urlparser
-from .connection import Connection, SimpleWeb, Offline
+from .connection import Connection, SimpleWeb, WebWithCache
 from .bsparser import BSParser
 from .reader import Reader
 import logging

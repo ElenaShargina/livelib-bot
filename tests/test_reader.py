@@ -4,7 +4,7 @@ from livelib import *
 
 class Test_Reader(unittest.TestCase):
     def setUp(self) -> None:
-        self.connection = Offline(folder='data')
+        self.connection = WebWithCache(folder='data')
         # структура тестовых данных:
         # логин, префикс_страницы_читателя, все_книги_читателя, страница_404
         self.values = [

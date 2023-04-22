@@ -51,12 +51,11 @@ class SimpleWeb(Connection):
         except Exception:
             return None
 
-class Offline(Connection):
-    folder = 'offline'
+class WebWithCache(Connection):
     default_file_name = 'index'
     default_file_extension = '.html'
 
-    def __init__(self, site='http://www.livelib.ru', bs_parser='lxml', encoding='utf-8', folder = 'offline'):
+    def __init__(self, site='http://www.livelib.ru', bs_parser='lxml', encoding='utf-8', folder = 'cache'):
         self.site = site
         self.bs_parser = bs_parser
         self.encoding = encoding

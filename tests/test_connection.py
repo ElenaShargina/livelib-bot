@@ -1,7 +1,7 @@
 import os
 import shutil
 from livelib import Connection
-from livelib import SimpleWeb, Offline
+from livelib import SimpleWeb, WebWithCache
 import unittest
 import logging
 
@@ -44,8 +44,8 @@ class Test_SimpleWeb(unittest.TestCase):
                     self.assertEqual(None, con.get_page_text(i[0]), msg=f'No text should be found! {i[0]}')
 
 
-class Test_Offline(unittest.TestCase):
-    test_folder = 'offline_test'
+class Test_WebWithCache(unittest.TestCase):
+    test_folder = 'web_with_cache_test'
     test_values = []
 
     def _remove_folder(self, path):
@@ -78,14 +78,14 @@ class Test_Offline(unittest.TestCase):
 
 
     def test_parse_url_in_filepath_and_filename(self):
-        con = Offline(folder = self.test_folder)
+        con = WebWithCache(folder = self.test_folder)
         for i in self.test_values:
             with self.subTest(msg=f'Okey with {i[0]}'):
                 self.assertEqual(i[1], con._parse_url_in_filepath_and_filename(i[0]))
 
 
     def test_create_file(self):
-        con = Offline(folder = self.test_folder)
+        con = WebWithCache(folder = self.test_folder)
         for i in self.test_values:
             with self.subTest(msg=f'Okey with {i[0]}'):
                 new_file = con._create_file(i[0])
@@ -93,7 +93,7 @@ class Test_Offline(unittest.TestCase):
                 new_file.close()
 
     def test_get_page_text(self):
-        # тестовые данные вида подпапка, сайт, адрес_страницы, ожидается_ли_ответ
+        # тестовые данные вида [подпапка, сайт, адрес_страницы, ожидается_ли_ответ]
         # подпапки нужны так как в тестовых данных встречаются разные сайты и их нужно разделить
         # в самой программе при штатной работе будет только один сайт
         values = [
@@ -104,7 +104,7 @@ class Test_Offline(unittest.TestCase):
         ]
         for i in values:
             with self.subTest(msg=f'Okey with {i[0]}'):
-                con = Offline(site=i[1], folder=self.test_folder+'/'+i[0])
+                con = WebWithCache(site=i[1], folder=self.test_folder+'/'+i[0])
                 # Если должна быть ошибка
                 if not i[3]:
                     self.assertRaises(Exception, con.get_page_text(i[2]))
