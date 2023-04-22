@@ -30,7 +30,8 @@ class Test_SimpleWeb(unittest.TestCase):
                     self.assertEqual(i[1], bool(con._get_page(i[0])), msg=f'Site should be opened! {i[0]}')
                 else:
                     # сайт не существует
-                    self.assertRaises(Exception, con._get_page(i[0]), msg=f'Exception is awaited! {i[0]}')
+                    with self.assertRaises(Exception):
+                        con._get_page(i[0])
 
     def test_get_page_text(self):
         con = SimpleWeb()
@@ -41,7 +42,8 @@ class Test_SimpleWeb(unittest.TestCase):
                     self.assertGreater(len(con.get_page_text(i[0])), 0, msg=f'Text should be found! {i[0]}')
                 else:
                     # сайт не существует
-                    self.assertEqual(None, con.get_page_text(i[0]), msg=f'No text should be found! {i[0]}')
+                    with self.assertRaises(Exception):
+                        con.get_page_text(i[0])
 
 
 class Test_WebWithCache(unittest.TestCase):
@@ -104,13 +106,14 @@ class Test_WebWithCache(unittest.TestCase):
         ]
         for i in values:
             with self.subTest(msg=f'Okey with {i[0]}'):
-                con = WebWithCache(site=i[1], folder=self.test_folder+'/'+i[0])
-                # Если должна быть ошибка
-                if not i[3]:
-                    self.assertRaises(Exception, con.get_page_text(i[2]))
-                # Если должен быть возвращен текст
+                con = WebWithCache(site=i[1], folder=self.test_folder + '/' + i[0])
+                if i[3]:
+                    # сайт существует
+                    self.assertGreater(len(con.get_page_text(i[2])), 0, msg=f'Text should be found! {i[0]}')
                 else:
-                    self.assertGreater(len(con.get_page_text(i[2])), 0)
+                    # сайт не существует
+                    with self.assertRaises(Exception):
+                        con.get_page_text(i[2])
 
 if __name__ == '__main__':
     unittest.main()

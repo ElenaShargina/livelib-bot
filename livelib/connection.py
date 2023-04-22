@@ -9,12 +9,15 @@ class Connection:
         self.bs_parser = bs_parser
         self.encoding = encoding
 
+    # возвращает либо страницу, либо исключение
     def _get_page(self,url):
         pass
 
+    # возвращает либо статус запроса, либо 0
     def get_page_status(self, url):
         pass
 
+    # возвращает либо текст, либо исключение
     def get_page_text(self, url):
         pass
 
@@ -35,9 +38,9 @@ class SimpleWeb(Connection):
             result = requests.get(url, headers=headers)
             result.encoding = self.encoding
             return result
-        except Exception as exc:
-            logging.debug(f'Can not open this page! {exc}')
-            return False
+        except Exception:
+            logging.exception(f'Can not open this page!', exc_info=True)
+            raise
 
     def get_page_status(self, url):
         try:
@@ -47,9 +50,13 @@ class SimpleWeb(Connection):
 
     def get_page_text(self, url):
         try:
-            return self._get_page(url).text
+            page = self._get_page(url)
         except Exception:
-            return None
+            logging.exception(f'Can not get text from page! {url}', exc_info=True)
+            raise
+        else:
+            return page.text
+
 
 class WebWithCache(Connection):
     default_file_name = 'index'
@@ -103,16 +110,16 @@ class WebWithCache(Connection):
                 my_file.write(text)
                 logging.debug(f'Create file {my_file} ')
                 my_file.close()
-            except Exception as exc:
-                logging.exception(f'Can not open file for offline connection at {path}{file_name} . {exc}')
+            except Exception:
+                logging.exception(f'Can not open file for offline connection at {path}{file_name} .', exc_info=True)
                 return False
         # открываем вновь созданный или имеющийся файл
         try:
             logging.debug(f'already have {path+file_name}')
             f = open(path + file_name, mode='r', encoding=self.encoding)
             return f
-        except Exception as exc:
-            logging.exception(f'Can not open file for offline connection at {path}{file_name} . {exc}')
+        except Exception:
+            logging.exception(f'Can not open file for offline connection at {path}{file_name} .', exc_info=True)
             return False
 
 
@@ -126,8 +133,9 @@ class WebWithCache(Connection):
                 result = f.read()
                 f.close()
                 return result
-            except Exception as exc:
-                logging.exception(f'Can not load file {path}{file_name} , {exc}')
+            except Exception:
+                logging.exception(f'Can not load file {path}{file_name} ', exc_info=True)
+                raise
         # если нет, вызываем ее через simpleweb и сохраняем в дампе
         else:
             web = SimpleWeb(site=self.site,bs_parser=self.bs_parser, encoding=self.encoding)
@@ -138,7 +146,8 @@ class WebWithCache(Connection):
                 f.close()
                 return result
             else:
-                return None
+                logging.exception(f'Can not getpage at {url}', exc_info=True)
+                raise
 
 
     def get_page_status(self, url):
