@@ -15,3 +15,7 @@ class BSParser:
             return True
         else:
             return False
+
+    @staticmethod
+    def all_books_from_page(bsoup):
+        return bsoup.find_all('div', attrs={'class':'book-item-manage'})

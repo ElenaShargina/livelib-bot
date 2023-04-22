@@ -30,3 +30,9 @@ class TestBSParser(unittest.TestCase):
             with self.subTest(msg=f'Okey with {i}'):
                 text = bs(self.connection.get_page_text(BSParser.reader_all_books(i[0])), features=self.connection.bs_parser)
                 self.assertEqual(i[3], BSParser.check_404(text))
+
+    def test_all_books_from_page(self):
+        values = ['Feana']
+        con = WebWithCache()
+        for i in values:
+            self.assertGreater(len(BSParser.all_books_from_page(con.get_page_bs('http://www.livelib.ru/reader/Feana/read'))),0)

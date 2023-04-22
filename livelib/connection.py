@@ -81,6 +81,8 @@ class WebWithCache(Connection):
 
     # возвращает [str: путь к файлу, str: имя файла]
     def _parse_url_in_filepath_and_filename(self,url):
+        # понижаем все в нижний регистр
+        url = url.lower()
         # убираем префикс с именем сайта
         url = url.removeprefix(self.site)
         r_ext = re.compile(r'\.[^\.]+$')
@@ -135,6 +137,7 @@ class WebWithCache(Connection):
 
 
     def _get_page(self, url):
+        print(url)
         path, file_name = self._parse_url_in_filepath_and_filename(url)
         # если страница уже есть в дампе, то возвращаем текст из файла
         if os.path.isfile(path+file_name):
@@ -150,6 +153,7 @@ class WebWithCache(Connection):
         # если нет, вызываем ее через simpleweb и сохраняем в дампе
         else:
             web = SimpleWeb(site=self.site,bs_parser=self.bs_parser, encoding=self.encoding)
+            print(url)
             web_text = web.get_page_text(url)
             if web_text:
                 f = self._create_file(url, web_text)
