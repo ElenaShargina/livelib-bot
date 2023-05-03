@@ -57,7 +57,6 @@ class Connection:
             result = bs4.BeautifulSoup(self.get_page_text(url), features=self.bs_parser)
         except Exception:
             logging.exception(f'Can not get BS object from {url}', exc_info=True)
-            return None
         else:
             return result
 
@@ -263,7 +262,7 @@ class WebWithCache(Connection):
         # если нет, вызываем ее через simpleweb и сохраняем в кеше
         else:
             web = SimpleWeb(site=self.site, bs_parser=self.bs_parser, encoding=self.encoding)
-            print(url)
+            # print(url)
             web_text = web.get_page_text(url)
             if web_text:
                 f = self._create_file(url, web_text)
