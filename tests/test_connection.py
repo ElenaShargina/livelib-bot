@@ -138,7 +138,7 @@ class TestWebWithCache(unittest.TestCase):
                     self.assertGreater(len(con.get_page_bs(i[2])), 0, msg=f'BeautifulSoup should be found! {i[2]}')
                 else:
                     # сайт не существует
-                    self.assertEqual(con.get_page_bs(i[2]), None, msg=f'BeautifulSoup should be found! {i[0]}')
+                    self.assertEqual(con.get_page_bs(i[2]), None, msg=f'BeautifulSoup should not be found! {i[0]}')
 
 if __name__ == '__main__':
     unittest.main()
