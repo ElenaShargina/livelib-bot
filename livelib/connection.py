@@ -56,7 +56,6 @@ class Connection:
         try:
             result = bs4.BeautifulSoup(self.get_page_text(url), features=self.bs_parser)
         except Exception as exc:
-            print(f'Can not get BS object from {url} {exc}')
             logging.exception(f'Can not get BS object from {url}', exc_info=True)
         else:
             return result
@@ -251,7 +250,6 @@ class WebWithCache(Connection):
         path, file_name = self._parse_url_in_filepath_and_filename(url)
         # если страница уже есть в кеше, то возвращаем текст из файла
         if os.path.isfile(path + file_name):
-            print(f'Page {url} is in dump.')
             logging.debug(f'Page {url} is in dump.')
             try:
                 f = open(path + file_name, mode='r', encoding=self.encoding)
@@ -259,13 +257,11 @@ class WebWithCache(Connection):
                 f.close()
                 return result
             except Exception as exc:
-                print(f'Can not load file {path}{file_name} {exc}')
                 logging.exception(f'Can not load file {path}{file_name} ', exc_info=True)
                 raise
         # если нет, вызываем ее через simpleweb и сохраняем в кеше
         else:
             web = SimpleWeb(site=self.site, bs_parser=self.bs_parser, encoding=self.encoding)
-            print('simple web is here', url)
             web_text = web.get_page_text(url)
             if web_text:
                 f = self._create_file(url, web_text)
@@ -273,7 +269,6 @@ class WebWithCache(Connection):
                 f.close()
                 return result
             else:
-                print(f'Can not get page at {url}')
                 logging.exception(f'Can not get page at {url}', exc_info=True)
                 raise
 

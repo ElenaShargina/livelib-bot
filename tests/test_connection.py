@@ -120,7 +120,6 @@ class TestWebWithCache(unittest.TestCase):
                 con = WebWithCache(site=i[1], folder=self.test_folder + '/' + i[0])
                 if i[3]:
                     # сайт существует
-                    # @todo error при запуске тестирования на гитхабе: TypeError: object of type 'NoneType' has no len()
                     self.assertGreater(len(con.get_page_text(i[2])), 0, msg=f'Text should be found! {i[2]}')
                 else:
                     # сайт не существует
