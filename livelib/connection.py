@@ -165,7 +165,7 @@ class WebWithCache(Connection):
         self.encoding = encoding
         self.folder = folder
 
-    def _parse_url_in_filepath_and_filename(self, url: str) -> List[str,str]:
+    def _parse_url_in_filepath_and_filename(self, url: str) -> list[str,str]:
         """
         Подготовка для сохранения страницы в кеше: разбивает адрес страницы на директории и название файла.
         Например, http://www.livelib.ru/reader/qwerty/books -> ['/cache/reader/qwerty/','books.html']

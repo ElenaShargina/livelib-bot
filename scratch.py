@@ -7,6 +7,7 @@ p = con.get_page_bs('http://www.livelib.ru/reader/Feana/read')
 print(BSParser.all_books_from_page(p))
 
 
+
 # r = Reader('qwerty5677890', connection=WebWithCache(folder='cache',encoding='utf-8'), bsparser=BSParser() )
 # print(r.get_main_page())
 
