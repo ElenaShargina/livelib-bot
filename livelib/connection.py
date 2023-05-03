@@ -56,6 +56,7 @@ class Connection:
         try:
             result = bs4.BeautifulSoup(self.get_page_text(url), features=self.bs_parser)
         except Exception:
+            print(f'Can not get BS object from {url}')
             logging.exception(f'Can not get BS object from {url}', exc_info=True)
         else:
             return result
