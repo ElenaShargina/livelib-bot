@@ -116,11 +116,11 @@ class TestWebWithCache(unittest.TestCase):
         # подпапки нужны так как в тестовых данных встречаются разные сайты и их нужно разделить
         # в самой программе при штатной работе будет только один сайт
         for i in self.values_text:
-            with self.subTest(msg=f'Okey with {i[0]}'):
+            with self.subTest(msg=f'Okey with {i[2]}'):
                 con = WebWithCache(site=i[1], folder=self.test_folder + '/' + i[0])
                 if i[3]:
                     # сайт существует
-                    self.assertGreater(len(con.get_page_text(i[2])), 0, msg=f'Text should be found! {i[0]}')
+                    self.assertGreater(len(con.get_page_text(i[2])), 0, msg=f'Text should be found! {i[2]}')
                 else:
                     # сайт не существует
                     with self.assertRaises(Exception):
@@ -131,11 +131,11 @@ class TestWebWithCache(unittest.TestCase):
         # подпапки нужны так как в тестовых данных встречаются разные сайты и их нужно разделить
         # в самой программе при штатной работе будет только один сайт
         for i in self.values_text:
-            with self.subTest(msg=f'Okey with {i[0]}'):
+            with self.subTest(msg=f'Okey with {i[2]}'):
                 con = WebWithCache(site=i[1], folder=self.test_folder + '/' + i[0])
                 if i[3]:
                     # сайт существует
-                    self.assertGreater(len(con.get_page_bs(i[2])), 0, msg=f'BeautifulSoup should be found! {i[0]}')
+                    self.assertGreater(len(con.get_page_bs(i[2])), 0, msg=f'BeautifulSoup should be found! {i[2]}')
                 else:
                     # сайт не существует
                     self.assertEqual(con.get_page_bs(i[2]), None, msg=f'BeautifulSoup should be found! {i[0]}')
