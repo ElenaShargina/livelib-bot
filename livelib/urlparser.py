@@ -2,7 +2,7 @@ class Urlparser:
     def __init__(self, prefix=""):
         self.prefix = prefix
 
-
+    # @todo нигде не используется!!!
     def url_join(self, *args):
         # @todo переименовать массив args
         args = [val for val in args if val]
