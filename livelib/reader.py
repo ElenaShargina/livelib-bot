@@ -1,24 +1,52 @@
 import re
+
+import bs4
 from bs4 import BeautifulSoup as bs
 from livelib import *
 import logging
+from typing import Any
 
 
 class Reader:
-    def __init__(self, login, connection: Connection, bsparser: BSParser = BSParser):
+    """
+    Класс для работы с конкретным пользователем livelib.
+    :param login: логин читателя на сайте
+    :type login: str
+    :param connection: объект Connection для связи с сайтом
+    :type connection: Сonnection
+    :param bs_parser: класс парсера BeautifulSoup, который будет применяться к страницам,
+        defaults to BSParser
+    :type bs_parser: str
+    """
+    def __init__(self, login: str, connection: Connection, bs_parser: Any = BSParser) -> Reader:
         self.login = login
         self.connection = connection
-        self.bsp = bsparser
+        self.bsp = bs_parser
 
     @property
-    def prefix(self):
+    def prefix(self) -> str:
+        """
+        Возвращает префикс страниц, относящихся к текущему читателю. Введено для наглядности кода.
+        :return: префикс страниц
+        :rtype: str
+        """
         return self.bsp.reader_prefix(self.login)
 
     @property
-    def all_books(self):
+    def all_books(self) -> str:
+        """
+        Возвращает префикс главной страницы, относящихся к текущему читателю. Введено для наглядности кода.
+        :return: префикс главной страницы
+        :rtype: str
+        """
         return self.bsp.reader_all_books(self.login)
 
-    def get_main_page(self):
+    def get_main_page(self) -> bs4.BeautifulSoup:
+        """
+        Возвращает главную страницу читателя
+        :return: главная страница читателя
+        :rtype: bs4.BeautifulSoup
+        """
         page = self.connection.get_page_text(self.prefix)
         if page:
             bs_page = bs(page, self.connection.bs_parser)
