@@ -23,3 +23,7 @@ jobs:
           pip install -r requirements.txt
       - name: Test class Connection with unittest
         run: python -m unittest tests/test_connection.py
+      - uses: actions/upload-artifact@v3
+        with:
+          name: my-artifact
+          path: tests/log.log
