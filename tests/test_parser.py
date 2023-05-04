@@ -51,10 +51,10 @@ class TestParser(unittest.TestCase):
         ]
         self.picture_url_values = [
             ["""
-<div class="cover-wrapper"><a href="/book/1000945667-svodya-schety-vudi-allen" title="Вуди Аллен - Сводя счеты">
-<img alt="Вуди Аллен - Сводя счеты" title="Вуди Аллен - Сводя счеты" width="70" style="min-width:70px; background-color: #ffffff;" 
-class="cover-rounded" src="https://s1.livelib.ru/boocover/1000945667/70/fbda/Vudi_Allen__Svodya_schety.jpg" 
-onerror="this.onerror=null;pagespeed.lazyLoadImages.loadIfVisibleAndMaybeBeacon(this);"></a></div>
+            <div class="cover-wrapper"><a href="/book/1000945667-svodya-schety-vudi-allen" title="Вуди Аллен - Сводя счеты">
+            <img alt="Вуди Аллен - Сводя счеты" title="Вуди Аллен - Сводя счеты" width="70" style="min-width:70px; background-color: #ffffff;" 
+            class="cover-rounded" src="https://s1.livelib.ru/boocover/1000945667/70/fbda/Vudi_Allen__Svodya_schety.jpg" 
+            onerror="this.onerror=null;pagespeed.lazyLoadImages.loadIfVisibleAndMaybeBeacon(this);"></a></div>
              """,
              'https://s1.livelib.ru/boocover/1000945667/70/fbda/Vudi_Allen__Svodya_schety.jpg'],
             ["""
@@ -165,6 +165,30 @@ onerror="this.onerror=null;pagespeed.lazyLoadImages.loadIfVisibleAndMaybeBeacon(
     #     with open(booklist_folder + i + '/dump', 'wb') as f2:
     #         pickle.dump(output,f2)
     #         f2.close()
+
+    def test_get_paginator(self):
+        # тестируем на больших кусках html, для удобства вынесенных в отдельный файл
+        # результат парсинга сравниваем с заранее сохраненными образцами
+        # определяем текущую директорию, строим корректный путь до папок с тестовыми данными
+        # нужно для автоматического тестирования на github
+        booklist_folder = '/data/sample/paginator/'
+        parent_dir = os.path.dirname(os.path.abspath(__file__))
+        prefix_folder = os.path.join(parent_dir, *booklist_folder.split('/'))
+        # просматриваем, какие папки с тестовыми данными есть в paginator
+        # в каждой папке должен быть paginator.html с html кодом и dump, где сохранен правильный результат парсинга
+        with os.scandir(prefix_folder) as files:
+            subdirs = [file.name for file in files if file.is_dir()]
+        # для каждой папки сличаем результат парсинга и правильный сохраненный результат
+        for i in subdirs:
+            with open(os.path.join(prefix_folder, str(i), 'paginator.html'), mode='r',
+                      encoding=self.connection.encoding) as f1:
+                output = Parser.get_paginator(bs4.BeautifulSoup(f1.read(), self.connection.bs_parser))
+                f1.close()
+            with open(os.path.join(prefix_folder, str(i), 'dump'), mode='rb') as f2:
+                correct_output = pickle.load(f2, encoding=self.connection.encoding)
+                f2.close()
+            with self.subTest(f'Test with {i} subdir.'):
+                self.assertEqual(output, correct_output)
 
 if __name__=='__main__':
     unittest.main()

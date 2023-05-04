@@ -4,6 +4,7 @@ import re
 import bs4
 from bs4 import BeautifulSoup as bs
 import typing
+from typing import List
 
 class DataFormatter:
     pass
@@ -170,3 +171,23 @@ class Parser:
             return float(result.text)
         else:
             return None
+
+    @staticmethod
+    def get_paginator(bsoup: bs4.BeautifulSoup) -> List[int]:
+        paginator = bsoup.find('div', id='booklist-pagination')
+        result = []
+        # если страница единственная, она же текущая, то возвращаем пустой список ссылок
+        if paginator == None:
+            return result
+        # если страницы есть
+        else:
+            last_page = paginator.find('a', title='Последняя страница')
+            # если не все страницы представлены, но есть ссылка на самую последнюю страницу
+            if last_page:
+                last_number = int(re.search(r'(?<=~)\d+',last_page['href']).group())
+                result = [i for i in range(1,last_number+1)]
+            # если все страницы умещаются в низу страницы (их мало, до пяти штук)
+            else:
+                result = [int(i) for i in paginator.text.split()]
+            return result
+
