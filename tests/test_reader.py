@@ -18,7 +18,7 @@ class TestReader(unittest.TestCase):
     def test_get_main_page(self):
         for i in self.values:
             with self.subTest(msg=f'Okey with {i}'):
-                r = Reader(i[0], connection=self.connection, bsparser=BSParser)
+                r = Reader(i[0], connection=self.connection, parser=Parser)
                 # Если читатель не найден, статус 404
                 if i[1]:
                     self.assertRaises(Exception, r.get_main_page())

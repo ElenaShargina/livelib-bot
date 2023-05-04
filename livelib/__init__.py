@@ -1,6 +1,6 @@
 from .urlparser import Urlparser
+from .parser import Parser
 from .connection import Connection, SimpleWeb, WebWithCache
-from .bsparser import BSParser
 from .reader import Reader
 import logging
 

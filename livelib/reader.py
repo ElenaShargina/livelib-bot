@@ -15,10 +15,10 @@ class Reader:
     :param connection: объект Connection для связи с сайтом
     :type connection: Сonnection
     :param bs_parser: класс парсера BeautifulSoup, который будет применяться к страницам,
-        defaults to BSParser
+        defaults to Parser
     :type bs_parser: str
     """
-    def __init__(self, login: str, connection: Connection, bs_parser: Any = BSParser) -> Reader:
+    def __init__(self, login: str, connection: Connection, bs_parser: Any = Parser):
         self.login = login
         self.connection = connection
         self.bsp = bs_parser
@@ -41,25 +41,16 @@ class Reader:
         """
         return self.bsp.reader_all_books(self.login)
 
-    def get_main_page(self) -> bs4.BeautifulSoup:
+    def get_read_books_main_page(self) -> bs4.BeautifulSoup:
         """
         Возвращает главную страницу читателя
         :return: главная страница читателя
         :rtype: bs4.BeautifulSoup
         """
-        page = self.connection.get_page_text(self.prefix)
-        if page:
-            bs_page = bs(page, self.connection.bs_parser)
-            if not self.bsp.check_404(bs_page):
-                return bs_page
-            else:
-                try:
-                    raise Exception(f'The reader {self.login} is not found!')
-                except Exception as exc:
-                    logging.exception(exc)
-                return False
-        else:
-            return False
+        try:
+            page = self.connection.get_page_bs_check_404(self.all_books, self.bsp)
+        except Exception:
+            logging.exception(f'The page with read books for reader {self.login} is not found! ', exc_info=True)
 
     # def get_books_from_page(self, url):
     #     page = self.connection.get_page(url)

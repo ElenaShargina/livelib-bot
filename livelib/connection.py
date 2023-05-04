@@ -1,11 +1,11 @@
 import _io
-
 import bs4
 import requests
 import os
 import re
 import logging
 from typing import List
+from .parser import Parser
 
 
 class Connection:
@@ -55,10 +55,32 @@ class Connection:
         """
         try:
             result = bs4.BeautifulSoup(self.get_page_text(url), features=self.bs_parser)
-        except Exception as exc:
+        except Exception:
             logging.exception(f'Can not get BS object from {url}', exc_info=True)
         else:
             return result
+
+
+    def get_page_bs_check_404(self, url: str, bsp: Parser) -> bs4.BeautifulSoup or bool:
+        """
+        Если страница по данному адресу выдает 404, возвращает False, иначе
+        возвращает объект BeautifulSoup из этой страницы.
+        :param url: адрес страницы
+        :raises Exception: если невозможно получить объект BSoup по заданному адресу
+        :return: объект BeautifulSoup из страницы по адресу
+        :rtype: bs4.BeautifulSoup
+        """
+        try:
+            result = bs4.BeautifulSoup(self.get_page_text(url), features=self.bs_parser)
+        except Exception:
+            logging.exception(f'Can not get BS object from {url}', exc_info=True)
+        else:
+            # проверяем на 404
+            if bsp.check_404(result):
+                logging.warning(f'Page at {url} is 404!')
+                return False
+            else:
+                return result
 
 
 class SimpleWeb(Connection):

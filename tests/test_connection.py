@@ -1,8 +1,10 @@
 import os
 import shutil
-from livelib import SimpleWeb, WebWithCache
 import unittest
 import logging
+
+import livelib
+from livelib import SimpleWeb, WebWithCache
 
 
 class TestSimpleWeb(unittest.TestCase):
