@@ -2,7 +2,7 @@ import os
 import shutil
 import unittest
 import logging
-
+import bs4
 import livelib
 from livelib import SimpleWeb, WebWithCache
 
@@ -46,18 +46,36 @@ class TestSimpleWeb(unittest.TestCase):
                     with self.assertRaises(Exception):
                         con.get_page_text(i[0])
 
-    def test_get_page_bs(self):
+    def test__get_page_bs(self):
         con = SimpleWeb()
         for i in self.test_values:
             with self.subTest(msg=f'Okey with {i[0]}'):
                 if i[1]:
                     # сайт существует
-                    self.assertGreater(len(con.get_page_bs(i[0])), 0, msg=f'BeautifulSoup should be found! {i[0]}')
+                    self.assertGreater(len(con._get_page_bs(i[0])), 0, msg=f'BeautifulSoup should be found! {i[0]}')
                 else:
                     # сайт не существует
-                    self.assertEqual(None, con.get_page_bs(i[0]))
+                    self.assertEqual(None, con._get_page_bs(i[0]))
 
-
+    def test_get_page_bs(self):
+        test_values = [
+            ['http://www.example.com', True],
+            ['http://example4567.com', False],
+            ['http://www.livelib.com', True],
+            ['http://www.livelib.com/jsndjsdnljdncldn/', True],
+            ['http://www.livelib.ru/reader/alkasnmklas', False],
+            ['http://www.livelib.com/reader/feana', True],
+            ['http://www.yandex.com', True],
+        ]
+        con = SimpleWeb()
+        for i in test_values:
+            with self.subTest(msg=f'Test with {i[0]}'):
+                if i[1]:
+                    # сайт существует
+                    self.assertEqual(type(con.get_page_bs(i[0])), bs4.BeautifulSoup, msg=f'BeautifulSoup should be found! {i[0]}')
+                else:
+                    # сайт не существует либо страница на livelib выдает 404
+                    self.assertEqual(False, con.get_page_bs(i[0]))
 
 class TestWebWithCache(unittest.TestCase):
     test_folder = 'web_with_cache_test'
@@ -128,7 +146,7 @@ class TestWebWithCache(unittest.TestCase):
                     with self.assertRaises(Exception):
                         con.get_page_text(i[2])
 
-    def test_get_page_bs(self):
+    def test__get_page_bs(self):
         # тестовые данные вида [подпапка, сайт, адрес_страницы, ожидается_ли_ответ]
         # подпапки нужны так как в тестовых данных встречаются разные сайты и их нужно разделить
         # в самой программе при штатной работе будет только один сайт
@@ -137,10 +155,10 @@ class TestWebWithCache(unittest.TestCase):
                 con = WebWithCache(site=i[1], folder=self.test_folder + '/' + i[0])
                 if i[3]:
                     # сайт существует
-                    self.assertGreater(len(con.get_page_bs(i[2])), 0, msg=f'BeautifulSoup should be found! {i[2]}')
+                    self.assertGreater(len(con._get_page_bs(i[2])), 0, msg=f'BeautifulSoup should be found! {i[2]}')
                 else:
                     # сайт не существует
-                    self.assertEqual(con.get_page_bs(i[2]), None, msg=f'BeautifulSoup should not be found! {i[0]}')
+                    self.assertEqual(con._get_page_bs(i[2]), None, msg=f'BeautifulSoup should not be found! {i[0]}')
 
 if __name__ == '__main__':
     unittest.main()

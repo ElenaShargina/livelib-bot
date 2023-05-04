@@ -4,7 +4,7 @@ import bs4
 from bs4 import BeautifulSoup as bs
 from livelib import *
 import logging
-from typing import Any
+from typing import Any, List
 
 
 class Reader:
@@ -14,14 +14,14 @@ class Reader:
     :type login: str
     :param connection: объект Connection для связи с сайтом
     :type connection: Сonnection
-    :param bs_parser: класс парсера BeautifulSoup, который будет применяться к страницам,
+    :param bs_parser: класс парсера, который будет применяться к страницам,
         defaults to Parser
     :type bs_parser: str
     """
-    def __init__(self, login: str, connection: Connection, bs_parser: Any = Parser):
+    def __init__(self, login: str, connection: Connection, parser: Any = Parser):
         self.login = login
         self.connection = connection
-        self.bsp = bs_parser
+        self.parser = parser
 
     @property
     def prefix(self) -> str:
@@ -30,7 +30,7 @@ class Reader:
         :return: префикс страниц
         :rtype: str
         """
-        return self.bsp.reader_prefix(self.login)
+        return self.parser.reader_prefix(self.login)
 
     @property
     def all_books(self) -> str:
@@ -39,7 +39,7 @@ class Reader:
         :return: префикс главной страницы
         :rtype: str
         """
-        return self.bsp.reader_all_books(self.login)
+        return self.parser.reader_all_books(self.login)
 
     def get_read_books_main_page(self) -> bs4.BeautifulSoup:
         """
@@ -48,9 +48,26 @@ class Reader:
         :rtype: bs4.BeautifulSoup
         """
         try:
-            page = self.connection.get_page_bs_check_404(self.all_books, self.bsp)
+            page = self.connection.get_page_bs_check_404(self.all_books, self.parser)
         except Exception:
             logging.exception(f'The page with read books for reader {self.login} is not found! ', exc_info=True)
+
+    def get_books_from_page(self, url: str) -> List or bool:
+        """
+        Получает список книг с заданной страницы
+        :param url: адрес страницы
+        :type url: str
+        :return: список книг либо False, если страница не найдена
+        :rtype: list or bool
+        """
+        page = self.connection.get_page_bs(url,self.parser)
+        if page:
+            books = self.parser.all_books_from_page(page)
+            return books
+        else:
+            # если страница не найдена либо 404 на ЛЛ
+            logging.warning(f'Page with books at {url} is not found or 404.')
+            return False
 
     # def get_books_from_page(self, url):
     #     page = self.connection.get_page(url)

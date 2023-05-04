@@ -2,9 +2,9 @@ from livelib import *
 
 import unittest
 
-con = WebWithCache()
-p = con.get_page_bs('http://www.livelib.ru/reader/Feana/read')
-print(BSParser.all_books_from_page(p))
+r = Reader('feana',WebWithCache())
+res = r.get_books_from_page('http://www.livelib.ru/reader/Feana/read/listview/smalllist/~10')
+print(res)
 
 
 

@@ -45,7 +45,7 @@ class Connection:
         """
         pass
 
-    def get_page_bs(self, url: str) -> bs4.BeautifulSoup:
+    def _get_page_bs(self, url: str) -> bs4.BeautifulSoup:
         """
         Возвращает объект BeautifulSoup, сгенерированный из страницы по заданному адресу, либо генерирует исключение.
         :param url: адрес страницы
@@ -61,11 +61,13 @@ class Connection:
             return result
 
 
-    def get_page_bs_check_404(self, url: str, bsp: Parser) -> bs4.BeautifulSoup or bool:
+    def get_page_bs(self, url: str, parser=Parser) -> bs4.BeautifulSoup or bool:
         """
-        Если страница по данному адресу выдает 404, возвращает False, иначе
-        возвращает объект BeautifulSoup из этой страницы.
+        Если сайт не существует либо страница livelib по данному адресу выдает 404, возвращает False,
+        иначе возвращает объект BeautifulSoup из этой страницы.
         :param url: адрес страницы
+        :param parser: класс парсера для обработки страниц
+            defaults to Parser
         :raises Exception: если невозможно получить объект BSoup по заданному адресу
         :return: объект BeautifulSoup из страницы по адресу
         :rtype: bs4.BeautifulSoup
@@ -74,9 +76,10 @@ class Connection:
             result = bs4.BeautifulSoup(self.get_page_text(url), features=self.bs_parser)
         except Exception:
             logging.exception(f'Can not get BS object from {url}', exc_info=True)
+            return False
         else:
             # проверяем на 404
-            if bsp.check_404(result):
+            if parser.check_404(result):
                 logging.warning(f'Page at {url} is 404!')
                 return False
             else:
