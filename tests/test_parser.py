@@ -134,26 +134,27 @@ onerror="this.onerror=null;pagespeed.lazyLoadImages.loadIfVisibleAndMaybeBeacon(
     def test_all_books_from_page(self):
         # тестируем на больших кусках html, для удобства вынесенных в отдельный файл
         # результат парсинга сравниваем с заранее сохраненными образцами
+        # определяем текущую директорию, строим корректный путь до папок с тестовыми данными
+        # нужно для автоматического тестирования на github
         booklist_folder = '/data/sample/booklist/'
         parent_dir = os.path.dirname(os.path.abspath(__file__))
-        print('parent_dir',parent_dir)
         prefix_folder = os.path.join(parent_dir, *booklist_folder.split('/'))
-        print('prefix_folder',prefix_folder)
+        # просматриваем, какие папки с тестовыми данными есть в booklist_folder
+        # в каждой папке должен быть booklist.txt с html кодом и dump, где сохранен правильный результат парсинга
         with os.scandir(prefix_folder) as files:
             subdirs = [file.name for file in files if file.is_dir()]
-        print(subdirs)
+        #     для каждой папки сличаем результат парсинга и правильный сохраненный результат
         for i in subdirs:
             with open(os.path.join(prefix_folder, str(i), 'booklist.txt'), mode='r', encoding=self.connection.encoding) as f1:
-            # with open(booklist_folder+i+'/booklist.txt', mode='r', encoding=self.connection.encoding) as f1:
                 output = Parser.all_books_from_page(bs4.BeautifulSoup(f1.read(), self.connection.bs_parser))
                 f1.close()
             with open(os.path.join(prefix_folder, str(i), 'dump'), mode='rb') as f2:
-            # with open(booklist_folder+i+'/dump', 'rb') as f2:
                 correct_output = pickle.load(f2, encoding=self.connection.encoding)
                 f2.close()
             with self.subTest(f'Test with {i} subdir.'):
                 self.assertEqual(output, correct_output)
 
+    # служебная функция для сохранения правильных результатов парсинга
     # def test_create_pickle_dump(self):
     #     booklist_folder = 'data/sample/booklist/'
     #     i = '3'
