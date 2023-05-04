@@ -57,6 +57,17 @@ class Parser:
         return Parser.reader_prefix(login) + '/read/listview/smalllist'
 
     @staticmethod
+    def reader_read_books_page_by_number(login:str, number:int) -> str:
+        """
+        Возвращает страницу с книгами, прочитанными читателем
+        :param login: логин читателя
+        :type login: str
+        :return: страница с прочитанными книгами
+        :rtype: str
+        """
+        return Parser.reader_prefix(login)+'/read/~'+str(number)
+
+    @staticmethod
     def check_404(bsoup: bs4.BeautifulSoup) -> bool:
         """
         Проверяет, не возвращает ли страница 404.

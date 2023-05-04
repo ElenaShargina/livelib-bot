@@ -6,7 +6,15 @@ import re
 import logging
 from typing import List
 from .parser import Parser
+import time, random
 
+def random_sleep(method):
+    def wrapper(*args, **kwargs):
+        time_to_sleep = random.randint(90,120)
+        print(f'Sleep for {time_to_sleep} seconds.')
+        time.sleep(time_to_sleep)
+        return method(*args, **kwargs)
+    return wrapper
 
 class Connection:
     """
@@ -21,6 +29,7 @@ class Connection:
         defaults to 'utf-8'
     :type encoding: str
     """
+    # @todo нужно ли поменять на https? Проверить по юнит тестам.
     def __init__(self, site='http://www.livelib.ru', bs_parser='lxml', encoding='utf-8'):
         self.site = site
         self.bs_parser = bs_parser
@@ -101,6 +110,7 @@ class SimpleWeb(Connection):
         defaults to 'utf-8'
     :type encoding: str
     """
+    @random_sleep
     def _get_page(self, url: str) -> requests.Response:
         """
         возвращает объект Response по запросу на заданный адрес, либо генерирует исключение.

@@ -2,9 +2,13 @@ from livelib import *
 
 import unittest
 
-r = Reader('feana',WebWithCache())
-res = r.get_books_from_page('http://www.livelib.ru/reader/Feana/read/listview/smalllist/~3')
+r = Reader('Feana',WebWithCache(site='https://www.livelib.ru'))
+res = r.get_all_read_books()
 print(res)
+# url = 'https://www.livelib.ru/reader/Feana/read/~3'
+# r1 = r.get_books_from_page(url)
+# print(r1[0])
+
 
 
 

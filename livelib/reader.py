@@ -5,7 +5,8 @@ from bs4 import BeautifulSoup as bs
 from livelib import *
 import logging
 from typing import Any, List
-
+import random
+import time
 
 class Reader:
     """
@@ -41,16 +42,30 @@ class Reader:
         """
         return self.parser.reader_all_books(self.login)
 
-    def get_read_books_main_page(self) -> bs4.BeautifulSoup:
+    def get_all_read_books(self) -> List or bool:
         """
-        Возвращает главную страницу читателя
-        :return: главная страница читателя
+        Возвращает все прочитанные книги читателя
+        :return: list or bool
         :rtype: bs4.BeautifulSoup
         """
         try:
-            page = self.connection.get_page_bs_check_404(self.all_books, self.parser)
+            # вызовем первую страницу со всеми книгами, чтобы забрать оттуда из паджинатора список страниц с книгами
+            page = self.connection.get_page_bs(self.all_books, self.parser)
+            page_numbers = self.parser.get_paginator(page)
+            print(page_numbers)
+            pages = []
+            for i in page_numbers:
+                pages.append(self.parser.reader_read_books_page_by_number(self.login,i))
+            print(pages)
+            for i in pages:
+                print(i)
+                books = self.get_books_from_page(i)
+                print(f'page={i}, {len(books)} parsed')
+                print(books[0])
+            return []
         except Exception:
             logging.exception(f'The page with read books for reader {self.login} is not found! ', exc_info=True)
+            return False
 
     def get_books_from_page(self, url: str) -> List or bool:
         """
@@ -68,29 +83,3 @@ class Reader:
             # если страница не найдена либо 404 на ЛЛ
             logging.warning(f'Page with books at {url} is not found or 404.')
             return False
-
-    # def get_books_from_page(self, url):
-    #     page = self.connection.get_page(url)
-    #     if page != None:
-    #         bs_page = bs(page, self.connection.bs_parser)
-    #         all_books = bs_page.find_all('div', attrs={'class':'book-item-manage'})
-    #         print(all_books)
-    #         res = [book.find('a', attrs={'class':'brow-book-name'}).text for book in all_books]
-    #         return res
-    #
-    # def get_all_books(self):
-    #     page = self.connection.get_page(self.all_books)
-    #     # @todo рассмотреть другие случаи
-    #     if page != None:
-    #         bs_page = bs(page, self.connection.bs_parser)
-    #         last_page_url = bs_page.find('div', attrs={'id':'booklist-pagination'}).find('span', attrs={'class':'i-pager-last'}).find_parent('a')['href']
-    #         # @todo проверить правильность регулярного выражения
-    #         last_page = re.search(r'\d+$',last_page_url).group()
-    #         print(last_page)
-    #         book_list_pages = []
-    #         for i in range(int(last_page)):
-    #             book_list_pages.append(f'{self.prefix}/read/listview/smalllist/~{i}')
-    #
-    #         for url in book_list_pages:
-    #             print(url)
-    #             print(self.get_books_from_page(url))

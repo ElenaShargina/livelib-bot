@@ -152,7 +152,7 @@ class TestParser(unittest.TestCase):
         # в каждой папке должен быть file.html с html кодом и dump, где сохранен правильный результат парсинга
         with os.scandir(prefix_folder) as files:
             subdirs = [file.name for file in files if file.is_dir()]
-        #     для каждой папки сличаем результат парсинга и правильный сохраненный результат
+        # для каждой папки сличаем результат парсинга и правильный сохраненный результат
         for i in subdirs:
             with open(os.path.join(prefix_folder, str(i), 'file.html'), mode='r',
                       encoding=self.connection.encoding) as f1:
