@@ -131,78 +131,48 @@ class TestParser(unittest.TestCase):
         for i in self.picture_url_values:
             self.assertEqual(i[1], Parser.get_picture_url(i[0]))
 
-
-
-    def test_all_books_from_page(self):
-        # тестируем на больших кусках html, для удобства вынесенных в отдельный файл
-        # результат парсинга сравниваем с заранее сохраненными образцами
+    def compare_results_with_dump(self, method: str, folder: str) -> None:
+        """
+        Тестируем на больших кусках html, для удобства вынесенных в отдельный файл file.html
+        Результат парсинга сравниваем с заранее сохраненными образцами в dump файлах.
+        Общая структура папок: /folder/1/file.html, dump ; /folder/2/file.html, dump.
+        :param method: название метода Parser, который будем тестировать
+        :type method: str
+        :param folder: папка, где хранятся тестовые данные
+        :type folder: str
+        """
+        # тестируем на больших кусках html, для удобства вынесенных в отдельный файл file.html
+        # результат парсинга сравниваем с заранее сохраненными образцами в dump файлах
+        # общая структура папок: /folder/1/file.html, dump ; /folder/2/file.html, dump
         # определяем текущую директорию, строим корректный путь до папок с тестовыми данными
         # нужно для автоматического тестирования на github
-        booklist_folder = '/data/sample/booklist/'
+        folder = folder
         parent_dir = os.path.dirname(os.path.abspath(__file__))
-        prefix_folder = os.path.join(parent_dir, *booklist_folder.split('/'))
-        # просматриваем, какие папки с тестовыми данными есть в booklist_folder
-        # в каждой папке должен быть booklist.txt с html кодом и dump, где сохранен правильный результат парсинга
+        prefix_folder = os.path.join(parent_dir, *folder.split('/'))
+        # просматриваем, какие папки с тестовыми данными есть в folder
+        # в каждой папке должен быть file.html с html кодом и dump, где сохранен правильный результат парсинга
         with os.scandir(prefix_folder) as files:
             subdirs = [file.name for file in files if file.is_dir()]
         #     для каждой папки сличаем результат парсинга и правильный сохраненный результат
         for i in subdirs:
-            with open(os.path.join(prefix_folder, str(i), 'booklist.txt'), mode='r', encoding=self.connection.encoding) as f1:
-                output = Parser.all_books_from_page(bs4.BeautifulSoup(f1.read(), self.connection.bs_parser))
+            with open(os.path.join(prefix_folder, str(i), 'file.html'), mode='r',
+                      encoding=self.connection.encoding) as f1:
+                output = getattr(Parser,method)(bs4.BeautifulSoup(f1.read(), self.connection.bs_parser))
                 f1.close()
             with open(os.path.join(prefix_folder, str(i), 'dump'), mode='rb') as f2:
                 correct_output = pickle.load(f2, encoding=self.connection.encoding)
                 f2.close()
-            with self.subTest(f'Test with {i} subdir.'):
+            with self.subTest(f'Test method {method} with {i} subdir.'):
                 self.assertEqual(output, correct_output)
+
+    def test_all_books_from_page(self):
+        self.compare_results_with_dump('all_books_from_page', '/data/sample/booklist/')
 
     def test_get_paginator(self):
-        # тестируем на больших кусках html, для удобства вынесенных в отдельный файл
-        # результат парсинга сравниваем с заранее сохраненными образцами
-        # определяем текущую директорию, строим корректный путь до папок с тестовыми данными
-        # нужно для автоматического тестирования на github
-        booklist_folder = '/data/sample/paginator/'
-        parent_dir = os.path.dirname(os.path.abspath(__file__))
-        prefix_folder = os.path.join(parent_dir, *booklist_folder.split('/'))
-        # просматриваем, какие папки с тестовыми данными есть в paginator
-        # в каждой папке должен быть paginator.html с html кодом и dump, где сохранен правильный результат парсинга
-        with os.scandir(prefix_folder) as files:
-            subdirs = [file.name for file in files if file.is_dir()]
-        # для каждой папки сличаем результат парсинга и правильный сохраненный результат
-        for i in subdirs:
-            with open(os.path.join(prefix_folder, str(i), 'paginator.html'), mode='r',
-                      encoding=self.connection.encoding) as f1:
-                output = Parser.get_paginator(bs4.BeautifulSoup(f1.read(), self.connection.bs_parser))
-                f1.close()
-            with open(os.path.join(prefix_folder, str(i), 'dump'), mode='rb') as f2:
-                correct_output = pickle.load(f2, encoding=self.connection.encoding)
-                f2.close()
-            with self.subTest(f'Test with {i} subdir.'):
-                self.assertEqual(output, correct_output)
+        self.compare_results_with_dump('get_paginator', '/data/sample/paginator/')
 
     def test_get_tags(self):
-        # тестируем на больших кусках html, для удобства вынесенных в отдельный файл
-        # результат парсинга сравниваем с заранее сохраненными образцами
-        # определяем текущую директорию, строим корректный путь до папок с тестовыми данными
-        # нужно для автоматического тестирования на github
-        booklist_folder = '/data/sample/tags/'
-        parent_dir = os.path.dirname(os.path.abspath(__file__))
-        prefix_folder = os.path.join(parent_dir, *booklist_folder.split('/'))
-        # просматриваем, какие папки с тестовыми данными есть в paginator
-        # в каждой папке должен быть paginator.html с html кодом и dump, где сохранен правильный результат парсинга
-        with os.scandir(prefix_folder) as files:
-            subdirs = [file.name for file in files if file.is_dir()]
-        # для каждой папки сличаем результат парсинга и правильный сохраненный результат
-        for i in subdirs:
-            with open(os.path.join(prefix_folder, str(i), 'tags.html'), mode='r',
-                      encoding=self.connection.encoding) as f1:
-                output = Parser.get_tags(bs4.BeautifulSoup(f1.read(), self.connection.bs_parser))
-                f1.close()
-            with open(os.path.join(prefix_folder, str(i), 'dump'), mode='rb') as f2:
-                correct_output = pickle.load(f2, encoding=self.connection.encoding)
-                f2.close()
-            with self.subTest(f'Test with {i} subdir.'):
-                self.assertEqual(output, correct_output)
+        self.compare_results_with_dump('get_tags', '/data/sample/tags/')
 
 if __name__=='__main__':
     unittest.main()
