@@ -15,7 +15,7 @@ class BookDataFormatter(DataFormatter):
         'book_id': {'parser':'get_book_id'},
         'book_name': {'parser':'get_book_name'},
         'common_rating': {'parser':'get_common_rating'},
-        # 'picture_url': {'parser':'get_picture_url'}
+        'picture_url': {'parser':'get_picture_url'}
     }
     reader_properties = {
         'rating': {'parser':'get_rating'},
@@ -104,10 +104,7 @@ class Parser:
         link = bsoup.find('a', class_='brow-book-author')
         if link:
             result = re.search(author_id,link.get('href'))
-            if result:
-                return int(result.group())
-            else:
-                return None
+            return int(result.group()) if result else None
         else:
             return None
 
@@ -125,10 +122,7 @@ class Parser:
         link = bsoup.find('a', class_='brow-book-name')
         if link:
             result = re.search(book_id,link.get('href'))
-            if result:
-                return int(result.group())
-            else:
-                return None
+            return int(result.group()) if result else None
         else:
             return None
 
@@ -139,3 +133,12 @@ class Parser:
             return float(result.text)
         else:
             return None
+
+    @staticmethod
+    def get_picture_url(bsoup: bs4.BeautifulSoup) -> str:
+        result = bsoup.find('div', class_='cover-wrapper').find('img').get('data-pagespeed-lazy-src')
+        if result:
+            return result
+        else:
+            result = bsoup.find('div', class_='cover-wrapper').find('img').get('src')
+            return result if result else None

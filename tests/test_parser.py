@@ -45,6 +45,25 @@ class TestParser(unittest.TestCase):
                 '<span title="Рейтинг 4.287 (1906  читателей, рейтинг ожидания 5.000)"><span class="r45-sc-orange"></span></span></span></span>', None],
 
         ]
+        self.picture_url_values = [
+            ["""
+<div class="cover-wrapper"><a href="/book/1000945667-svodya-schety-vudi-allen" title="Вуди Аллен - Сводя счеты">
+<img alt="Вуди Аллен - Сводя счеты" title="Вуди Аллен - Сводя счеты" width="70" style="min-width:70px; background-color: #ffffff;" 
+class="cover-rounded" src="https://s1.livelib.ru/boocover/1000945667/70/fbda/Vudi_Allen__Svodya_schety.jpg" 
+onerror="this.onerror=null;pagespeed.lazyLoadImages.loadIfVisibleAndMaybeBeacon(this);"></a></div>
+             """,
+             'https://s1.livelib.ru/boocover/1000945667/70/fbda/Vudi_Allen__Svodya_schety.jpg'],
+            ["""
+            <div class="cover-wrapper"> <a href="/book/1000188660-broshennye-mashiny-dzheff-nun" title="Джефф Нун - Брошенные машины">
+             <img alt="Джефф Нун - Брошенные машины" class="cover-rounded" 
+        data-pagespeed-lazy-src="https://s1.livelib.ru/boocover/1000188660/70/919a/Dzheff_Nun__Broshennye_mashiny.jpg" 
+        onerror="this.onerror=null;pagespeed.lazyLoadImages.loadIfVisibleAndMaybeBeacon(this);" 
+        onload="pagespeed.lazyLoadImages.loadIfVisibleAndMaybeBeacon(this);" src="/pagespeed_static/1.JiBnMqyl6S.gif" 
+        style="min-width:70px; background-color: #ffffff;" title="Джефф Нун - Брошенные машины" width="70"/></a></div>
+        """,
+             'https://s1.livelib.ru/boocover/1000188660/70/919a/Dzheff_Nun__Broshennye_mashiny.jpg'
+            ]
+        ]
 
         def into_bs(x):
             for i in x:
@@ -55,6 +74,7 @@ class TestParser(unittest.TestCase):
         self.book_values = into_bs(self.book_values)
         self.author_values = into_bs(self.author_values)
         self.rating_values = into_bs(self.rating_values)
+        self.picture_url_values = into_bs(self.picture_url_values)
 
     def test_reader_prefix(self):
         for i in self.values:
@@ -98,6 +118,10 @@ class TestParser(unittest.TestCase):
     def test_get_common_rating(self):
         for i in self.rating_values:
             self.assertEqual(i[1], Parser.get_common_rating(i[0]))
+
+    def test_get_picture_url(self):
+        for i in self.picture_url_values:
+            self.assertEqual(i[1], Parser.get_picture_url(i[0]))
 
 
 if __name__=='__main__':
