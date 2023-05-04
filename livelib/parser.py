@@ -16,7 +16,8 @@ class BookDataFormatter(DataFormatter):
         'book_id': {'parser':'get_book_id'},
         'book_name': {'parser':'get_book_name'},
         'common_rating': {'parser':'get_common_rating'},
-        'picture_url': {'parser':'get_picture_url'}
+        'picture_url': {'parser':'get_picture_url'},
+        'tags': {'parser':'get_tags'}
     }
     reader_properties = {
         'reader_rating': {'parser':'get_reader_rating'},
@@ -216,6 +217,20 @@ class Parser:
             return float(result.text)
         else:
             return None
+
+    @staticmethod
+    def get_tags(bsoup: bs4.BeautifulSoup):
+        tags = bsoup.find('div', class_='brow-tags')
+        result = []
+        if tags != None:
+            # необходимо проверить, не является ли тег ссылкой на расширенный список тегов (вида 'Еще NN тегов')
+            # Если он - ссылка, то пропускаем его.
+            # даже если теги скрыты, мы все равно их вытащим из кода страницы.
+            more = re.compile(r'^Ещё \d+')
+            for i in tags.find_all('a', class_='label-tag'):
+                if re.match(more, i.text)==None:
+                    result.append(i.text)
+        return result
 
     @staticmethod
     def get_paginator(bsoup: bs4.BeautifulSoup) -> List[int]:
