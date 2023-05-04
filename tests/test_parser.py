@@ -134,6 +134,7 @@ onerror="this.onerror=null;pagespeed.lazyLoadImages.loadIfVisibleAndMaybeBeacon(
     def test_all_books_from_page(self):
         # тестируем на больших кусках html, для удобства вынесенных в отдельный файл
         # результат парсинга сравниваем с заранее сохраненными образцами
+        print(os.getcwd())
         booklist_folder = 'data/sample/booklist/'
         with os.scandir(booklist_folder) as files:
             subdirs = [file.name for file in files if file.is_dir()]
