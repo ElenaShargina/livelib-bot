@@ -109,7 +109,7 @@ class Parser:
         return result
 
     @staticmethod
-    def book(bsoup: bs4.BeautifulSoup, formatter: BookDataFormatter=BookDataFormatter) -> Dict[str:str]:
+    def book(bsoup: bs4.BeautifulSoup, formatter: BookDataFormatter=BookDataFormatter) -> Dict[str,str]:
         """
         Возвращает словарь с информацией о книге, представленной в заданном коде.
         Словарь формируется с ключами из BookDataFormatter, соответствующие значения вычисляются
@@ -120,7 +120,7 @@ class Parser:
         :param formatter: словарь с перечислением нужных свойств
         :type formatter: BookDataFormatter
         :return: словарь типа {'property_name': 'property_value'}
-        :rtype: Dict
+        :rtype: Dict[str,str]
         """
         result = {}
         for property_name, property_info in dict(formatter.common_properties | formatter.reader_properties).items():
