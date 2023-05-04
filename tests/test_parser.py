@@ -1,10 +1,11 @@
 import unittest
-
+import os
 import bs4
 
 from livelib import Parser, WebWithCache
 from bs4 import BeautifulSoup as bs
 import logging
+import pickle
 
 class TestParser(unittest.TestCase):
     def setUp(self) -> None:
@@ -130,6 +131,32 @@ onerror="this.onerror=null;pagespeed.lazyLoadImages.loadIfVisibleAndMaybeBeacon(
         for i in self.picture_url_values:
             self.assertEqual(i[1], Parser.get_picture_url(i[0]))
 
+    def test_all_books_from_page(self):
+        # тестируем на больших кусках html, для удобства вынесенных в отдельный файл
+        # результат парсинга сравниваем с заранее сохраненными образцами
+        booklist_folder = 'data/sample/booklist/'
+        with os.scandir(booklist_folder) as files:
+            subdirs = [file.name for file in files if file.is_dir()]
+        for i in subdirs:
+            with open(booklist_folder+i+'/booklist.txt', mode='r', encoding=self.connection.encoding) as f1:
+                output = Parser.all_books_from_page(bs4.BeautifulSoup(f1.read(), self.connection.bs_parser))
+                f1.close()
+            with open(booklist_folder+i+'/dump', 'rb') as f2:
+                correct_output = pickle.load(f2, encoding=self.connection.encoding)
+                f2.close()
+            with self.subTest(f'Test with {i} subdir.'):
+                self.assertEqual(output, correct_output)
+
+    # def test_create_pickle_dump(self):
+    #     booklist_folder = 'data/sample/booklist/'
+    #     i = '3'
+    #     with open(booklist_folder + i + '/booklist.txt', mode='r', encoding=self.connection.encoding) as f1:
+    #         output = Parser.all_books_from_page(bs4.BeautifulSoup(f1.read(), self.connection.bs_parser))
+    #         print(output)
+    #         f1.close()
+    #     with open(booklist_folder + i + '/dump', 'wb') as f2:
+    #         pickle.dump(output,f2)
+    #         f2.close()
 
 if __name__=='__main__':
     unittest.main()

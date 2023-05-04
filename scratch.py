@@ -3,7 +3,7 @@ from livelib import *
 import unittest
 
 r = Reader('feana',WebWithCache())
-res = r.get_books_from_page('http://www.livelib.ru/reader/Feana/read/listview/smalllist/~10')
+res = r.get_books_from_page('http://www.livelib.ru/reader/Feana/read/listview/smalllist/~3')
 print(res)
 
 

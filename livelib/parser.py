@@ -19,8 +19,6 @@ class BookDataFormatter(DataFormatter):
     }
     reader_properties = {
         'reader_rating': {'parser':'get_reader_rating'},
-        'month': {'parser':'get_month'},
-        # 'year': {'parser':'get_year'}
     }
 
 
@@ -71,15 +69,36 @@ class Parser:
             return False
 
     @staticmethod
-    def all_books_from_page(bsoup, format: BookDataFormatter=BookDataFormatter):
-        books = bsoup.find_all('div', attrs={'class':'book-item-manage'})
-        result = [Parser.book(i, format) for i in books]
+    def all_books_from_page(bsoup, formatter: BookDataFormatter=BookDataFormatter):
+        # в коде страницы внутри блока <div id='booklist'></div>
+        # чередуются блоки <div class='brow-h2'>Месяц Год</div> и <div class='book-item-manage'>КНИГА</div>
+        # последовательно пойдем по этим блокам, присваивая книгам, следующим за датой, эту дату прочтения
+        result=[]
+        month = None
+        year = None
+        for block in bsoup.find('div', id='booklist').children:
+            # если это блок с месяцем и годом, запоминаем его для добавления в информацию по последующим книгам
+            if 'brow-h2' in block['class']:
+                date = block.text
+                # вытащим месяц, переведем его в цифру
+                month = re.search(r'\D+(?= )',date).group()
+                month_numbers = {'январь':1, 'февраль':2, 'март':3, 'апрель':4, 'май':5, 'июнь':6,
+                                 'июль':7, 'август':8, 'сентябрь':9, 'октябрь':10, 'ноябрь':11, 'декабрь':12}
+                month = month_numbers.get(month.lower(),None)
+                # вытащим год
+                year = re.search(r'\d+', date).group()
+            # если это блок с книгой, парсим ее как книгу и вносим месяц и год прочтения в результат
+            elif 'book-item-manage' in block['class']:
+                book = Parser.book(block, formatter)
+                if month: book['month'] = month
+                if year: book['year'] = year
+                result.append(book)
         return result
 
     @staticmethod
-    def book(bsoup: bs4.BeautifulSoup, format: BookDataFormatter=BookDataFormatter):
+    def book(bsoup: bs4.BeautifulSoup, formatter: BookDataFormatter=BookDataFormatter):
         result = {}
-        for property_name, property_info in dict(format.common_properties|format.reader_properties).items():
+        for property_name, property_info in dict(formatter.common_properties | formatter.reader_properties).items():
             parser_function = property_info.get('parser', None)
             if parser_function:
                 try:
@@ -147,15 +166,6 @@ class Parser:
     @staticmethod
     def get_reader_rating(bsoup: bs4.BeautifulSoup) -> float:
         result = bsoup.find('div', class_='brow-ratings').find_all('span', class_='rating-book')[0]
-        if result and bool(result.text):
-            return float(result.text)
-        else:
-            return None
-
-    # @todo сделать по-другому
-    @staticmethod
-    def get_month(bsoup: bs4.BeautifulSoup) -> int:
-        result = bsoup.find('div', class_='brow-h2').text
         if result and bool(result.text):
             return float(result.text)
         else:
