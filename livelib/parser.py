@@ -4,7 +4,7 @@ import re
 import bs4
 from bs4 import BeautifulSoup as bs
 import typing
-from typing import List
+from typing import List, Dict
 
 class DataFormatter:
     pass
@@ -70,7 +70,19 @@ class Parser:
             return False
 
     @staticmethod
-    def all_books_from_page(bsoup, formatter: BookDataFormatter=BookDataFormatter):
+    def all_books_from_page(bsoup: bs4.BeautifulSoup, formatter: BookDataFormatter=BookDataFormatter) -> List[Dict]:
+        """
+        Возвращает ифнормацию о всех книгах на данной странице в виде списка словарей.
+        Словарь формируется с ключами из BookDataFormatter, соответствующие значения вычисляются
+        с помощью функций, указанных там же.
+        Исключение - месяц и год прочтения книги формируются в этом методе, это обусловлено версткой.
+        :param bsoup: код страницы
+        :type bsoup: bs4.BeautifulSoup
+        :param formatter:  словарь с перечислением нужных свойств
+        :type formatter: BookDataFormatter
+        :return: список словарей по каждой книге вида {'property_name': 'property_value'}
+        :rtype: List[Dict]
+        """
         # в коде страницы внутри блока <div id='booklist'></div>
         # чередуются блоки <div class='brow-h2'>Месяц Год</div> и <div class='book-item-manage'>КНИГА</div>
         # последовательно пойдем по этим блокам, присваивая книгам, следующим за датой, эту дату прочтения
@@ -97,7 +109,19 @@ class Parser:
         return result
 
     @staticmethod
-    def book(bsoup: bs4.BeautifulSoup, formatter: BookDataFormatter=BookDataFormatter):
+    def book(bsoup: bs4.BeautifulSoup, formatter: BookDataFormatter=BookDataFormatter) -> Dict[str:str]:
+        """
+        Возвращает словарь с информацией о книге, представленной в заданном коде.
+        Словарь формируется с ключами из BookDataFormatter, соответствующие значения вычисляются
+        с помощью функций, указанных там же.
+        Исключение - месяц и год прочтения книги формируются в методе all_books_from_page, это обусловлено версткой.
+        :param bsoup: код с информацией о книге
+        :type bsoup: bs4.BeautifulSoup
+        :param formatter: словарь с перечислением нужных свойств
+        :type formatter: BookDataFormatter
+        :return: словарь типа {'property_name': 'property_value'}
+        :rtype: Dict
+        """
         result = {}
         for property_name, property_info in dict(formatter.common_properties | formatter.reader_properties).items():
             parser_function = property_info.get('parser', None)
@@ -149,6 +173,13 @@ class Parser:
 
     @staticmethod
     def get_common_rating(bsoup: bs4.BeautifulSoup) -> float:
+        """
+        Возвращает общую оценку книги.
+        :param bsoup: код, вмещающий информацию о книге
+        :type bsoup: bs4.BeautifulSoup
+        :return: число
+        :rtype: float
+        """
         result = bsoup.find('div', class_='brow-ratings').find_all('span', class_='rating-book')[1]
         if result and bool(result.text):
             return float(result.text)
@@ -157,6 +188,13 @@ class Parser:
 
     @staticmethod
     def get_picture_url(bsoup: bs4.BeautifulSoup) -> str:
+        """
+        Возвращает ссылку на картинку с обложкой книги.
+        :param bsoup: код, вмещающий информацию о книге
+        :type bsoup: bs4.BeautifulSoup
+        :return: абсолютную ссылку
+        :rtype: str
+        """
         result = bsoup.find('div', class_='cover-wrapper').find('img').get('data-pagespeed-lazy-src')
         if result:
             return result
@@ -166,6 +204,13 @@ class Parser:
 
     @staticmethod
     def get_reader_rating(bsoup: bs4.BeautifulSoup) -> float:
+        """
+        Возвращает оценку книги читателем.
+        :param bsoup: код, вмещающий информацию о книге
+        :type bsoup: bs4.BeautifulSoup
+        :return: число
+        :rtype: float
+        """
         result = bsoup.find('div', class_='brow-ratings').find_all('span', class_='rating-book')[0]
         if result and bool(result.text):
             return float(result.text)
@@ -174,6 +219,14 @@ class Parser:
 
     @staticmethod
     def get_paginator(bsoup: bs4.BeautifulSoup) -> List[int]:
+        """
+        Возвращает список номеров страниц из паджинатора в низу страницы. Если страница единственная, и паджинатора нет,
+        то возвращает пустой список.
+        :param bsoup: код страницы
+        :type bsoup: bs4.BeautifulSoup
+        :return: список номеров страниц либо пустой список
+        :rtype: List[int]
+        """
         paginator = bsoup.find('div', id='booklist-pagination')
         result = []
         # если страница единственная, она же текущая, то возвращаем пустой список ссылок
