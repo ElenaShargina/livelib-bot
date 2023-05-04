@@ -18,9 +18,9 @@ class BookDataFormatter(DataFormatter):
         'picture_url': {'parser':'get_picture_url'}
     }
     reader_properties = {
-        'rating': {'parser':'get_rating'},
+        'reader_rating': {'parser':'get_reader_rating'},
         'month': {'parser':'get_month'},
-        'year': {'parser':'get_year'}
+        # 'year': {'parser':'get_year'}
     }
 
 
@@ -79,7 +79,7 @@ class Parser:
     @staticmethod
     def book(bsoup: bs4.BeautifulSoup, format: BookDataFormatter=BookDataFormatter):
         result = {}
-        for property_name, property_info in format.common_properties.items():
+        for property_name, property_info in dict(format.common_properties|format.reader_properties).items():
             parser_function = property_info.get('parser', None)
             if parser_function:
                 try:
@@ -88,6 +88,7 @@ class Parser:
                     logging.exception(f'No parser function {parser_function} is found!', exc_info=True)
             else:
                 result[property_name] = None
+
         return result
 
     @staticmethod
@@ -128,7 +129,7 @@ class Parser:
 
     @staticmethod
     def get_common_rating(bsoup: bs4.BeautifulSoup) -> float:
-        result = bsoup.find('span', class_='rating-book')
+        result = bsoup.find('div', class_='brow-ratings').find_all('span', class_='rating-book')[1]
         if result and bool(result.text):
             return float(result.text)
         else:
@@ -142,3 +143,20 @@ class Parser:
         else:
             result = bsoup.find('div', class_='cover-wrapper').find('img').get('src')
             return result if result else None
+
+    @staticmethod
+    def get_reader_rating(bsoup: bs4.BeautifulSoup) -> float:
+        result = bsoup.find('div', class_='brow-ratings').find_all('span', class_='rating-book')[0]
+        if result and bool(result.text):
+            return float(result.text)
+        else:
+            return None
+
+    # @todo сделать по-другому
+    @staticmethod
+    def get_month(bsoup: bs4.BeautifulSoup) -> int:
+        result = bsoup.find('div', class_='brow-h2').text
+        if result and bool(result.text):
+            return float(result.text)
+        else:
+            return None

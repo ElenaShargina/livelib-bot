@@ -38,12 +38,15 @@ class TestParser(unittest.TestCase):
         ]
 
         self.rating_values = [
-            ['<span class="brow-rating"><span class="rating-book"><span class="rating-value stars-color-orange">4.29</span>'
-             '<span title="Рейтинг 4.287 (1906  читателей, рейтинг ожидания 5.000)"><span class="r45-sc-orange"></span></span></span></span>', 4.29],
             [
-                '<span class="brow-rating"><span class="rating-book"><span class="rating-value stars-color-orange"></span>'
-                '<span title="Рейтинг 4.287 (1906  читателей, рейтинг ожидания 5.000)"><span class="r45-sc-orange"></span></span></span></span>', None],
-
+                """
+                <div class="brow-ratings">Моя оценка:<span class="brow-rating marg-right"><span class="rating-book">
+                <span class="rating-value stars-color-gray">3</span><span class="rating" style="" title="Нейтральная оценка">
+                <span class="r30-sc-gray" title="рейтинг 3 из 5"></span></span></span></span>Общая:<span class="brow-rating">
+                <span class="rating-book"><span class="rating-value stars-color-orange">3.84</span>
+                <span title="Рейтинг 3.836 (281  читатель, рейтинг ожидания 0.000)"><span class="r40-sc-orange"></span></span></span></span></div>
+                """, 3.84, 3
+            ],
         ]
         self.picture_url_values = [
             ["""
@@ -118,6 +121,10 @@ onerror="this.onerror=null;pagespeed.lazyLoadImages.loadIfVisibleAndMaybeBeacon(
     def test_get_common_rating(self):
         for i in self.rating_values:
             self.assertEqual(i[1], Parser.get_common_rating(i[0]))
+
+    def test_get_reader_rating(self):
+        for i in self.rating_values:
+            self.assertEqual(i[2], Parser.get_reader_rating(i[0]))
 
     def test_get_picture_url(self):
         for i in self.picture_url_values:
