@@ -146,7 +146,6 @@ class TestParser(unittest.TestCase):
         # общая структура папок: /folder/1/file.html, dump ; /folder/2/file.html, dump
         # определяем текущую директорию, строим корректный путь до папок с тестовыми данными
         # нужно для автоматического тестирования на github
-        folder = folder
         parent_dir = os.path.dirname(os.path.abspath(__file__))
         prefix_folder = os.path.join(parent_dir, *folder.split('/'))
         # просматриваем, какие папки с тестовыми данными есть в folder
