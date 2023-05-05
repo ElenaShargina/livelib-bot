@@ -14,14 +14,14 @@ class TestDBConnection(unittest.TestCase):
                             format="%(asctime)s %(levelname)s %(message)s")
         logging.debug('Starting to test TestDBConnection')
 
-    def tearDown(self) -> None:
-        logging.debug('Cleaning dbs after testing')
-        print('CLEARING')
-        print(self.temp_dbs)
-        for i in self.temp_dbs:
-            if os.path.exists(i):
-                os.remove(i)
-        pass
+    # def tearDown(self) -> None:
+    #     logging.debug('Cleaning dbs after testing')
+    #     print('CLEARING')
+    #     print(self.temp_dbs)
+    #     for i in self.temp_dbs:
+    #         if os.path.exists(i):
+    #             os.remove(i)
+    #     pass
 
     def test_create_table(self):
         with self.subTest('Testing correct case of creating table'):
