@@ -16,10 +16,11 @@ from livelib.parser import BookDataFormatter
 
 
 s = SQLite3Connection('db/first.db')
-formatter = BookDataFormatter()
-print(formatter.common_parser())
+formatter = BookDataFormatter
+# print(formatter.common_db())
 # print([i['db'] for i in formatter.common.values()])
-# s.create_table('Books', )
+# s.create_table('Books', formatter.common_db())
+print(s.run_single_sql('PRAGMA table_info(Books)'))
 # s.create_tables()
 
 

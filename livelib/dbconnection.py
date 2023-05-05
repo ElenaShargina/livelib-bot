@@ -16,39 +16,45 @@ class SQLite3Connection(DBConnection):
             con = sqlite3.connect(self.filename)
             logging.info(f'Successfully connected to {self.filename} db.')
         except sqlite3.Error:
-            logging.error(f'Error while connecting to {self.filename} db.', exc_info=True)
+            logging.exception(f'Error while connecting to {self.filename} db.', exc_info=True)
+            raise
         else:
             con.close()
 
-    def run_sql(self, sql: str) -> int or None:
+    def run_single_sql(self, sql: str) -> int or None:
         result = None
         try:
             con = sqlite3.connect(self.filename)
             cursor = con.cursor()
             try:
                 cursor.execute(sql)
-                result = cursor.rowcount
+                result = cursor.fetchall()
                 con.commit()
-            except sqlite3.Error as error:
-                print('Error with sqlite!', error)
+            except sqlite3.Error:
+                logging.exception('Error while processing sql!', exc_info=True)
+                raise
             cursor.close()
             con.close()
-        except sqlite3.Error as error:
-            logging.error(f'Error while processing sql {sql} in {self.filename} SQLiteConnection! ', error)
+        except sqlite3.Error:
+            logging.exception(f'Error while processing sql {sql} in {self.filename} SQLiteConnection! ', exc_info=True)
+            raise
         return result
 
     def create_table(self, name:str, fields_dict: List[Dict]):
         """
-
+        Создает таблицу с заданным названием и структурой
         :param name:
         :type name:
         :param fields_dict: список вида ({'name': 'name_value', 'type': type_value}, {}, ...)
         :type fields_dict:
         """
-        print(fields_dict)
-        fields_str = ','.join("id INTEGER NOT NULL PRIMARY KEY" + [i['name']+' '+i['type'] for i in fields_dict])
-        print(fields_str)
-        # sql = f"CREATE TABLE {name} ({})"
+        fields_str = ','.join(["id INTEGER NOT NULL PRIMARY KEY"] + [i['name']+' '+i['type'] for i in fields_dict])
+        sql = f"CREATE TABLE {name} ({fields_str})"
+        try:
+            self.run_single_sql(sql)
+        except sqlite3.Error:
+            logging.exception(f"Can't create table {name}!", exc_info=True)
+            raise
 
 
 
