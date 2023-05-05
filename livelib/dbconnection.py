@@ -56,6 +56,10 @@ class SQLite3Connection(DBConnection):
             logging.exception(f"Can't create table {name}!", exc_info=True)
             raise
 
+    def insert_values(self, values:List[Dict]):
+        pass
+
+
 
 
     # def create_tables(self):

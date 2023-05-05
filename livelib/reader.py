@@ -48,26 +48,25 @@ class Reader:
         :return: list or bool
         :rtype: bs4.BeautifulSoup
         """
+        result = []
         try:
             # вызовем первую страницу со всеми книгами, чтобы забрать оттуда из паджинатора список страниц с книгами
             page = self.connection.get_page_bs(self.all_books, self.parser)
             page_numbers = self.parser.get_paginator(page)
-            print(page_numbers)
             # если у читателя меньше 20 книг, то паджинатора нет, но есть 1 страница с прочитанным
             if page_numbers == []: page_numbers = [1]
             pages = []
             for i in page_numbers:
                 pages.append(self.parser.reader_read_books_page_by_number(self.login,i))
-            print(pages)
             for i in pages:
-                print(i)
                 try:
                     books = self.get_books_from_page(i)
                 except Exception as exc:
                     logging.exception(f'Read books for reader {self.login}  at {i} is not found! ', exc_info=True)
-                print(f'page={i}, {len(books)} parsed')
-                print(books[0])
-            return []
+                # print(f'page={i}, {len(books)} parsed')
+                # print(books[0])
+                result = result + books
+            return result
         except Exception:
             logging.exception(f'The page with read books for reader {self.login} is not found! ', exc_info=True)
             return False

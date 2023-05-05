@@ -7,7 +7,7 @@ from livelib.parser import BookDataFormatter
 # Eugenia_Novik
 # Feana
 # Kasssiopei - 60 read books
-# ElviraYakovleva - 11 read books
+# ElviraYakovleva - 13 read books
 # Shakespeare - 2096 read books
 
 # r = Reader('Shakespeare',WebWithCache(site='https://www.livelib.ru', random_sleep = True))
@@ -17,10 +17,14 @@ from livelib.parser import BookDataFormatter
 
 s = SQLite3Connection('db/first.db')
 formatter = BookDataFormatter
+r = Reader('ElviraYakovleva', WebWithCache(site='https://www.livelib.ru', random_sleep = True))
+books = r.get_all_read_books()
+print(books)
+print(len(books))
 # print(formatter.common_db())
 # print([i['db'] for i in formatter.common.values()])
 # s.create_table('Books', formatter.common_db())
-print(s.run_single_sql('PRAGMA table_info(Books)'))
+# print(s.run_single_sql('PRAGMA table_info(Books)'))
 # s.create_tables()
 
 
