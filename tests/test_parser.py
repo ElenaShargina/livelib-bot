@@ -159,9 +159,11 @@ class TestParser(unittest.TestCase):
                 output = getattr(Parser,method)(bs4.BeautifulSoup(f1.read(), self.connection.bs_parser))
                 f1.close()
             with open(os.path.join(prefix_folder, str(i), 'dump'), mode='rb') as f2:
+                # pickle.dump(output,f2)
                 correct_output = pickle.load(f2, encoding=self.connection.encoding)
                 f2.close()
             with self.subTest(f'Test method {method} with {i} subdir.'):
+                # self.assertEqual(True,True)
                 self.assertEqual(output, correct_output)
 
     def test_all_books_from_page(self):

@@ -7,6 +7,7 @@ import logging
 from typing import Any, List
 import random
 import time
+from .dbconnection import  DBConnection
 
 class Reader:
     """
@@ -19,10 +20,11 @@ class Reader:
         defaults to Parser
     :type bs_parser: str
     """
-    def __init__(self, login: str, connection: Connection, parser: Any = Parser):
+    def __init__(self, login: str, connection: Connection, dbconnection: DBConnection, parser: Any = Parser):
         self.login = login
         self.connection = connection
         self.parser = parser
+        self.dbconnection = dbconnection
 
     @property
     def prefix(self) -> str:
@@ -87,3 +89,8 @@ class Reader:
             # если страница не найдена либо 404 на ЛЛ
             logging.warning(f'Page with books at {url} is not found or 404.')
             return False
+
+    def save_books_in_db(self, books):
+        prepared_books = self.parser.prepare_books_for_db(books)
+        result = self.dbconnection.insert_values('Books', prepared_books)
+        return result

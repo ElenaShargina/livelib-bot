@@ -26,7 +26,7 @@ class BookDataFormatter(DataFormatter):
     @classmethod
     def common_parser(cls):
         """
-        :return: словарь вида {название_поля: метод_его_обработки}
+        :return: словарь вида {название_поля: метод_его_обработки, ..:.., }
         :rtype: Dict
         """
         return {i:j['parser'] for i,j in cls.common.items()}
@@ -34,7 +34,7 @@ class BookDataFormatter(DataFormatter):
     @classmethod
     def common_db(cls):
         """
-        :return: список вида (название_поля_в_БД: тип_поля_в_БД )
+        :return: список вида [{название_поля_в_БД: тип_поля_в_БД},{}]
         :rtype: List
         """
         return [i['db'] for i in cls.common.values()]
@@ -271,7 +271,7 @@ class Parser:
             for i in tags.find_all('a', class_='label-tag'):
                 if re.match(more, i.text)==None:
                     result.append(i.text)
-        return result
+        return ' '.join(result)
 
     @staticmethod
     def get_paginator(bsoup: bs4.BeautifulSoup) -> List[int]:
@@ -300,3 +300,14 @@ class Parser:
                 result = [int(i) for i in paginator.text.split()]
             return result
 
+    @staticmethod
+    def prepare_books_for_db(books:List[Dict], formatter = BookDataFormatter) -> List:
+        result = []
+        for book in books:
+            new_book = {}
+            for property in formatter.common.keys():
+                value = book.get(property, None)
+                if value == None: value = ''
+                new_book[formatter.common[property]['db']['name']] = value
+            result.append(new_book)
+        return result

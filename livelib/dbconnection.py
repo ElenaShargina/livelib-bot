@@ -48,7 +48,7 @@ class SQLite3Connection(DBConnection):
         :param fields_dict: список вида ({'name': 'name_value', 'type': type_value}, {}, ...)
         :type fields_dict:
         """
-        fields_str = ','.join(["id INTEGER NOT NULL PRIMARY KEY"] + [i['name']+' '+i['type'] for i in fields_dict])
+        fields_str = ','.join(["id INTEGER PRIMARY KEY AUTOINCREMENT "] + [i['name']+' '+i['type'] for i in fields_dict])
         sql = f"CREATE TABLE {name} ({fields_str})"
         try:
             self.run_single_sql(sql)
@@ -56,8 +56,32 @@ class SQLite3Connection(DBConnection):
             logging.exception(f"Can't create table {name}!", exc_info=True)
             raise
 
-    def insert_values(self, values:List[Dict]):
-        pass
+    def insert_values(self, table:str, values:List[Dict]):
+        result = None
+        field_names = ', '.join([i for i in values[0].keys()])
+        field_values = [[val for val in book.values()] for book in values]
+        placeholders = ', '.join(['?' for i in range(len(values[0].keys()))])
+        print('field_names:',field_names)
+        print('field_values:',field_values)
+        print('placeholders:',placeholders)
+
+        # @todo убрать в декоратор?
+        try:
+            con = sqlite3.connect(self.filename)
+            cursor = con.cursor()
+            try:
+                cursor.executemany(f"INSERT INTO {table} ({field_names}) VALUES ({placeholders})", field_values)
+                result = cursor.rowcount
+                con.commit()
+            except sqlite3.Error:
+                logging.exception('Error while processing sql!', exc_info=True)
+                raise
+            cursor.close()
+            con.close()
+        except sqlite3.Error:
+            logging.exception(f'Error while processing executemany in {self.filename} SQLiteConnection! ', exc_info=True)
+            raise
+        return result
 
 
 
