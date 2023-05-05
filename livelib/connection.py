@@ -8,14 +8,6 @@ from typing import List
 from .parser import Parser
 import time, random
 
-def random_sleep(method):
-    def wrapper(*args, **kwargs):
-        time_to_sleep = random.randint(90,120)
-        print(f'Sleep for {time_to_sleep} seconds.')
-        time.sleep(time_to_sleep)
-        return method(*args, **kwargs)
-    return wrapper
-
 class Connection:
     """
     Абстрактный класс соединения, позволяющий получить страницы сайта.
@@ -29,11 +21,7 @@ class Connection:
         defaults to 'utf-8'
     :type encoding: str
     """
-    # @todo нужно ли поменять на https? Проверить по юнит тестам.
-    def __init__(self, site='http://www.livelib.ru', bs_parser='lxml', encoding='utf-8'):
-        self.site = site
-        self.bs_parser = bs_parser
-        self.encoding = encoding
+
 
     def get_page_status(self, url: str) -> int:
         """
@@ -109,8 +97,22 @@ class SimpleWeb(Connection):
     :param encoding: кодировка сайта
         defaults to 'utf-8'
     :type encoding: str
+    :param: random_sleep перед запросом страницы засыпание на случайное количество секунд, нужно для обхода блокировок Livelib
+        default to False
+    :type random_sleep: bool
     """
-    @random_sleep
+    # @todo нужно ли поменять на https? Проверить по юнит тестам.
+    def __init__(self, site='http://www.livelib.ru', bs_parser='lxml', encoding='utf-8', random_sleep = False):
+        self.site = site
+        self.bs_parser = bs_parser
+        self.encoding = encoding
+        self.random_sleep = random_sleep
+
+    def do_random_sleep(self):
+        time_to_sleep = random.randint(90, 120)
+        print(f'Sleep for {time_to_sleep} seconds.')
+        time.sleep(time_to_sleep)
+
     def _get_page(self, url: str) -> requests.Response:
         """
         возвращает объект Response по запросу на заданный адрес, либо генерирует исключение.
@@ -119,6 +121,8 @@ class SimpleWeb(Connection):
         :rtype: requests.Response
         :return: объект Response по запросу на заданный адрес
         """
+        if self.random_sleep:
+            self.do_random_sleep()
         # если начало url - не ссылка на сайт, то добавляем
         if url[0] == '/':
             url = self.site + url
@@ -180,6 +184,9 @@ class WebWithCache(Connection):
     :param encoding: кодировка сайта
         defaults to 'utf-8'
     :type encoding: str
+    :param: random_sleep перед запросом страницы с помощью SimpleWeb засыпание на случайное количество секунд, нужно для обхода блокировок Livelib
+        default to False
+    :type random_sleep: bool
     :param default_file_name: название файлов для сохранения в кеше по умолчанию
         defaults to 'index'
     :type default_file_name: str
@@ -189,15 +196,17 @@ class WebWithCache(Connection):
     :param folder: папка для хранения кеша
         defaults to 'cache'
     :type folder: str
+
     """
     default_file_name = 'index'
     default_file_extension = '.html'
 
-    def __init__(self, site='http://www.livelib.ru', bs_parser='lxml', encoding='utf-8', folder='cache'):
+    def __init__(self, site='http://www.livelib.ru', bs_parser='lxml', encoding='utf-8', random_sleep=False, folder='cache'):
         self.site = site
         self.bs_parser = bs_parser
         self.encoding = encoding
         self.folder = folder
+        self.random_sleep = random_sleep
 
     def _parse_url_in_filepath_and_filename(self, url: str) -> list[str,str]:
         """
@@ -296,7 +305,7 @@ class WebWithCache(Connection):
                 raise
         # если нет, вызываем ее через simpleweb и сохраняем в кеше
         else:
-            web = SimpleWeb(site=self.site, bs_parser=self.bs_parser, encoding=self.encoding)
+            web = SimpleWeb(site=self.site, bs_parser=self.bs_parser, encoding=self.encoding, random_sleep=self.random_sleep)
             web_text = web.get_page_text(url)
             if web_text:
                 f = self._create_file(url, web_text)

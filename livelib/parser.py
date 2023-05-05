@@ -105,13 +105,16 @@ class Parser:
             # если это блок с месяцем и годом, запоминаем его для добавления в информацию по последующим книгам
             if 'brow-h2' in block['class']:
                 date = block.text
-                # вытащим месяц, переведем его в цифру
-                month = re.search(r'\D+(?= )',date).group()
-                month_numbers = {'январь':1, 'февраль':2, 'март':3, 'апрель':4, 'май':5, 'июнь':6,
+                # вытащим месяц (если он есть, для старых книг его может не быть), переведем его в цифру
+                month = re.search(r'\D+(?= )',date)
+                if month != None:
+                    month = month.group()
+                    month_numbers = {'январь':1, 'февраль':2, 'март':3, 'апрель':4, 'май':5, 'июнь':6,
                                  'июль':7, 'август':8, 'сентябрь':9, 'октябрь':10, 'ноябрь':11, 'декабрь':12}
-                month = month_numbers.get(month.lower(),None)
+                    month = month_numbers.get(month.lower(),None)
                 # вытащим год
-                year = re.search(r'\d+', date).group()
+                year = re.search(r'\d+', date)
+                if year != None: year = year.group()
             # если это блок с книгой, парсим ее как книгу и вносим месяц и год прочтения в результат
             elif 'book-item-manage' in block['class']:
                 book = Parser.book(block, formatter)

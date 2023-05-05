@@ -2,12 +2,19 @@ from livelib import *
 
 import unittest
 
-r = Reader('Feana',WebWithCache(site='https://www.livelib.ru'))
-res = r.get_all_read_books()
-print(res)
-# url = 'https://www.livelib.ru/reader/Feana/read/~3'
-# r1 = r.get_books_from_page(url)
-# print(r1[0])
+# Eugenia_Novik
+# Feana
+# Kasssiopei - 60 read books
+# ElviraYakovleva - 11 read books
+# Shakespeare - 2096 read books
+
+r = Reader('Shakespeare',WebWithCache(site='https://www.livelib.ru', random_sleep = True))
+# res = r.get_all_read_books()
+# print(res)
+
+
+s = SQLite3Connection('db/first.db')
+# s.create_tables()
 
 
 
