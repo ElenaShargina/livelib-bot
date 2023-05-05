@@ -25,7 +25,6 @@ class TestDBConnection(unittest.TestCase):
         with self.subTest('Testing correct case of creating table'):
             filename = self.get_filename_of_db('correct.db')
             con = SQLite3Connection(filename)
-            self.temp_dbs.append(filename)
             con.create_table('Foo', [{'name':'col1', 'type':'INTEGER'},{'name':'col2','type':'TEXT'}])
             output = con.run_single_sql('PRAGMA table_info(Foo)')
             correct_output = [(0, 'id', 'INTEGER', 0, None, 1), (1, 'col1', 'INTEGER', 0, None, 0), (2, 'col2', 'TEXT', 0, None, 0)]
@@ -52,7 +51,6 @@ class TestDBConnection(unittest.TestCase):
     def test_insert_values(self):
         filename = self.get_filename_of_db('insert_values.db')
         con = SQLite3Connection(filename)
-        self.temp_dbs.append(filename)
         con.create_table('Foo', [{'name': 'col1', 'type': 'INTEGER'}, {'name': 'col2', 'type': 'TEXT'}])
         with self.subTest('Testing correct inserting values'):
             values = [
