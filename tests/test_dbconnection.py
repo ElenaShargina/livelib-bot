@@ -7,8 +7,6 @@ import logging
 
 class TestDBConnection(unittest.TestCase):
 
-    temp_dbs = []
-
     def setUp(self) -> None:
         logging.basicConfig(filename='log.log', level=logging.DEBUG, filemode='w',
                             format="%(asctime)s %(levelname)s %(message)s")
