@@ -25,15 +25,12 @@ class SQLite3Connection(DBConnection):
         result = None
         try:
             con = sqlite3.connect(self.filename)
-            cursor = con.cursor()
             try:
-                cursor.execute(sql)
-                result = cursor.fetchall()
-                con.commit()
+                with con:
+                    result = con.execute(sql).fetchall()
             except sqlite3.Error:
                 logging.exception('Error while processing sql!', exc_info=True)
                 raise
-            cursor.close()
             con.close()
         except sqlite3.Error:
             logging.exception(f'Error while processing sql {sql} in {self.filename} SQLiteConnection! ', exc_info=True)
@@ -56,27 +53,31 @@ class SQLite3Connection(DBConnection):
             logging.exception(f"Can't create table {name}!", exc_info=True)
             raise
 
-    def insert_values(self, table:str, values:List[Dict]):
-        result = None
+    def insert_values(self, table: str, values: List[Dict]) -> int:
+        """
+        Вставляет несколько новых строк в БД. Должно быть согласовано с DataFormatter
+        :param table: название базы данных
+        :type table: str
+        :param values: список вида [{'field_name1':'field_value1','field_name2':'field_value2',...},{...}], где каждый словарь это новая строка
+        :type values: list[Dict]
+        :return: количество вставленных строк
+        :rtype: int
+        """
+        result = 0
         field_names = ', '.join([i for i in values[0].keys()])
         field_values = [[val for val in book.values()] for book in values]
         placeholders = ', '.join(['?' for i in range(len(values[0].keys()))])
-        print('field_names:',field_names)
-        print('field_values:',field_values)
-        print('placeholders:',placeholders)
-
-        # @todo убрать в декоратор?
+        print('field_names:', field_names)
+        print('field_values:', field_values)
+        print('placeholders:', placeholders)
         try:
             con = sqlite3.connect(self.filename)
-            cursor = con.cursor()
             try:
-                cursor.executemany(f"INSERT INTO {table} ({field_names}) VALUES ({placeholders})", field_values)
-                result = cursor.rowcount
-                con.commit()
+                with con:
+                    result = con.executemany(f"INSERT INTO {table} ({field_names}) VALUES ({placeholders})", field_values).rowcount
             except sqlite3.Error:
                 logging.exception('Error while processing sql!', exc_info=True)
                 raise
-            cursor.close()
             con.close()
         except sqlite3.Error:
             logging.exception(f'Error while processing executemany in {self.filename} SQLiteConnection! ', exc_info=True)
