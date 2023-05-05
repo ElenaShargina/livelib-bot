@@ -2,18 +2,24 @@ from livelib import *
 
 import unittest
 
+from livelib.parser import BookDataFormatter
+
 # Eugenia_Novik
 # Feana
 # Kasssiopei - 60 read books
 # ElviraYakovleva - 11 read books
 # Shakespeare - 2096 read books
 
-r = Reader('Shakespeare',WebWithCache(site='https://www.livelib.ru', random_sleep = True))
+# r = Reader('Shakespeare',WebWithCache(site='https://www.livelib.ru', random_sleep = True))
 # res = r.get_all_read_books()
 # print(res)
 
 
 s = SQLite3Connection('db/first.db')
+formatter = BookDataFormatter()
+print(formatter.common_parser())
+# print([i['db'] for i in formatter.common.values()])
+# s.create_table('Books', )
 # s.create_tables()
 
 

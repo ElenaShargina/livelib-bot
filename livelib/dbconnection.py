@@ -1,6 +1,8 @@
 import logging
 import sqlite3
 import os
+from .parser import BookDataFormatter
+from typing import Dict, List
 
 class DBConnection:
     pass
@@ -34,6 +36,20 @@ class SQLite3Connection(DBConnection):
         except sqlite3.Error as error:
             logging.error(f'Error while processing sql {sql} in {self.filename} SQLiteConnection! ', error)
         return result
+
+    def create_table(self, name:str, fields_dict: List[Dict]):
+        """
+
+        :param name:
+        :type name:
+        :param fields_dict: список вида ({'name': 'name_value', 'type': type_value}, {}, ...)
+        :type fields_dict:
+        """
+        print(fields_dict)
+        fields_str = ','.join("id INTEGER NOT NULL PRIMARY KEY" + [i['name']+' '+i['type'] for i in fields_dict])
+        print(fields_str)
+        # sql = f"CREATE TABLE {name} ({})"
+
 
 
     # def create_tables(self):

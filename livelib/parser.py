@@ -10,18 +10,50 @@ class DataFormatter:
     pass
 
 class BookDataFormatter(DataFormatter):
-    common_properties = {
-        'author_id': {'parser': 'get_author_id'},
-        'author_name': {'parser': 'get_author_name'},
-        'book_id': {'parser':'get_book_id'},
-        'book_name': {'parser':'get_book_name'},
-        'common_rating': {'parser':'get_common_rating'},
-        'picture_url': {'parser':'get_picture_url'},
-        'tags': {'parser':'get_tags'}
+    common = {
+        'author_id': {'parser': 'get_author_id', 'db': {'name':'author_id', 'type': 'INTEGER'}},
+        'author_name': {'parser': 'get_author_name', 'db': {'name':'author_name', 'type': 'TEXT'}},
+        'book_id': {'parser':'get_book_id', 'db': {'name':'book_id', 'type': 'INTEGER'}},
+        'book_name': {'parser':'get_book_name', 'db': {'name':'book_name', 'type': 'TEXT'}},
+        'common_rating': {'parser':'get_common_rating', 'db': {'name':'common_rating', 'type': 'REAL'}},
+        'picture_url': {'parser':'get_picture_url', 'db': {'name':'picture_url', 'type': 'TEXT'}},
     }
-    reader_properties = {
-        'reader_rating': {'parser':'get_reader_rating'},
+    reader = {
+        'reader_rating': {'parser':'get_reader_rating', 'db': {'name':'reader_rating', 'type': 'REAL'}},
+        'tags': {'parser': 'get_tags', 'db': {'name':'tags', 'type': 'TEXT'}}
     }
+
+    @classmethod
+    def common_parser(cls):
+        """
+        :return: словарь вида {название_поля: метод_его_обработки}
+        :rtype: Dict
+        """
+        return {i:j['parser'] for i,j in cls.common.items()}
+
+    @classmethod
+    def common_db(cls):
+        """
+        :return: список вида (название_поля_в_БД: тип_поля_в_БД )
+        :rtype: List
+        """
+        return [i['db'] for i in cls.common.values()]
+
+    @classmethod
+    def reader_parser(cls):
+        """
+        :return: словарь вида {название_поля: метод_его_обработки}
+        :rtype: Dict
+        """
+        return {i:j['parser'] for i,j in cls.reader.items()}
+
+    @classmethod
+    def reader_db(cls):
+        """
+        :return: список вида (название_поля_в_БД: тип_поля_в_БД )
+        :rtype: List
+        """
+        return [i['db'] for i in cls.reader.values()]
 
 
 class ReviewDataFormatter(DataFormatter):
@@ -138,16 +170,11 @@ class Parser:
         :rtype: Dict[str,str]
         """
         result = {}
-        for property_name, property_info in dict(formatter.common_properties | formatter.reader_properties).items():
-            parser_function = property_info.get('parser', None)
-            if parser_function:
+        for property_name, parser_function in dict(formatter.common_parser() | formatter.reader_parser()).items():
                 try:
                     result[property_name] = getattr(Parser, parser_function)(bsoup)
                 except AttributeError:
                     logging.exception(f'No parser function {parser_function} is found!', exc_info=True)
-            else:
-                result[property_name] = None
-
         return result
 
     @staticmethod
