@@ -15,13 +15,11 @@ from livelib.parser import BookDataFormatter
 # print(res)
 
 
-s = SQLite3Connection('db/first.db')
+s = SQLite3Connection('db/first11.db')
 formatter = BookDataFormatter
-r = Reader('ElviraYakovleva', WebWithCache(site='https://www.livelib.ru', random_sleep = True), SQLite3Connection('db/first.db'))
-# s.create_table('Books', formatter.common_db())
+r = Reader('Feana', WebWithCache(site='https://www.livelib.ru', random_sleep = True), s)
+s.create_table('Books', formatter.common_db())
 books = r.get_all_read_books()
-p = r.save_books_in_db(books)
-print(p)
 # print(formatter.common_db())
 # print([i['db'] for i in formatter.common.values()])
 # s.create_table('Books', formatter.common_db())

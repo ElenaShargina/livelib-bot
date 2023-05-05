@@ -14,6 +14,7 @@ class BookDataFormatter(DataFormatter):
         'author_id': {'parser': 'get_author_id', 'db': {'name':'author_id', 'type': 'INTEGER'}},
         'author_name': {'parser': 'get_author_name', 'db': {'name':'author_name', 'type': 'TEXT'}},
         'book_id': {'parser':'get_book_id', 'db': {'name':'book_id', 'type': 'INTEGER'}},
+        'work_id': {'parser': 'get_work_id', 'db': {'name': 'work_id', 'type': 'INTEGER'}},
         'book_name': {'parser':'get_book_name', 'db': {'name':'book_name', 'type': 'TEXT'}},
         'common_rating': {'parser':'get_common_rating', 'db': {'name':'common_rating', 'type': 'REAL'}},
         'picture_url': {'parser':'get_picture_url', 'db': {'name':'picture_url', 'type': 'TEXT'}},
@@ -214,6 +215,16 @@ class Parser:
             return None
 
     @staticmethod
+    def get_work_id(bsoup: bs4.BeautifulSoup)->str:
+        book_id = re.compile(r'(?<=/work/)\d+(?=-)')
+        link = bsoup.find('a', class_='brow-book-name')
+        if link:
+            result = re.search(book_id,link.get('href'))
+            return int(result.group()) if result else None
+        else:
+            return None
+
+    @staticmethod
     def get_common_rating(bsoup: bs4.BeautifulSoup) -> float:
         """
         Возвращает общую оценку книги.
@@ -302,6 +313,17 @@ class Parser:
 
     @staticmethod
     def prepare_books_for_db(books:List[Dict], formatter = BookDataFormatter) -> List:
+        """
+        Преобразует список книг для сохранения в БД в соответствии с BookDataFormatter.
+        Нужен в случае, если название колонки в БД отличается от названия свойства парсера и
+        в таблицу с книгами не сохраняются такие свойства книг как теги, оценка читателя и рецензия.
+        :param books: список книг вида [{'parser_field_name1':'field_value1','parser_field_name2':'field_value2'},{}]
+        :type books: List[Dict]
+        :param formatter: класс форматтера
+        :type formatter: Class
+        :return: список для сохранения  в БД вида [{'db_field_name1':'field_value1', 'db_field_name2':'field_value2'}, {}]
+        :rtype: List[Dict]
+        """
         result = []
         for book in books:
             new_book = {}

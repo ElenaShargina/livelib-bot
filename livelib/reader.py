@@ -63,10 +63,10 @@ class Reader:
             for i in pages:
                 try:
                     books = self.get_books_from_page(i)
-                except Exception as exc:
+                    num = self.save_books_in_db(books)
+                    logging.info(f'Saving {num} books to DB')
+                except Exception:
                     logging.exception(f'Read books for reader {self.login}  at {i} is not found! ', exc_info=True)
-                # print(f'page={i}, {len(books)} parsed')
-                # print(books[0])
                 result = result + books
             return result
         except Exception:
