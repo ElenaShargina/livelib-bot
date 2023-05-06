@@ -3,6 +3,7 @@ from .parser import Parser
 from .connection import Connection, SimpleWeb, WebWithCache
 from .reader import Reader
 from .dbconnection import DBConnection,SQLite3Connection
+from .csvconnection import CSVConnection
 import logging
 
 logging.basicConfig(filename='log.log', level=logging.DEBUG, filemode='a', format="%(asctime)s %(levelname)s %(message)s")

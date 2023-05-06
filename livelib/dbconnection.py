@@ -84,8 +84,30 @@ class SQLite3Connection(DBConnection):
             raise
         return result
 
-
-
+    def table_exists(self, name:str) -> bool:
+        """
+        Проверяет, существует ли таблица с заданным именем.
+        :param name: название таблицы
+        :type name: str
+        :return: True, если существует, иначе False
+        :rtype: bool
+        """
+        result = False
+        try:
+            con = sqlite3.connect(self.filename)
+            try:
+                with con:
+                    result = con.execute("SELECT name FROM sqlite_master WHERE type='table' AND name=?", (name,)).fetchone()
+                    result = True if result!=None else False
+            except sqlite3.Error:
+                logging.exception('Error while processing sql!', exc_info=True)
+                raise
+            con.close()
+        except sqlite3.Error:
+            logging.exception(f'Error while processing sql {sql} in {self.filename} SQLiteConnection! ', exc_info=True)
+            raise
+        finally:
+            return result
 
     # def create_tables(self):
     #     con = sqlite3.connect(self.filename)

@@ -5,6 +5,7 @@ import bs4
 from bs4 import BeautifulSoup as bs
 import typing
 from typing import List, Dict
+from datetime import datetime
 
 class DataFormatter:
     pass
@@ -12,25 +13,54 @@ class DataFormatter:
 class BookDataFormatter(DataFormatter):
     # На ЛЛ есть книги с ссылкой вида /book/book_id и произведения с ссылкой вида /work/work_id.
     common = {
-        'author_id': {'parser': 'get_author_id', 'db': {'name':'author_id', 'type': 'INTEGER'}},
-        'author_name': {'parser': 'get_author_name', 'db': {'name':'author_name', 'type': 'TEXT'}},
-        'book_id': {'parser':'get_book_id', 'db': {'name':'book_id', 'type': 'INTEGER'}},
-        'work_id': {'parser': 'get_work_id', 'db': {'name': 'work_id', 'type': 'INTEGER'}},
-        'book_name': {'parser':'get_book_name', 'db': {'name':'book_name', 'type': 'TEXT'}},
-        'common_rating': {'parser':'get_common_rating', 'db': {'name':'common_rating', 'type': 'REAL'}},
-        'picture_url': {'parser':'get_picture_url', 'db': {'name':'picture_url', 'type': 'TEXT'}},
-    }
-    reader = {
-        'reader_rating': {'parser':'get_reader_rating', 'db': {'name':'reader_rating', 'type': 'REAL'}},
-        'tags': {'parser': 'get_tags', 'db': {'name':'tags', 'type': 'TEXT'}},
-    }
-    review = {
-        'review_id': {'parser':'get_review_id', 'db': {'name':'review_id', 'type': 'INTEGER'}},
-        'review_text': {'parser': 'get_review_text', 'db': {'name': 'review_text', 'type': 'TEXT'}},
+        'author_id': {'parser': 'get_author_id',
+                      'db': {'name':'author_id', 'type': 'INTEGER'},
+                      'csv': {'name':'Cсылка на автора', 'method':'create_author_link'}
+                      },
+        'author_name': {'parser': 'get_author_name',
+                        'db': {'name':'author_name', 'type': 'TEXT'},
+                        'csv': {'name':'Автор', }
+                        },
+        'book_id': {'parser':'get_book_id',
+                    'db': {'name':'book_id', 'type': 'INTEGER'},
+                    'csv': {'name':'Ссылка на  книгу', 'method':'create_book_link'}
+                    },
+        'work_id': {'parser': 'get_work_id',
+                    'db': {'name': 'work_id', 'type': 'INTEGER'},
+                    'csv': {'name':'Ссылка на произведение', 'method':'create_work_link'}
+                    },
+        'book_name': {'parser':'get_book_name',
+                      'db': {'name':'book_name', 'type': 'TEXT'},
+                      'csv': {'name':'Название', }
+                      },
+        'common_rating': {'parser':'get_common_rating',
+                          'db': {'name':'common_rating', 'type': 'REAL'},
+                          'csv': {'name':'Общая оценка', }
+                          },
+        'picture_url': {'parser':'get_picture_url',
+                        'db': {'name':'picture_url', 'type': 'TEXT'},
+                        'csv': {'name':'Обложка', 'method':'create_picture_url'}
+                        },
+        'reader_rating': {'parser': 'get_reader_rating',
+                          'db': {'name': 'reader_rating', 'type': 'REAL'},
+                          'csv': {'name': 'Моя оценка', }
+                          },
+        'tags': {'parser': 'get_tags',
+                 'db': {'name': 'tags', 'type': 'TEXT'},
+                 'csv': {'name': 'Теги', }
+                 },
+        'review_id': {'parser': 'get_review_id',
+                      'db': {'name': 'review_id', 'type': 'INTEGER'},
+                      'csv': {'name': 'Ссылка на рецензию', 'method': 'create_review_link'}
+                      },
+        'review_text': {'parser': 'get_review_text',
+                        'db': {'name': 'review_text', 'type': 'TEXT'},
+                        'csv': {'name': 'ссылка на автора', 'method': 'create_author_link'}
+                        },
     }
 
     @classmethod
-    def common_parser(cls):
+    def all_properties_parser(cls):
         """
         :return: словарь вида {название_поля1: метод_обработки_поля1, название_поля2: метод_обработки_поля2, }
         :rtype: Dict
@@ -38,7 +68,7 @@ class BookDataFormatter(DataFormatter):
         return {i:j['parser'] for i,j in cls.common.items()}
 
     @classmethod
-    def common_db(cls):
+    def all_properties_db(cls):
         """
         :return: список вида ({'name': 'название_поля1_в_бд', 'type': 'тип_поля1_в_бд'},
                             {'name': 'название_поля2_в_бд', 'type': 'тип_поля2_в_бд'} )
@@ -46,47 +76,16 @@ class BookDataFormatter(DataFormatter):
         """
         return [i['db'] for i in cls.common.values()]
 
-    @classmethod
-    def reader_parser(cls):
-        """
-        :return: словарь вида {название_поля1: метод_обработки_поля1, название_поля2: метод_обработки_поля2, }
-        :rtype: Dict
-        """
-        return {i:j['parser'] for i,j in cls.reader.items()}
 
     @classmethod
-    def reader_db(cls):
+    def all_properties_csv(cls):
         """
-        :return: список вида ({'name': 'название_поля1_в_бд', 'type': 'тип_поля1_в_бд'},
-                            {'name': 'название_поля2_в_бд', 'type': 'тип_поля2_в_бд'} )
-        :rtype: List
+        Возвращает словарь вида {'author_id': {'name': 'Cсылка на автора', 'method': 'create_author_link'}, {}, ...}
+        :return:
+        :rtype:
         """
-        return [i['db'] for i in cls.reader.values()]
+        return {i:j.get('csv') for i,j in cls.common.items()}
 
-    @classmethod
-    def review_parser(cls):
-        """
-        :return: словарь вида {название_поля1: метод_обработки_поля1, название_поля2: метод_обработки_поля2, }
-        :rtype: Dict
-        """
-        return {i:j['parser'] for i,j in cls.review.items()}
-
-    @classmethod
-    def review_db(cls):
-        """
-        :return: список вида ({'name': 'название_поля1_в_бд', 'type': 'тип_поля1_в_бд'},
-                            {'name': 'название_поля2_в_бд', 'type': 'тип_поля2_в_бд'} )
-        :rtype: List
-        """
-        return [i['db'] for i in cls.review.values()]
-
-    @classmethod
-    def all_properties_parser(cls):
-        return cls.common_parser()|cls.reader_parser()|cls.review_parser()
-
-    @classmethod
-    def all_properties_db(cls):
-        return cls.common_db()+cls.reader_db()+cls.review_db()
 
 class Parser:
     """
@@ -372,7 +371,6 @@ class Parser:
         :return: список для сохранения  в БД вида [{'db_field_name1':'field_value1', 'db_field_name2':'field_value2'}, {}]
         :rtype: List[Dict]
         """
-        # @todo нужен рефакторинг
         result = []
         for book in books:
             new_book = {}
@@ -380,13 +378,19 @@ class Parser:
                 value = book.get(property, None)
                 if value == None: value = ''
                 new_book[formatter.common[property]['db']['name']] = value
-            for property in formatter.reader.keys():
-                value = book.get(property, None)
-                if value == None: value = ''
-                new_book[formatter.reader[property]['db']['name']] = value
-            for property in formatter.review.keys():
-                value = book.get(property, None)
-                if value == None: value = ''
-                new_book[formatter.review[property]['db']['name']] = value
             result.append(new_book)
         return result
+
+    @staticmethod
+    def create_filename_csv(login: str) -> str:
+        """
+        Возвращает безопасное имя файла CSV формата 'login-YYYY-MM-DD--HH-MM-SS.csv'.
+        Из логина читателя будут удалены небезопасные символы.
+        :param login: логин читателя
+        :type login: str
+        :return:
+        :rtype: str
+        """
+        login = login.translate(str.maketrans('', '', '\/:*?"<>|'))
+        return (login + "-" + datetime.now().strftime("%Y-%m-%d--%H-%M-%S") + '.csv')
+

@@ -1,6 +1,8 @@
 from livelib import *
 
 import unittest
+from datetime import datetime
+import os
 
 from livelib.parser import BookDataFormatter
 
@@ -15,12 +17,16 @@ from livelib.parser import BookDataFormatter
 # print(res)
 
 
-s = SQLite3Connection('db/first11.db')
+s = SQLite3Connection('db/ey.db')
 formatter = BookDataFormatter
-r = Reader('Feana', WebWithCache(site='https://www.livelib.ru', random_sleep = True), s)
+r = Reader('ElviraYakovleva', WebWithCache(site='https://www.livelib.ru', random_sleep = True), s)
 
-s.create_table('Books', formatter.all_properties_db())
+print(BookDataFormatter.all_properties_csv())
 books = r.get_all_read_books()
+print(books)
+
+CSVConnection.create_file('ElviraYakovleva.csv', BookDataFormatter.all_properties_csv().keys(), books)
+
 # print(formatter.common_db())
 # print([i['db'] for i in formatter.common.values()])
 # s.create_table('Books', formatter.common_db())

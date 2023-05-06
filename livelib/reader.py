@@ -7,7 +7,7 @@ import logging
 from typing import Any, List
 import random
 import time
-from .dbconnection import  DBConnection
+from .dbconnection import DBConnection
 
 class Reader:
     """
@@ -61,9 +61,11 @@ class Reader:
             for i in page_numbers:
                 pages.append(self.parser.reader_read_books_page_by_number(self.login,i))
             for i in pages:
+                print('page = ',i, ' из ', len(page_numbers))
                 try:
                     books = self.get_books_from_page(i)
                     num = self.save_books_in_db(books)
+                    print(f'Saving {num} books to DB')
                     logging.info(f'Saving {num} books to DB')
                 except Exception:
                     logging.exception(f'Read books for reader {self.login}  at {i} is not found! ', exc_info=True)
@@ -91,6 +93,15 @@ class Reader:
             return False
 
     def save_books_in_db(self, books):
+        """
+        Сохраняем книги в таблице с именем читателя
+        :param books:
+        :type books:
+        :return:
+        :rtype:
+        """
         prepared_books = self.parser.prepare_books_for_db(books)
-        result = self.dbconnection.insert_values('Books', prepared_books)
+        if self.dbconnection.table_exists(self.login):
+            self.dbconnection.create_table(self.login)
+        result = self.dbconnection.insert_values(self.login, prepared_books)
         return result

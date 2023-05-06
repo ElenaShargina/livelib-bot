@@ -73,5 +73,13 @@ class TestDBConnection(unittest.TestCase):
                     output = con.insert_values('Foo', i)
         os.remove(filename)
 
+    def test_table_exists(self):
+        filename = self.get_filename_of_db('db.db', '/db/table_exists/')
+        con = SQLite3Connection(filename)
+        with self.subTest('Testing if table exists'):
+            self.assertTrue(con.table_exists('mytable'))
+        with self.subTest("Testing if table doesn't exist"):
+            self.assertFalse(con.table_exists('notable'))
+
 if __name__ == '__main__':
     unittest.main()
