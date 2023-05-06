@@ -67,9 +67,9 @@ class SQLite3Connection(DBConnection):
         field_names = ', '.join([i for i in values[0].keys()])
         field_values = [[val for val in book.values()] for book in values]
         placeholders = ', '.join(['?' for i in range(len(values[0].keys()))])
-        print('field_names:', field_names)
-        print('field_values:', field_values)
-        print('placeholders:', placeholders)
+        # print('field_names:', field_names)
+        # print('field_values:', field_values)
+        # print('placeholders:', placeholders)
         try:
             con = sqlite3.connect(self.filename)
             try:

@@ -25,13 +25,14 @@ class BookDataFormatter(DataFormatter):
         'tags': {'parser': 'get_tags', 'db': {'name':'tags', 'type': 'TEXT'}},
     }
     review = {
-        'review': {'parser':'get_review', 'db': {'name':'review', 'type': 'TEXT'}},
+        'review_id': {'parser':'get_review_id', 'db': {'name':'review_id', 'type': 'INTEGER'}},
+        'review_text': {'parser': 'get_review_text', 'db': {'name': 'review_text', 'type': 'TEXT'}},
     }
 
     @classmethod
     def common_parser(cls):
         """
-        :return: словарь вида {название_поля: метод_его_обработки, ..:.., }
+        :return: словарь вида {название_поля1: метод_обработки_поля1, название_поля2: метод_обработки_поля2, }
         :rtype: Dict
         """
         return {i:j['parser'] for i,j in cls.common.items()}
@@ -39,7 +40,8 @@ class BookDataFormatter(DataFormatter):
     @classmethod
     def common_db(cls):
         """
-        :return: список вида [{название_поля_в_БД: тип_поля_в_БД},{}]
+        :return: список вида ({'name': 'название_поля1_в_бд', 'type': 'тип_поля1_в_бд'},
+                            {'name': 'название_поля2_в_бд', 'type': 'тип_поля2_в_бд'} )
         :rtype: List
         """
         return [i['db'] for i in cls.common.values()]
@@ -47,7 +49,7 @@ class BookDataFormatter(DataFormatter):
     @classmethod
     def reader_parser(cls):
         """
-        :return: словарь вида {название_поля: метод_его_обработки}
+        :return: словарь вида {название_поля1: метод_обработки_поля1, название_поля2: метод_обработки_поля2, }
         :rtype: Dict
         """
         return {i:j['parser'] for i,j in cls.reader.items()}
@@ -55,17 +57,36 @@ class BookDataFormatter(DataFormatter):
     @classmethod
     def reader_db(cls):
         """
-        :return: список вида (название_поля_в_БД: тип_поля_в_БД )
+        :return: список вида ({'name': 'название_поля1_в_бд', 'type': 'тип_поля1_в_бд'},
+                            {'name': 'название_поля2_в_бд', 'type': 'тип_поля2_в_бд'} )
         :rtype: List
         """
         return [i['db'] for i in cls.reader.values()]
 
+    @classmethod
+    def review_parser(cls):
+        """
+        :return: словарь вида {название_поля1: метод_обработки_поля1, название_поля2: метод_обработки_поля2, }
+        :rtype: Dict
+        """
+        return {i:j['parser'] for i,j in cls.review.items()}
 
-class ReviewDataFormatter(DataFormatter):
-    pass
+    @classmethod
+    def review_db(cls):
+        """
+        :return: список вида ({'name': 'название_поля1_в_бд', 'type': 'тип_поля1_в_бд'},
+                            {'name': 'название_поля2_в_бд', 'type': 'тип_поля2_в_бд'} )
+        :rtype: List
+        """
+        return [i['db'] for i in cls.review.values()]
 
-class ReaderDataFormatter(DataFormatter):
-    pass
+    @classmethod
+    def all_properties_parser(cls):
+        return cls.common_parser()|cls.reader_parser()|cls.review_parser()
+
+    @classmethod
+    def all_properties_db(cls):
+        return cls.common_db()+cls.reader_db()+cls.review_db()
 
 class Parser:
     """
@@ -175,7 +196,7 @@ class Parser:
         :rtype: Dict[str,str]
         """
         result = {}
-        for property_name, parser_function in dict(formatter.common_parser() | formatter.reader_parser()).items():
+        for property_name, parser_function in formatter.all_properties_parser().items():
                 try:
                     result[property_name] = getattr(Parser, parser_function)(bsoup)
                 except AttributeError:
@@ -289,6 +310,29 @@ class Parser:
         return ';'.join(result)
 
     @staticmethod
+    def get_review_id(bsoup: bs4.BeautifulSoup) -> int:
+        result = None
+        review_id = re.compile(r'(?<=review-)\d+(?=-full)')
+        div = bsoup.find(id=review_id)
+        if div != None:
+            result = int(re.search(review_id,div['id']).group())
+        return result
+
+    @staticmethod
+    def get_review_text(bsoup: bs4.BeautifulSoup) -> str:
+        result = None
+        review_id = re.compile(r'(?<=review-)\d+(?=-full)')
+        div = bsoup.find(id=review_id)
+        if div!=None:
+            # сохраняем текст рецензии
+            body = ''.join([str(p) for p in div.find('div', itemprop='reviewBody').contents])
+            # ищем и сохраняем
+            events = div.find('div', class_='event-pad')
+            extra = ''.join([str(p) for p in events.contents]) if events!=None  else ''
+            result = body+extra
+        return result
+
+    @staticmethod
     def get_paginator(bsoup: bs4.BeautifulSoup) -> List[int]:
         """
         Возвращает список номеров страниц из паджинатора в низу страницы. Если страница единственная, и паджинатора нет,
@@ -328,6 +372,7 @@ class Parser:
         :return: список для сохранения  в БД вида [{'db_field_name1':'field_value1', 'db_field_name2':'field_value2'}, {}]
         :rtype: List[Dict]
         """
+        # @todo нужен рефакторинг
         result = []
         for book in books:
             new_book = {}
@@ -339,5 +384,9 @@ class Parser:
                 value = book.get(property, None)
                 if value == None: value = ''
                 new_book[formatter.reader[property]['db']['name']] = value
+            for property in formatter.review.keys():
+                value = book.get(property, None)
+                if value == None: value = ''
+                new_book[formatter.review[property]['db']['name']] = value
             result.append(new_book)
         return result

@@ -18,7 +18,8 @@ from livelib.parser import BookDataFormatter
 s = SQLite3Connection('db/first11.db')
 formatter = BookDataFormatter
 r = Reader('Feana', WebWithCache(site='https://www.livelib.ru', random_sleep = True), s)
-# s.create_table('Books', formatter.common_db()+formatter.reader_db())
+
+s.create_table('Books', formatter.all_properties_db())
 books = r.get_all_read_books()
 # print(formatter.common_db())
 # print([i['db'] for i in formatter.common.values()])
