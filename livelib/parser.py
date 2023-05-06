@@ -10,6 +10,7 @@ class DataFormatter:
     pass
 
 class BookDataFormatter(DataFormatter):
+    # На ЛЛ есть книги с ссылкой вида /book/book_id и произведения с ссылкой вида /work/work_id.
     common = {
         'author_id': {'parser': 'get_author_id', 'db': {'name':'author_id', 'type': 'INTEGER'}},
         'author_name': {'parser': 'get_author_name', 'db': {'name':'author_name', 'type': 'TEXT'}},
@@ -21,7 +22,10 @@ class BookDataFormatter(DataFormatter):
     }
     reader = {
         'reader_rating': {'parser':'get_reader_rating', 'db': {'name':'reader_rating', 'type': 'REAL'}},
-        'tags': {'parser': 'get_tags', 'db': {'name':'tags', 'type': 'TEXT'}}
+        'tags': {'parser': 'get_tags', 'db': {'name':'tags', 'type': 'TEXT'}},
+    }
+    review = {
+        'review': {'parser':'get_review', 'db': {'name':'review', 'type': 'TEXT'}},
     }
 
     @classmethod
@@ -282,7 +286,7 @@ class Parser:
             for i in tags.find_all('a', class_='label-tag'):
                 if re.match(more, i.text)==None:
                     result.append(i.text)
-        return ' '.join(result)
+        return ';'.join(result)
 
     @staticmethod
     def get_paginator(bsoup: bs4.BeautifulSoup) -> List[int]:
@@ -331,5 +335,9 @@ class Parser:
                 value = book.get(property, None)
                 if value == None: value = ''
                 new_book[formatter.common[property]['db']['name']] = value
+            for property in formatter.reader.keys():
+                value = book.get(property, None)
+                if value == None: value = ''
+                new_book[formatter.reader[property]['db']['name']] = value
             result.append(new_book)
         return result
