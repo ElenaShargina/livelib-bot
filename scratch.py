@@ -13,16 +13,18 @@ from livelib.parser import BookDataFormatter
 # res = r.get_all_read_books()
 # print(res)
 
+config = Config('livelib/.env')
+print(config)
 
-# s = SQLite3Connection('db/Shakespeare.db')
-# formatter = BookDataFormatter
-# r = Reader('Shakespeare', WebWithCache(site='https://www.livelib.ru', random_sleep=True), s)
-#
-# books = r.get_all_read_books()
-#
-# CSVConnection.create_file(r.parser.create_filepath_csv(r.login), BookDataFormatter.all_properties_csv().keys(), books)
+db = SQLite3Connection('db/ElviraYakovleva.db')
+formatter = BookDataFormatter
+r = Reader('ElviraYakovleva', WebWithCache(config), db)
+# db.create_table(r.login, BookDataFormatter.all_properties_db())
 
-config = livelib.config.load_config('livelib/.env')
+books = r.get_all_read_books()
+print(BookDataFormatter.all_properties_csv().keys())
+
+CSVConnection.create_file(r.parser.create_filepath_csv(r.login), BookDataFormatter.all_properties_csv().keys(), books, config)
 
 # print(formatter.common_db())
 # print([i['db'] for i in formatter.common.values()])

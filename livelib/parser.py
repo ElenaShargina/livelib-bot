@@ -12,12 +12,13 @@ class DataFormatter:
     pass
 
 class BookDataFormatter(DataFormatter):
-    # На ЛЛ есть книги с ссылкой вида /book/book_id и произведения с ссылкой вида /work/work_id.
-    # 'название_свойства': {'parser': 'метод_для_вынимания_свойства_из_html_кода(если не вынимается, то метод не имплементируется)',
-    #               'db': {'name': 'название_колонки_в_бд', 'type': 'тип_колонки_в_бд'},
-    #               'csv': {'name': 'Название_колонки_в_csv', 'method': 'метод_для_форматирования_значения_для_csv(если не нужен, то не имплементируется)'}
-    #               }
-    # свойство date не вынимается из html, поэтому его parser не существует.
+    # На ЛЛ есть книги со ссылкой вида /book/book_id и произведения со ссылкой вида /work/work_id.
+    # 'название_свойства': {
+    #       'parser': 'метод_для_вынимания_свойства_из_html_кода',
+    #       'db': { 'name': 'название_колонки_в_бд', 'type': 'тип_колонки_в_бд' },
+    #       'csv': { 'name': 'Название_колонки_в_csv', 'method': 'метод_для_форматирования_значения_для_csv' }
+    #       }
+    #       свойство date не вынимается из html, поэтому его parser не существует (не имплементировано)
 
     common = {
         'author_id': {'parser': 'get_author_id',
@@ -65,9 +66,14 @@ class BookDataFormatter(DataFormatter):
                         'csv': {'name': 'ссылка на автора', 'method': 'create_author_link'}
                         },
         'date': {'parser': 'not_implemented',
-                        'db': {'name': 'date', 'type': 'TEXT'},
                         'csv': {'name': 'Дата прочтения',}
                         },
+        'month': {'parser': 'not_implemented',
+                 'db': {'name': 'month', 'type': 'INTEGER'},
+                 },
+        'year': {'parser': 'not_implemented',
+                 'db': {'name': 'year', 'type': 'INTEGER'},
+                 },
     }
 
     @classmethod
@@ -84,7 +90,11 @@ class BookDataFormatter(DataFormatter):
         :return: словарь вида {'название_поля1':'тип_обработки_поля1', 'название_поля2':'тип_обработки_поля1', ...}
         :rtype: List
         """
-        return {i['db']['name']:i['db']['type'] for i in cls.common.values()}
+        result = {}
+        for i in cls.common.values():
+            if i.get('db'):
+                result[i['db']['name']] = i['db']['type']
+        return result
 
 
     @classmethod
@@ -94,7 +104,11 @@ class BookDataFormatter(DataFormatter):
         :return:
         :rtype:
         """
-        return {i:j.get('csv') for i,j in cls.common.items()}
+        result = {}
+        for i,j in cls.common.items():
+            if j.get('csv'):
+                result[i] = j['csv']
+        return result
 
 
 class Parser:
@@ -211,7 +225,7 @@ class Parser:
         result = {}
         for property_name, parser_function in formatter.all_properties_parser().items():
                 try:
-                    if getattr(Parser, parser_function):
+                    if hasattr(Parser, parser_function):
                         result[property_name] = getattr(Parser, parser_function)(bsoup)
                 except AttributeError:
                     logging.exception(f'No parser function {parser_function} is found!', exc_info=True)
@@ -377,8 +391,8 @@ class Parser:
     def prepare_books_for_db(books:List[Dict], formatter = BookDataFormatter) -> List:
         """
         Преобразует список книг для сохранения в БД в соответствии с BookDataFormatter.
-        Нужен в случае, если название колонки в БД отличается от названия свойства парсера и
-        в таблицу с книгами не сохраняются такие свойства книг как теги, оценка читателя и рецензия.
+        Нужен в случае, если название колонки в БД отличается от названия свойства парсера или
+        требуется предварительная обработка значения свойства.
         :param books: список книг вида [{'parser_field_name1':'field_value1','parser_field_name2':'field_value2'},{}]
         :type books: List[Dict]
         :param formatter: класс форматтера
@@ -389,11 +403,12 @@ class Parser:
         result = []
         for book in books:
             new_book = {}
-            for property in formatter.common.keys():
+            for property in formatter.all_properties_db().keys():
                 value = book.get(property, None)
                 if value == None: value = ''
                 new_book[formatter.common[property]['db']['name']] = value
             result.append(new_book)
+        # print(result)
         return result
 
     @staticmethod

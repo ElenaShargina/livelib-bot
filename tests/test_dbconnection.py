@@ -4,7 +4,7 @@ from livelib import SQLite3Connection
 import os
 from livelib.parser import BookDataFormatter
 import logging
-from .utils import get_correct_filename
+from utils import get_correct_filename
 
 
 class TestDBConnection(unittest.TestCase):

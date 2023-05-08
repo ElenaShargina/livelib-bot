@@ -6,14 +6,13 @@ from livelib import Parser, WebWithCache, Config
 from bs4 import BeautifulSoup as bs
 import logging
 import pickle
-from .utils import get_correct_filename
+from utils import get_correct_filename
 
 
 class TestParser(unittest.TestCase):
     @classmethod
     def setUpClass(cls) -> None:
         config_filename = get_correct_filename('parser.env', '')
-        print(config_filename)
         cls.connection = WebWithCache(Config(config_filename))
         logging.basicConfig(filename='log.log', level=logging.DEBUG, filemode='a',
                             format="%(asctime)s %(levelname)s %(message)s")
@@ -174,7 +173,6 @@ class TestParser(unittest.TestCase):
             with open(os.path.join(prefix_folder, str(i), 'file.html'), mode='r',
                       encoding=self.connection.encoding) as f1:
                 output = getattr(Parser, method)(bs4.BeautifulSoup(f1.read(), self.connection.bs_parser))
-                print(output)
                 f1.close()
             with open(os.path.join(prefix_folder, str(i), 'dump'), mode='rb') as f2:
                 # pickle.dump(output,f2)

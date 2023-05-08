@@ -1,9 +1,9 @@
 import logging
 import sqlite3
 import os
-from .parser import BookDataFormatter
+from livelib.parser import BookDataFormatter
 from typing import Dict, List
-from .config import Config
+from livelib.config import Config
 
 class DBConnection:
     pass

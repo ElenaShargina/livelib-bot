@@ -5,6 +5,6 @@ if __name__=='__main__':
     suite = unittest.TestSuite()
     loader = unittest.TestLoader()
     tests = loader.discover('.','test_*.py')
-    print(tests)
+    # print(tests)
     suite.addTests(tests)
     runner.run(suite)

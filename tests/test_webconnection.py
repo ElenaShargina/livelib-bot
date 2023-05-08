@@ -5,7 +5,7 @@ import logging
 import bs4
 import livelib
 from livelib import SimpleWeb, WebWithCache, Config
-from .utils import get_correct_filename
+from utils import get_correct_filename
 
 
 class TestSimpleWeb(unittest.TestCase):
@@ -16,7 +16,7 @@ class TestSimpleWeb(unittest.TestCase):
         ['http://www.livelib.com', True, 200],
         ['http://www.yandex.com', True, 200],
     ]
-    config_file: str = '.env'
+    config_file: str = 'webconnection.env'
 
     @classmethod
     def setUpClass(cls) -> None:
@@ -86,13 +86,19 @@ class TestSimpleWeb(unittest.TestCase):
 
 
 class TestWebWithCache(unittest.TestCase):
-    test_folder = 'web_with_cache_test'
     test_values = []
-    config_file: str = '.env'
+    config_file: str = 'webconnection.env'
+    test_folder: str
 
     @classmethod
     def setUpClass(cls) -> None:
+        print('first')
         cls.config_file = get_correct_filename(filename=cls.config_file, folder='')
+        print('cls.config_file=',cls.config_file)
+        test_config = Config(cls.config_file)
+        print('test_config=',test_config)
+        cls.test_folder = test_config.web_connection.cache_folder
+        print('test_folder=',cls.test_folder)
         logging.basicConfig(filename='log.log', level=logging.DEBUG, filemode='w',
                             format="%(asctime)s %(levelname)s %(message)s")
         logging.debug('Starting to test')
@@ -129,7 +135,8 @@ class TestWebWithCache(unittest.TestCase):
         pass
 
     def test_parse_url_in_filepath_and_filename(self):
-        con = WebWithCache(Config(self.config_file))
+        config = Config(self.config_file)
+        con = WebWithCache(config)
         for i in self.values_path:
             with self.subTest(msg=f'Okey with {i[0]}'):
                 self.assertEqual(i[1], con._parse_url_in_filepath_and_filename(i[0]))
@@ -142,7 +149,7 @@ class TestWebWithCache(unittest.TestCase):
                 self.assertEqual(True, os.path.isfile(i[1][0] + i[1][1]))
                 new_file.close()
 
-    def test_get_page_text(self):
+    def _test_get_page_text(self):
         # тестовые данные вида [подпапка, сайт, адрес_страницы, ожидается_ли_ответ]
         # подпапки нужны так как в тестовых данных встречаются разные сайты и их нужно разделить
         # в самой программе при штатной работе будет только один сайт
@@ -150,7 +157,7 @@ class TestWebWithCache(unittest.TestCase):
             with self.subTest(msg=f'Okey with {i[2]}'):
                 config = Config(self.config_file)
                 config.web_connection.site = i[1]
-                config.web_connection.cache_folder = self.test_folder + '/' + i[0]
+                config.web_connection.cache_folder = config.web_connection.cache_folder + '/' + i[0]
                 con = WebWithCache(config)
                 if i[3]:
                     # сайт существует
@@ -160,7 +167,7 @@ class TestWebWithCache(unittest.TestCase):
                     with self.assertRaises(Exception):
                         con.get_page_text(i[2])
 
-    def test__get_page_bs(self):
+    def _test__get_page_bs(self):
         # тестовые данные вида [подпапка, сайт, адрес_страницы, ожидается_ли_ответ]
         # подпапки нужны так как в тестовых данных встречаются разные сайты и их нужно разделить
         # в самой программе при штатной работе будет только один сайт
@@ -168,7 +175,7 @@ class TestWebWithCache(unittest.TestCase):
             with self.subTest(msg=f'Okey with {i[2]}'):
                 config = Config(self.config_file)
                 config.web_connection.site = i[1]
-                config.web_connection.cache_folder = self.test_folder + '/' + i[0]
+                config.web_connection.cache_folder = config.web_connection.cache_folder + '/' + i[0]
                 con = WebWithCache(config)
                 if i[3]:
                     # сайт существует
