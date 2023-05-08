@@ -17,7 +17,7 @@ class TestSimpleWeb(unittest.TestCase):
     ]
     config_file: str = '.env'
 
-    def get_filename_of_env(self, filename='.env', folder='/tests/',):
+    def get_filename_of_env(self, filename='.env', folder='',):
         """
         служебная функция для получения корректного пути до тестового файла конфига,
         нужна для правильной отработки тестов в Github Actions
