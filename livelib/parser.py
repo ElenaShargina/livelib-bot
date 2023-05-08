@@ -1,4 +1,5 @@
 import logging
+import os
 import re
 
 import bs4
@@ -57,6 +58,10 @@ class BookDataFormatter(DataFormatter):
                         'db': {'name': 'review_text', 'type': 'TEXT'},
                         'csv': {'name': 'ссылка на автора', 'method': 'create_author_link'}
                         },
+        'date': {'parser': 'get_date',
+                        'db': {'name': 'date', 'type': 'TEXT'},
+                        'csv': {'name': 'Дата прочтения',}
+                        },
     }
 
     @classmethod
@@ -70,11 +75,10 @@ class BookDataFormatter(DataFormatter):
     @classmethod
     def all_properties_db(cls):
         """
-        :return: список вида ({'name': 'название_поля1_в_бд', 'type': 'тип_поля1_в_бд'},
-                            {'name': 'название_поля2_в_бд', 'type': 'тип_поля2_в_бд'} )
+        :return: словарь вида {'name_field1':'type_field1', 'name_field2':'type_field2', ...}
         :rtype: List
         """
-        return [i['db'] for i in cls.common.values()]
+        return {i['db']['name']:i['db']['type'] for i in cls.common.values()}
 
 
     @classmethod
@@ -166,17 +170,19 @@ class Parser:
                 month = re.search(r'\D+(?= )',date)
                 if month != None:
                     month = month.group()
-                    month_numbers = {'январь':1, 'февраль':2, 'март':3, 'апрель':4, 'май':5, 'июнь':6,
-                                 'июль':7, 'август':8, 'сентябрь':9, 'октябрь':10, 'ноябрь':11, 'декабрь':12}
-                    month = month_numbers.get(month.lower(),None)
+                    # month_numbers = {'январь':1, 'февраль':2, 'март':3, 'апрель':4, 'май':5, 'июнь':6,
+                    #              'июль':7, 'август':8, 'сентябрь':9, 'октябрь':10, 'ноябрь':11, 'декабрь':12}
+                    # month = month_numbers.get(month.lower(),None)
                 # вытащим год
                 year = re.search(r'\d+', date)
                 if year != None: year = year.group()
             # если это блок с книгой, парсим ее как книгу и вносим месяц и год прочтения в результат
             elif 'book-item-manage' in block['class']:
                 book = Parser.book(block, formatter)
-                if month: book['month'] = month
-                if year: book['year'] = year
+                date = []
+                if month: date.append(month)
+                if year: date.append(year)
+                book['date'] = ' '.join(date)
                 result.append(book)
         return result
 
@@ -201,6 +207,10 @@ class Parser:
                 except AttributeError:
                     logging.exception(f'No parser function {parser_function} is found!', exc_info=True)
         return result
+
+    @staticmethod
+    def get_date(bsoup:bs4.BeautifulSoup)->str:
+        return None
 
     @staticmethod
     def get_author_name(bsoup: bs4.BeautifulSoup)->str:
@@ -382,9 +392,9 @@ class Parser:
         return result
 
     @staticmethod
-    def create_filename_csv(login: str) -> str:
+    def create_filepath_csv(login: str) -> str:
         """
-        Возвращает безопасное имя файла CSV формата 'login-YYYY-MM-DD--HH-MM-SS.csv'.
+        Возвращает путь и безопасное имя файла CSV формата 'login-YYYY-MM-DD--HH-MM-SS.csv'.
         Из логина читателя будут удалены небезопасные символы.
         :param login: логин читателя
         :type login: str
@@ -392,5 +402,7 @@ class Parser:
         :rtype: str
         """
         login = login.translate(str.maketrans('', '', '\/:*?"<>|'))
-        return (login + "-" + datetime.now().strftime("%Y-%m-%d--%H-%M-%S") + '.csv')
+        filename = login + "-" + datetime.now().strftime("%Y-%m-%d--%H-%M-%S") + '.csv'
+        # @todo тут должна задаваться папка для сохранения csv
+        return(os.path.join('csv', filename))
 

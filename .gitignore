@@ -3,3 +3,4 @@ test_offline/
 offline_test/
 tests/log.log
 log.log
+/.env

@@ -8,6 +8,8 @@ from typing import Any, List
 import random
 import time
 from .dbconnection import DBConnection
+from .parser import BookDataFormatter
+
 
 class Reader:
     """
@@ -20,7 +22,7 @@ class Reader:
         defaults to Parser
     :type bs_parser: str
     """
-    def __init__(self, login: str, connection: Connection, dbconnection: DBConnection, parser: Any = Parser):
+    def __init__(self, login: str, connection: WebConnection, dbconnection: DBConnection, parser: Any = Parser):
         self.login = login
         self.connection = connection
         self.parser = parser
@@ -52,15 +54,20 @@ class Reader:
         """
         result = []
         try:
+            # проверяем, есть ли таблица для читателя в БД
+            if not self.dbconnection.table_exists(self.login):
+                self.dbconnection.create_table(self.login, BookDataFormatter.all_properties_db())
             # вызовем первую страницу со всеми книгами, чтобы забрать оттуда из паджинатора список страниц с книгами
             page = self.connection.get_page_bs(self.all_books, self.parser)
             page_numbers = self.parser.get_paginator(page)
             # если у читателя меньше 20 книг, то паджинатора нет, но есть 1 страница с прочитанным
             if page_numbers == []: page_numbers = [1]
+            # формируем список адресов страниц с книгами читателя
             pages = []
             for i in page_numbers:
                 pages.append(self.parser.reader_read_books_page_by_number(self.login,i))
             for i in pages:
+                books = []
                 print('page = ',i, ' из ', len(page_numbers))
                 try:
                     books = self.get_books_from_page(i)
@@ -101,7 +108,5 @@ class Reader:
         :rtype:
         """
         prepared_books = self.parser.prepare_books_for_db(books)
-        if self.dbconnection.table_exists(self.login):
-            self.dbconnection.create_table(self.login)
         result = self.dbconnection.insert_values(self.login, prepared_books)
         return result

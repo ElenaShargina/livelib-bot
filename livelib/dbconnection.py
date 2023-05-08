@@ -42,10 +42,11 @@ class SQLite3Connection(DBConnection):
         Создает таблицу с заданным названием и структурой
         :param name:
         :type name:
-        :param fields_dict: список вида ({'name': 'name_value', 'type': type_value}, {}, ...)
+        :param fields_dict: словарь вида {'name_field1':'type_field1', 'name_field2':'type_field2', ...}
         :type fields_dict:
         """
-        fields_str = ','.join(["id INTEGER PRIMARY KEY AUTOINCREMENT "] + [i['name']+' '+i['type'] for i in fields_dict])
+        fields_str = ','.join(["id INTEGER PRIMARY KEY AUTOINCREMENT "] + [i+' '+j for i,j in fields_dict.items()])
+        #@todo небезопасно вот тут
         sql = f"CREATE TABLE {name} ({fields_str})"
         try:
             self.run_single_sql(sql)

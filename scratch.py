@@ -1,8 +1,5 @@
+import livelib.config
 from livelib import *
-
-import unittest
-from datetime import datetime
-import os
 
 from livelib.parser import BookDataFormatter
 
@@ -17,23 +14,21 @@ from livelib.parser import BookDataFormatter
 # print(res)
 
 
-s = SQLite3Connection('db/ey.db')
-formatter = BookDataFormatter
-r = Reader('ElviraYakovleva', WebWithCache(site='https://www.livelib.ru', random_sleep = True), s)
+# s = SQLite3Connection('db/Shakespeare.db')
+# formatter = BookDataFormatter
+# r = Reader('Shakespeare', WebWithCache(site='https://www.livelib.ru', random_sleep=True), s)
+#
+# books = r.get_all_read_books()
+#
+# CSVConnection.create_file(r.parser.create_filepath_csv(r.login), BookDataFormatter.all_properties_csv().keys(), books)
 
-print(BookDataFormatter.all_properties_csv())
-books = r.get_all_read_books()
-print(books)
-
-CSVConnection.create_file('ElviraYakovleva.csv', BookDataFormatter.all_properties_csv().keys(), books)
+config = livelib.config.load_config('livelib/.env')
 
 # print(formatter.common_db())
 # print([i['db'] for i in formatter.common.values()])
 # s.create_table('Books', formatter.common_db())
 # print(s.run_single_sql('PRAGMA table_info(Books)'))
 # s.create_tables()
-
-
 
 
 # r = Reader('qwerty5677890', connection=WebWithCache(folder='cache',encoding='utf-8'), bsparser=BSParser() )

@@ -7,8 +7,10 @@ import logging
 from typing import List
 from .parser import Parser
 import time, random
+from .config import Config
 
-class Connection:
+
+class WebConnection:
     """
     Абстрактный класс соединения, позволяющий получить страницы сайта.
     :param site: адрес сайта формата "http://www.livelib.ru",
@@ -21,7 +23,6 @@ class Connection:
         defaults to 'utf-8'
     :type encoding: str
     """
-
 
     def get_page_status(self, url: str) -> int:
         """
@@ -54,9 +55,9 @@ class Connection:
             result = bs4.BeautifulSoup(self.get_page_text(url), features=self.bs_parser)
         except Exception:
             logging.exception(f'Can not get BS object from {url}', exc_info=True)
+            result = None
         else:
             return result
-
 
     def get_page_bs(self, url: str, parser=Parser) -> bs4.BeautifulSoup or bool:
         """
@@ -83,7 +84,7 @@ class Connection:
                 return result
 
 
-class SimpleWeb(Connection):
+class SimpleWeb(WebConnection):
     """
     Класс соединения, получающий страницы сайта только из сети напрямую.
     Так как сайт Livelib медленный и не поддерживает много запросов,
@@ -101,11 +102,12 @@ class SimpleWeb(Connection):
         default to False
     :type random_sleep: bool
     """
+
     # @todo нужно ли поменять на https? Проверить по юнит тестам.
-    def __init__(self, site='http://www.livelib.ru', bs_parser='lxml', encoding='utf-8', random_sleep = False):
-        self.site = site
-        self.bs_parser = bs_parser
-        self.encoding = encoding
+    def __init__(self, config: Config, random_sleep=False):
+        self.site = config.web_connection.site
+        self.bs_parser = config.bs_parser.features
+        self.encoding = config.encoding
         self.random_sleep = random_sleep
 
     def do_random_sleep(self):
@@ -171,7 +173,7 @@ class SimpleWeb(Connection):
             return page.text
 
 
-class WebWithCache(Connection):
+class WebWithCache(WebConnection):
     """
     Класс соединения, позволяющий получить страницы сайта из локального кеша или, если их там нет, из сети.
     Так как сайт Livelib медленный и не поддерживает много запросов, то этот вид соединения экономит время.
@@ -201,14 +203,15 @@ class WebWithCache(Connection):
     default_file_name = 'index'
     default_file_extension = '.html'
 
-    def __init__(self, site='http://www.livelib.ru', bs_parser='lxml', encoding='utf-8', random_sleep=False, folder='cache'):
-        self.site = site
-        self.bs_parser = bs_parser
-        self.encoding = encoding
-        self.folder = folder
+    def __init__(self, config: Config, random_sleep=False):
+        self.config = config
+        self.site = config.web_connection.site
+        self.bs_parser = config.bs_parser.features
+        self.encoding = config.encoding
+        self.folder = config.web_connection.cache_folder
         self.random_sleep = random_sleep
 
-    def _parse_url_in_filepath_and_filename(self, url: str) -> list[str,str]:
+    def _parse_url_in_filepath_and_filename(self, url: str) -> list[str, str]:
         """
         Подготовка для сохранения страницы в кеше: разбивает адрес страницы на директории и название файла.
         Например, http://www.livelib.ru/reader/qwerty/books -> ['/cache/reader/qwerty/','books.html']
@@ -305,7 +308,8 @@ class WebWithCache(Connection):
                 raise
         # если нет, вызываем ее через simpleweb и сохраняем в кеше
         else:
-            web = SimpleWeb(site=self.site, bs_parser=self.bs_parser, encoding=self.encoding, random_sleep=self.random_sleep)
+            web = SimpleWeb(config=self.config,
+                            random_sleep=self.random_sleep)
             web_text = web.get_page_text(url)
             if web_text:
                 f = self._create_file(url, web_text)
