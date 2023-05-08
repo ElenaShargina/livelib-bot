@@ -23,6 +23,7 @@ r = Reader('ElviraYakovleva', WebWithCache(config), db)
 
 books = r.get_all_read_books()
 print(BookDataFormatter.all_properties_csv().keys())
+print('gg')
 
 CSVConnection.create_file(r.parser.create_filepath_csv(r.login), BookDataFormatter.all_properties_csv().keys(), books, config)
 
