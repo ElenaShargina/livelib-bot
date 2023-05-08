@@ -2,43 +2,58 @@ import unittest
 import os
 import bs4
 
-from livelib import Parser, WebWithCache
+from livelib import Parser, WebWithCache, Config
 from bs4 import BeautifulSoup as bs
 import logging
 import pickle
+from .utils import get_correct_filename
+
 
 class TestParser(unittest.TestCase):
-    def setUp(self) -> None:
-        self.connection = WebWithCache(folder='data')
+    @classmethod
+    def setUpClass(cls) -> None:
+        config_filename = get_correct_filename('parser.env', '')
+        print(config_filename)
+        cls.connection = WebWithCache(Config(config_filename))
         logging.basicConfig(filename='log.log', level=logging.DEBUG, filemode='a',
                             format="%(asctime)s %(levelname)s %(message)s")
         # структура тестовых данных для reader_prefix, reader_all_books, check_404:
         # логин, префикс_страницы_читателя, все_книги_читателя, страница_404
-        self.values = [
+        cls.values = [
             ['serp996', '/reader/serp996', '/reader/serp996/read/listview/smalllist', False],
             ['qwerty5677890', '/reader/qwerty5677890', '/reader/qwerty5677890/read/listview/smalllist', True],
 
         ]
         # тестовые данные для get_author_id, get_author_name
-        self.author_values = [
-            ['<a class="brow-book-author" href="/author/22748-vladimir-obruchev" title="Владимир Обручев">Владимир Обручев</a>', 'Владимир Обручев', 22748],
-            ['<a class="brow-book-author" href="/author/vladimir-obruchev" title="Владимир Обручев">Владимир Обручев</a>', 'Владимир Обручев', None],
+        cls.author_values = [
+            [
+                '<a class="brow-book-author" href="/author/22748-vladimir-obruchev" title="Владимир Обручев">Владимир Обручев</a>',
+                'Владимир Обручев', 22748],
+            [
+                '<a class="brow-book-author" href="/author/vladimir-obruchev" title="Владимир Обручев">Владимир Обручев</a>',
+                'Владимир Обручев', None],
             ['<a class="brow-book-author" href="/author/vladimir-obruchev" title="Владимир Обручев"></a>', None, None],
-            ['<a class="brow-book-author111" href="/author/22748-vladimir-obruchev" title="Владимир Обручев">Владимир Обручев</a>', None, None],
-        ]
-
-        self.book_values = [
-            ['<a class="brow-book-name with-cycle" href="/book/1001130597-zemlya-sannikova-vladimir-obruchev" title="Владимир Обручев - Земля Санникова">Земля Санникова</a>',
-             'Земля Санникова', 1001130597],
-            ['<a class="brow-book-name with-cycle" href="/book/-zemlya-sannikova-vladimir-obruchev" title="Владимир Обручев - Земля Санникова">Земля Санникова</a>',
-             'Земля Санникова', None],
-            ['<a class="brow-book-name with-cycle" href="/book/-zemlya-sannikova-vladimir-obruchev" title="Владимир Обручев - Земля Санникова"></a>',
-                None, None],
-            ['<a class="brow-book-namqqqq with-cycle" href="/book/-zemlya-sannikova-vladimir-obruchev" title="Владимир Обручев - Земля Санникова"></a>',
+            [
+                '<a class="brow-book-author111" href="/author/22748-vladimir-obruchev" title="Владимир Обручев">Владимир Обручев</a>',
                 None, None],
         ]
 
-        self.rating_values = [
+        cls.book_values = [
+            [
+                '<a class="brow-book-name with-cycle" href="/book/1001130597-zemlya-sannikova-vladimir-obruchev" title="Владимир Обручев - Земля Санникова">Земля Санникова</a>',
+                'Земля Санникова', 1001130597],
+            [
+                '<a class="brow-book-name with-cycle" href="/book/-zemlya-sannikova-vladimir-obruchev" title="Владимир Обручев - Земля Санникова">Земля Санникова</a>',
+                'Земля Санникова', None],
+            [
+                '<a class="brow-book-name with-cycle" href="/book/-zemlya-sannikova-vladimir-obruchev" title="Владимир Обручев - Земля Санникова"></a>',
+                None, None],
+            [
+                '<a class="brow-book-namqqqq with-cycle" href="/book/-zemlya-sannikova-vladimir-obruchev" title="Владимир Обручев - Земля Санникова"></a>',
+                None, None],
+        ]
+
+        cls.rating_values = [
             [
                 """
                 <div class="brow-ratings">Моя оценка:<span class="brow-rating marg-right"><span class="rating-book">
@@ -49,7 +64,7 @@ class TestParser(unittest.TestCase):
                 """, 3.84, 3
             ],
         ]
-        self.picture_url_values = [
+        cls.picture_url_values = [
             ["""
             <div class="cover-wrapper"><a href="/book/1000945667-svodya-schety-vudi-allen" title="Вуди Аллен - Сводя счеты">
             <img alt="Вуди Аллен - Сводя счеты" title="Вуди Аллен - Сводя счеты" width="70" style="min-width:70px; background-color: #ffffff;" 
@@ -66,19 +81,19 @@ class TestParser(unittest.TestCase):
         style="min-width:70px; background-color: #ffffff;" title="Джефф Нун - Брошенные машины" width="70"/></a></div>
         """,
              'https://s1.livelib.ru/boocover/1000188660/70/919a/Dzheff_Nun__Broshennye_mashiny.jpg'
-            ]
+             ]
         ]
 
         def into_bs(x):
             for i in x:
-                i[0] = bs4.BeautifulSoup(i[0], self.connection.bs_parser)
+                i[0] = bs4.BeautifulSoup(i[0], cls.connection.bs_parser)
             return x
 
         # для удобства преобразуем строки в BeautifulSoup
-        self.book_values = into_bs(self.book_values)
-        self.author_values = into_bs(self.author_values)
-        self.rating_values = into_bs(self.rating_values)
-        self.picture_url_values = into_bs(self.picture_url_values)
+        cls.book_values = into_bs(cls.book_values)
+        cls.author_values = into_bs(cls.author_values)
+        cls.rating_values = into_bs(cls.rating_values)
+        cls.picture_url_values = into_bs(cls.picture_url_values)
 
     def test_reader_prefix(self):
         for i in self.values:
@@ -93,7 +108,8 @@ class TestParser(unittest.TestCase):
     def test_check_404(self):
         for i in self.values:
             with self.subTest(msg=f'Test with {i}'):
-                text = bs(self.connection.get_page_text(Parser.reader_all_books(i[0])), features=self.connection.bs_parser)
+                text = bs(self.connection.get_page_text(Parser.reader_all_books(i[0])),
+                          features=self.connection.bs_parser)
                 self.assertEqual(i[3], Parser.check_404(text))
 
     # вставить данные для отсутствия книжек
@@ -101,7 +117,8 @@ class TestParser(unittest.TestCase):
         values = ['Feana']
         con = WebWithCache()
         for i in values:
-            self.assertGreater(len(Parser.all_books_from_page(con.get_page_bs('http://www.livelib.ru/reader/Feana/read'))),0)
+            self.assertGreater(
+                len(Parser.all_books_from_page(con.get_page_bs('http://www.livelib.ru/reader/Feana/read'))), 0)
 
     def test_get_author_name(self):
         for i in self.author_values:
@@ -156,7 +173,8 @@ class TestParser(unittest.TestCase):
         for i in subdirs:
             with open(os.path.join(prefix_folder, str(i), 'file.html'), mode='r',
                       encoding=self.connection.encoding) as f1:
-                output = getattr(Parser,method)(bs4.BeautifulSoup(f1.read(), self.connection.bs_parser))
+                output = getattr(Parser, method)(bs4.BeautifulSoup(f1.read(), self.connection.bs_parser))
+                print(output)
                 f1.close()
             with open(os.path.join(prefix_folder, str(i), 'dump'), mode='rb') as f2:
                 # pickle.dump(output,f2)
@@ -175,5 +193,6 @@ class TestParser(unittest.TestCase):
     def test_get_tags(self):
         self.compare_results_with_dump('get_tags', '/data/sample/tags/')
 
-if __name__=='__main__':
+
+if __name__ == '__main__':
     unittest.main()

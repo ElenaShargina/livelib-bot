@@ -13,6 +13,12 @@ class DataFormatter:
 
 class BookDataFormatter(DataFormatter):
     # На ЛЛ есть книги с ссылкой вида /book/book_id и произведения с ссылкой вида /work/work_id.
+    # 'название_свойства': {'parser': 'метод_для_вынимания_свойства_из_html_кода(если не вынимается, то метод не имплементируется)',
+    #               'db': {'name': 'название_колонки_в_бд', 'type': 'тип_колонки_в_бд'},
+    #               'csv': {'name': 'Название_колонки_в_csv', 'method': 'метод_для_форматирования_значения_для_csv(если не нужен, то не имплементируется)'}
+    #               }
+    # свойство date не вынимается из html, поэтому его parser не существует.
+
     common = {
         'author_id': {'parser': 'get_author_id',
                       'db': {'name':'author_id', 'type': 'INTEGER'},
@@ -58,7 +64,7 @@ class BookDataFormatter(DataFormatter):
                         'db': {'name': 'review_text', 'type': 'TEXT'},
                         'csv': {'name': 'ссылка на автора', 'method': 'create_author_link'}
                         },
-        'date': {'parser': 'get_date',
+        'date': {'parser': 'not_implemented',
                         'db': {'name': 'date', 'type': 'TEXT'},
                         'csv': {'name': 'Дата прочтения',}
                         },
@@ -75,7 +81,7 @@ class BookDataFormatter(DataFormatter):
     @classmethod
     def all_properties_db(cls):
         """
-        :return: словарь вида {'name_field1':'type_field1', 'name_field2':'type_field2', ...}
+        :return: словарь вида {'название_поля1':'тип_обработки_поля1', 'название_поля2':'тип_обработки_поля1', ...}
         :rtype: List
         """
         return {i['db']['name']:i['db']['type'] for i in cls.common.values()}
@@ -170,19 +176,21 @@ class Parser:
                 month = re.search(r'\D+(?= )',date)
                 if month != None:
                     month = month.group()
-                    # month_numbers = {'январь':1, 'февраль':2, 'март':3, 'апрель':4, 'май':5, 'июнь':6,
-                    #              'июль':7, 'август':8, 'сентябрь':9, 'октябрь':10, 'ноябрь':11, 'декабрь':12}
-                    # month = month_numbers.get(month.lower(),None)
+                    month_numbers = {'январь':1, 'февраль':2, 'март':3, 'апрель':4, 'май':5, 'июнь':6,
+                                 'июль':7, 'август':8, 'сентябрь':9, 'октябрь':10, 'ноябрь':11, 'декабрь':12}
+                    month = month_numbers.get(month.lower(),None)
                 # вытащим год
                 year = re.search(r'\d+', date)
                 if year != None: year = year.group()
             # если это блок с книгой, парсим ее как книгу и вносим месяц и год прочтения в результат
             elif 'book-item-manage' in block['class']:
                 book = Parser.book(block, formatter)
-                date = []
-                if month: date.append(month)
-                if year: date.append(year)
-                book['date'] = ' '.join(date)
+                # date = []
+                # if month: date.append(month)
+                # if year: date.append(year)
+                # book['date'] = ' '.join(date)
+                if month: book['month'] = month
+                if year: book['year'] = year
                 result.append(book)
         return result
 
@@ -203,14 +211,11 @@ class Parser:
         result = {}
         for property_name, parser_function in formatter.all_properties_parser().items():
                 try:
-                    result[property_name] = getattr(Parser, parser_function)(bsoup)
+                    if getattr(Parser, parser_function):
+                        result[property_name] = getattr(Parser, parser_function)(bsoup)
                 except AttributeError:
                     logging.exception(f'No parser function {parser_function} is found!', exc_info=True)
         return result
-
-    @staticmethod
-    def get_date(bsoup:bs4.BeautifulSoup)->str:
-        return None
 
     @staticmethod
     def get_author_name(bsoup: bs4.BeautifulSoup)->str:
