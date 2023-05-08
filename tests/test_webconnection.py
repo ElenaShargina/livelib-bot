@@ -5,7 +5,7 @@ import logging
 import bs4
 import livelib
 from livelib import SimpleWeb, WebWithCache, Config
-import utils
+from .utils import get_filename_of_env
 
 
 class TestSimpleWeb(unittest.TestCase):
@@ -20,7 +20,7 @@ class TestSimpleWeb(unittest.TestCase):
 
     @classmethod
     def setUp(cls) -> None:
-        cls.config_file = utils.get_filename_of_env(filename='.env', folder='')
+        cls.config_file = get_filename_of_env(filename=cls.config_file, folder='')
         print(cls.config_file)
 
     def test_get_page_status(self):
@@ -90,6 +90,11 @@ class TestWebWithCache(unittest.TestCase):
     test_folder = 'web_with_cache_test'
     test_values = []
     config_file: str = '.env'
+
+    @classmethod
+    def setUp(cls) -> None:
+        cls.config_file = get_filename_of_env(filename=cls.config_file, folder='')
+        print(cls.config_file)
 
     def _remove_folder(self, path):
         if os.path.isdir(path):
