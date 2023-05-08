@@ -5,7 +5,7 @@ import logging
 import bs4
 import livelib
 from livelib import SimpleWeb, WebWithCache, Config
-from .utils import get_filename_of_env
+from .utils import get_correct_filename
 
 
 class TestSimpleWeb(unittest.TestCase):
@@ -20,7 +20,7 @@ class TestSimpleWeb(unittest.TestCase):
 
     @classmethod
     def setUpClass(cls) -> None:
-        cls.config_file = get_filename_of_env(filename=cls.config_file, folder='')
+        cls.config_file = get_correct_filename(filename=cls.config_file, folder='')
 
     def test_get_page_status(self):
         con = SimpleWeb(Config(self.config_file))
@@ -92,7 +92,7 @@ class TestWebWithCache(unittest.TestCase):
 
     @classmethod
     def setUpClass(cls) -> None:
-        cls.config_file = get_filename_of_env(filename=cls.config_file, folder='')
+        cls.config_file = get_correct_filename(filename=cls.config_file, folder='')
         logging.basicConfig(filename='log.log', level=logging.DEBUG, filemode='w',
                             format="%(asctime)s %(levelname)s %(message)s")
         logging.debug('Starting to test')

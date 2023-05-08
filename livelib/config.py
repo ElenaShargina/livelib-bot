@@ -12,6 +12,10 @@ class BSParserConfig:
     features: str # Способ парсинга BeautifulSoup
 
 @dataclass
+class DBConfig:
+    sqlite_db: str # основная база данных в sqlite3
+
+@dataclass
 class Config:
     web_connection: WebConnectionConfig
     bs_parser: BSParserConfig

@@ -3,13 +3,12 @@ import sqlite3
 import os
 from .parser import BookDataFormatter
 from typing import Dict, List
+from .config import Config
 
 class DBConnection:
     pass
 
 class SQLite3Connection(DBConnection):
-    folder = 'db'
-
     def __init__(self, filename: str):
         self.filename = filename
         try:
@@ -105,10 +104,16 @@ class SQLite3Connection(DBConnection):
                 raise
             con.close()
         except sqlite3.Error:
-            logging.exception(f'Error while processing sql {sql} in {self.filename} SQLiteConnection! ', exc_info=True)
+            logging.exception(f'Error while connecting to database in {self.filename} SQLiteConnection! ', exc_info=True)
             raise
         finally:
             return result
+
+    def get_table_schema(self, table:str) -> list[tuple]:
+        if self.table_exists(table):
+            return self.run_single_sql(f'PRAGMA table_info({table})')
+        else:
+            return None
 
     # def create_tables(self):
     #     con = sqlite3.connect(self.filename)
