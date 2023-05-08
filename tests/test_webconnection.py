@@ -19,9 +19,8 @@ class TestSimpleWeb(unittest.TestCase):
     config_file: str = '.env'
 
     @classmethod
-    def setUp(cls) -> None:
+    def setUpClass(cls) -> None:
         cls.config_file = get_filename_of_env(filename=cls.config_file, folder='')
-        print(cls.config_file)
 
     def test_get_page_status(self):
         con = SimpleWeb(Config(self.config_file))
@@ -92,9 +91,29 @@ class TestWebWithCache(unittest.TestCase):
     config_file: str = '.env'
 
     @classmethod
-    def setUp(cls) -> None:
+    def setUpClass(cls) -> None:
         cls.config_file = get_filename_of_env(filename=cls.config_file, folder='')
-        print(cls.config_file)
+        logging.basicConfig(filename='log.log', level=logging.DEBUG, filemode='w',
+                            format="%(asctime)s %(levelname)s %(message)s")
+        logging.debug('Starting to test')
+        if os.path.isdir(cls.test_folder):
+            cls._remove_folder(cls.test_folder)
+        cls.values_path = [
+            ['http://www.livelib.ru/', [cls.test_folder + '/', 'index.html']],
+            ['http://www.livelib.ru/foo/bar', [cls.test_folder + '/foo/', 'bar.html']],
+            ['http://www.livelib.ru/foo/bar.html', [cls.test_folder + '/foo/', 'bar.html']],
+            ['http://www.livelib.ru/foo/2', [cls.test_folder + '/foo/', '2.html']],
+            ['http://www.livelib.ru/foo/bar/', [cls.test_folder + '/foo/bar/', 'index.html']],
+            ['http://www.livelib.ru/foo/bar/1.htm', [cls.test_folder + '/foo/bar/', '1.html']],
+            ['http://www.livelib.ru/1.htm', [cls.test_folder + '/', '1.html']],
+            ['http://www.livelib.ru/foo/~12', [cls.test_folder + '/foo/', '~12.html']],
+        ]
+        cls.values_text = [
+            ['1', 'http://www.fontanka.ru', 'http://www.fontanka.ru/', True],
+            ['2', 'https://award.fontanka.ru', 'https://award.fontanka.ru/', True],
+            ['3', 'http://www.uiiiiioo.ru', 'http://www.uiiiiioo.ru/', False],
+            ['4', 'https://www.fontanka.ru', 'https://www.fontanka.ru/theme/ratings/', True]
+        ]
 
     def _remove_folder(self, path):
         if os.path.isdir(path):
@@ -102,28 +121,6 @@ class TestWebWithCache(unittest.TestCase):
         else:
             raise Exception(f"Can not remove folder {path}")
 
-    def setUp(self) -> None:
-        logging.basicConfig(filename='log.log', level=logging.DEBUG, filemode='w',
-                            format="%(asctime)s %(levelname)s %(message)s")
-        logging.debug('Starting to test')
-        if os.path.isdir(self.test_folder):
-            self._remove_folder(self.test_folder)
-        self.values_path = [
-            ['http://www.livelib.ru/', [self.test_folder + '/', 'index.html']],
-            ['http://www.livelib.ru/foo/bar', [self.test_folder + '/foo/', 'bar.html']],
-            ['http://www.livelib.ru/foo/bar.html', [self.test_folder + '/foo/', 'bar.html']],
-            ['http://www.livelib.ru/foo/2', [self.test_folder + '/foo/', '2.html']],
-            ['http://www.livelib.ru/foo/bar/', [self.test_folder + '/foo/bar/', 'index.html']],
-            ['http://www.livelib.ru/foo/bar/1.htm', [self.test_folder + '/foo/bar/', '1.html']],
-            ['http://www.livelib.ru/1.htm', [self.test_folder + '/', '1.html']],
-            ['http://www.livelib.ru/foo/~12', [self.test_folder + '/foo/', '~12.html']],
-        ]
-        self.values_text = [
-            ['1', 'http://www.fontanka.ru', 'http://www.fontanka.ru/', True],
-            ['2', 'https://award.fontanka.ru', 'https://award.fontanka.ru/', True],
-            ['3', 'http://www.uiiiiioo.ru', 'http://www.uiiiiioo.ru/', False],
-            ['4', 'https://www.fontanka.ru', 'https://www.fontanka.ru/theme/ratings/', True]
-        ]
 
     def tearDown(self) -> None:
         logging.debug('Cleaning dirs and files after testing')
