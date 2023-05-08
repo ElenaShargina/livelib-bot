@@ -24,9 +24,3 @@ class Config:
         self.encoding = env('ENCODING')
         self.web_connection = WebConnectionConfig(site=env('SITE'), cache_folder=env('CACHE_FOLDER'))
         self.bs_parser = BSParserConfig(features=env('BS_FEATURES'))
-
-
-
-
-c = Config('./.env')
-print(c.web_connection.site)
