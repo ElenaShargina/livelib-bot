@@ -21,5 +21,9 @@ jobs:
         run: |
           python -m pip install --upgrade pip
           pip install -r requirements.txt
+      - name: Changing env PYTHONPATH
+        run: | 
+            PYTHONPATH="$PYTHONPATH:/home/runner/work/livelib-bot/livelib-bot/livelib/tests"
+            export PYTHONPATH      
       - name: Test class Connection with unittest
         run: python -m unittest livelib/tests/test_dbconnection.py
