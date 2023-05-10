@@ -1,12 +1,16 @@
+import os, sys
+sys.path.append(os.path.dirname(os.path.abspath(__file__)))
+print(sys.path)
+
+from utils import get_correct_filename
+
 import unittest
-import os
 import bs4
 
 from livelib import Parser, WebWithCache, Config
 from bs4 import BeautifulSoup as bs
 import logging
 import pickle
-from utils import get_correct_filename
 
 
 class TestParser(unittest.TestCase):

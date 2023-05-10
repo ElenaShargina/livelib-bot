@@ -1,11 +1,14 @@
-import os
+import os, sys
+sys.path.append(os.path.dirname(os.path.abspath(__file__)))
+print(sys.path)
+from utils import get_correct_filename
+
 import shutil
 import unittest
 import logging
 import bs4
 import livelib
 from livelib import SimpleWeb, WebWithCache, Config
-from utils import get_correct_filename
 
 
 class TestSimpleWeb(unittest.TestCase):
