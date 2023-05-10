@@ -1,6 +1,6 @@
 import os, sys
 
-sys.path.append(os.path.dirname(os.path.realpath(__file__)))
+# sys.path.append(os.path.dirname(os.path.realpath(__file__)))
 print(sys.path)
 from utils import get_correct_filename
 
@@ -18,7 +18,6 @@ import logging
 class TestDBConnection(unittest.TestCase):
 
     def setUp(self) -> None:
-        print(sys.path)
         logging.basicConfig(filename='log.log', level=logging.DEBUG, filemode='w',
                             format="%(asctime)s %(levelname)s %(message)s")
         logging.debug('Starting to test TestDBConnection')
