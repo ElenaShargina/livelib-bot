@@ -1,7 +1,8 @@
 import os, sys
 
+# скрипт для правильной отработки тестов в github.actions
 sys.path.append(os.path.dirname(os.path.abspath(__file__)))
-print(sys.path)
+
 from utils import get_correct_filename
 
 import sqlite3

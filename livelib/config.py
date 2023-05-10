@@ -1,3 +1,4 @@
+import os.path
 from dataclasses import dataclass
 from environs import Env
 
@@ -23,8 +24,11 @@ class Config:
 
     def __init__(self, path):
         env: Env = Env()
-        env.read_env(path)
-        print('from config',path)
-        self.encoding = env('ENCODING')
-        self.web_connection = WebConnectionConfig(site=env('SITE'), cache_folder=env('CACHE_FOLDER'))
-        self.bs_parser = BSParserConfig(features=env('BS_FEATURES'))
+        if os.path.isfile(path):
+            env.read_env(path,override=True)
+            self.encoding = env('ENCODING')
+            self.web_connection = WebConnectionConfig(site=env('SITE'), cache_folder=env('CACHE_FOLDER'))
+            self.bs_parser = BSParserConfig(features=env('BS_FEATURES'))
+        else:
+            print(f'Can not read configuration from {path} file!')
+            raise Exception(f'Can not read configuration from {path} file!')

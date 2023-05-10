@@ -1,10 +1,12 @@
 import os, sys
+
+# скрипт для правильной отработки тестов в github.actions
 sys.path.append(os.path.dirname(os.path.abspath(__file__)))
-print(sys.path)
 
 from utils import get_correct_filename
 
 import unittest
+from unittest import mock
 import bs4
 
 from livelib import Parser, WebWithCache, Config
@@ -12,12 +14,12 @@ from bs4 import BeautifulSoup as bs
 import logging
 import pickle
 
-
 class TestParser(unittest.TestCase):
     @classmethod
     def setUpClass(cls) -> None:
-        config_filename = get_correct_filename('parser.env', '')
-        cls.connection = WebWithCache(Config(config_filename))
+        config_filename = get_correct_filename('.env.parser', '')
+        test_config = Config(config_filename)
+        cls.connection = WebWithCache(test_config)
         logging.basicConfig(filename='log.log', level=logging.DEBUG, filemode='a',
                             format="%(asctime)s %(levelname)s %(message)s")
         # структура тестовых данных для reader_prefix, reader_all_books, check_404:
@@ -97,6 +99,10 @@ class TestParser(unittest.TestCase):
         cls.author_values = into_bs(cls.author_values)
         cls.rating_values = into_bs(cls.rating_values)
         cls.picture_url_values = into_bs(cls.picture_url_values)
+
+    @classmethod
+    def tearDownClass(cls):
+        pass
 
     def test_reader_prefix(self):
         for i in self.values:

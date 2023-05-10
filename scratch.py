@@ -12,9 +12,15 @@ from livelib.parser import BookDataFormatter
 # r = Reader('Shakespeare',WebWithCache(site='https://www.livelib.ru', random_sleep = True))
 # res = r.get_all_read_books()
 # print(res)
+from  environs import Env
 
-config = Config('livelib/.env')
+env = Env()
+env.read_env(".env")
+print('DUUMP', str(env))
+exit()
+config = Config('.env')
 print(config)
+
 
 db = SQLite3Connection('db/ElviraYakovleva.db')
 formatter = BookDataFormatter

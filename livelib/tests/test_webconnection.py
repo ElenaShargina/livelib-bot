@@ -1,6 +1,7 @@
 import os, sys
+# скрипт для правильной отработки тестов в github.actions
 sys.path.append(os.path.dirname(os.path.abspath(__file__)))
-print(sys.path)
+
 from utils import get_correct_filename
 
 import shutil
@@ -19,7 +20,7 @@ class TestSimpleWeb(unittest.TestCase):
         ['http://www.livelib.com', True, 200],
         ['http://www.yandex.com', True, 200],
     ]
-    config_file: str = 'webconnection.env'
+    config_file: str = '.env.webconnection'
 
     @classmethod
     def setUpClass(cls) -> None:
@@ -90,21 +91,15 @@ class TestSimpleWeb(unittest.TestCase):
 
 class TestWebWithCache(unittest.TestCase):
     test_values = []
-    config_file: str = 'webconnection.env'
+    config_file: str = '.env.webconnection'
     test_folder: str
 
     @classmethod
     def setUpClass(cls) -> None:
-        print('first')
-        cls.config_file = get_correct_filename(filename=cls.config_file, folder='')
-        print('cls.config_file=',cls.config_file)
-        test_config = Config(cls.config_file)
-        print('test_config=',test_config)
+        test_config = Config(get_correct_filename(filename=cls.config_file, folder=''))
         cls.test_folder = test_config.web_connection.cache_folder
-        print('test_folder=',cls.test_folder)
         logging.basicConfig(filename='log.log', level=logging.DEBUG, filemode='w',
                             format="%(asctime)s %(levelname)s %(message)s")
-        logging.debug('Starting to test')
         if os.path.isdir(cls.test_folder):
             cls._remove_folder(cls.test_folder)
         cls.values_path = [
@@ -124,7 +119,8 @@ class TestWebWithCache(unittest.TestCase):
             ['4', 'https://www.fontanka.ru', 'https://www.fontanka.ru/theme/ratings/', True]
         ]
 
-    def _remove_folder(self, path):
+    @staticmethod
+    def _remove_folder(path):
         if os.path.isdir(path):
             shutil.rmtree(path)
         else:
