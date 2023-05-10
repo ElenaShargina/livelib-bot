@@ -96,7 +96,9 @@ class TestWebWithCache(unittest.TestCase):
 
     @classmethod
     def setUpClass(cls) -> None:
-        test_config = Config(get_correct_filename(filename=cls.config_file, folder=''))
+        cls.config_file = get_correct_filename(filename=cls.config_file, folder='')
+        print('cld.config_file',cls.config_file)
+        test_config = Config(cls.config_file)
         cls.test_folder = test_config.web_connection.cache_folder
         logging.basicConfig(filename='log.log', level=logging.DEBUG, filemode='w',
                             format="%(asctime)s %(levelname)s %(message)s")
@@ -134,8 +136,7 @@ class TestWebWithCache(unittest.TestCase):
         pass
 
     def test_parse_url_in_filepath_and_filename(self):
-        config = Config(self.config_file)
-        con = WebWithCache(config)
+        con = WebWithCache(Config(self.config_file))
         for i in self.values_path:
             with self.subTest(msg=f'Okey with {i[0]}'):
                 self.assertEqual(i[1], con._parse_url_in_filepath_and_filename(i[0]))
