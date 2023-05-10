@@ -16,7 +16,8 @@ import pickle
 class TestParser(unittest.TestCase):
     @classmethod
     def setUpClass(cls) -> None:
-        config_filename = get_correct_filename('parser.env', '')
+        # config_filename = get_correct_filename('parser.env', '')
+        config_filename = 'parser.env'
         cls.connection = WebWithCache(Config(config_filename))
         logging.basicConfig(filename='log.log', level=logging.DEBUG, filemode='a',
                             format="%(asctime)s %(levelname)s %(message)s")
