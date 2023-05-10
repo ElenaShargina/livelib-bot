@@ -1,0 +1,17 @@
+[
+  {
+        "html": "<a class=\"brow-book-author\" href=\"/author/22748-vladimir-obruchev\" title=\"Владимир Обручев\">Владимир Обручев</a>",
+        "author_name" : "Владимир Обручев",
+        "author_id" : 22748
+      },
+    {
+        "html": "<a class=\"brow-book-author\" href=\"/author/vladimir-obruchev\" title=\"Владимир Обручев\">Владимир Обручев</a>",
+        "author_name" : "Владимир Обручев",
+        "author_id" : null
+      },
+    {
+        "html": "<a class=\"brow-book-author\" href=\"/author/vladimir-obruchev\" title=\"Владимир Обручев\"></a>",
+        "author_name" : null,
+        "author_id" : null
+      }
+  ]

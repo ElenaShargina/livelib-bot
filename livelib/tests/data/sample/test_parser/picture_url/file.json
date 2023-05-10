@@ -1,0 +1,10 @@
+[
+  {
+        "html": "<div class=\"cover-wrapper\"><a href=\"/book/1000945667-svodya-schety-vudi-allen\" title=\"Вуди Аллен - Сводя счеты\">\n            <img alt=\"Вуди Аллен - Сводя счеты\" title=\"Вуди Аллен - Сводя счеты\" width=\"70\" style=\"min-width:70px; background-color: #ffffff;\" \n            class=\"cover-rounded\" src=\"https://s1.livelib.ru/boocover/1000945667/70/fbda/Vudi_Allen__Svodya_schety.jpg\" \n            onerror=\"this.onerror=null;pagespeed.lazyLoadImages.loadIfVisibleAndMaybeBeacon(this);\"></a></div>",
+        "picture_url" : "https://s1.livelib.ru/boocover/1000945667/70/fbda/Vudi_Allen__Svodya_schety.jpg"
+      },
+    {
+        "html": "<div class=\"cover-wrapper\"> <a href=\"/book/1000188660-broshennye-mashiny-dzheff-nun\" title=\"Джефф Нун - Брошенные машины\">\n             <img alt=\"Джефф Нун - Брошенные машины\" class=\"cover-rounded\" \n        data-pagespeed-lazy-src=\"https://s1.livelib.ru/boocover/1000188660/70/919a/Dzheff_Nun__Broshennye_mashiny.jpg\" \n        onerror=\"this.onerror=null;pagespeed.lazyLoadImages.loadIfVisibleAndMaybeBeacon(this);\" \n        onload=\"pagespeed.lazyLoadImages.loadIfVisibleAndMaybeBeacon(this);\" src=\"/pagespeed_static/1.JiBnMqyl6S.gif\" \n        style=\"min-width:70px; background-color: #ffffff;\" title=\"Джефф Нун - Брошенные машины\" width=\"70\"/></a></div>",
+        "picture_url" : "https://s1.livelib.ru/boocover/1000188660/70/919a/Dzheff_Nun__Broshennye_mashiny.jpg"
+      }
+  ]

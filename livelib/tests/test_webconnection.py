@@ -97,7 +97,6 @@ class TestWebWithCache(unittest.TestCase):
     @classmethod
     def setUpClass(cls) -> None:
         cls.config_file = get_correct_filename(filename=cls.config_file, folder='')
-        print('cld.config_file',cls.config_file)
         test_config = Config(cls.config_file)
         cls.test_folder = test_config.web_connection.cache_folder
         logging.basicConfig(filename='log.log', level=logging.DEBUG, filemode='w',

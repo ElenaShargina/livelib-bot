@@ -1,0 +1,22 @@
+[
+  {
+        "html": "<a class=\"brow-book-name with-cycle\" href=\"/book/1001130597-zemlya-sannikova-vladimir-obruchev\" title=\"Владимир Обручев - Земля Санникова\">Земля Санникова</a>",
+        "book_name" : "Земля Санникова",
+        "book_id" : 1001130597
+      },
+   {
+        "html": "<a class=\"brow-book-name with-cycle\" href=\"/book/-zemlya-sannikova-vladimir-obruchev\" title=\"Владимир Обручев - Земля Санникова\">Земля Санникова</a>",
+        "book_name" : "Земля Санникова",
+        "book_id" : null
+      },
+    {
+        "html": "<a class=\"brow-book-name with-cycle\" href=\"/book/-zemlya-sannikova-vladimir-obruchev\" title=\"Владимир Обручев - Земля Санникова\"></a>",
+        "book_name" : null,
+        "book_id" : null
+      },
+    {
+        "html": "<a class=\"brow-book-namqqqq with-cycle\" href=\"/book/12234-zemlya-sannikova-vladimir-obruchev\" title=\"Владимир Обручев - Земля Санникова\"></a>",
+        "book_name" : null,
+        "book_id" : null
+      }
+]
