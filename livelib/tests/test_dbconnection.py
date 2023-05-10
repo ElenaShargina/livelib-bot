@@ -1,4 +1,5 @@
 import sqlite3
+import sys
 import unittest
 from livelib import SQLite3Connection
 import os
@@ -79,4 +80,5 @@ class TestDBConnection(unittest.TestCase):
 
 
 if __name__ == '__main__':
+    print(sys.path)
     unittest.main()
