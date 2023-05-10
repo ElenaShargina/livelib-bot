@@ -1,11 +1,18 @@
+import os, sys
+
+sys.path.append(os.path.dirname(os.path.realpath(__file__)))
+print(sys.path)
+from utils import get_correct_filename
+
 import sqlite3
-import sys
 import unittest
 from livelib import SQLite3Connection
+
+
 import os
 from livelib.parser import BookDataFormatter
 import logging
-from .utils import get_correct_filename
+
 
 
 class TestDBConnection(unittest.TestCase):
