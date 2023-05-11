@@ -1,0 +1,14 @@
+[
+  {
+        "html": "serp996",
+        "reader_prefix" : "/reader/serp996",
+        "reader_all_books_prefix" : "/reader/serp996/read/listview/smalllist",
+        "404_status" : false
+      },
+     {
+        "html": "qwerty5677890",
+        "reader_prefix" : "/reader/qwerty5677890",
+        "reader_all_books_prefix" : "/reader/qwerty5677890/read/listview/smalllist",
+        "404_status" : true
+      }
+]
