@@ -26,10 +26,11 @@ class TestParserfromHTML(TestParser):
     @classmethod
     def setUpClass(cls) -> None:
         cls.config = Config(get_correct_filename(cls.config_file, ''))
-        cls.connection = WebWithCache(cls.config)
+        cls.web_connection = WebWithCache(cls.config)
         logging.basicConfig(filename='log.log', level=logging.DEBUG, filemode='a',
                             format="%(asctime)s %(levelname)s %(message)s")
         cls.parser = ParserFromHTML
+        cls.object = ParserFromHTML
 
     def test_check_404(self):
         """
@@ -40,8 +41,8 @@ class TestParserfromHTML(TestParser):
             cases = json.load(f)
             for i in cases:
                 with self.subTest(f'Test with {i["html"]}'):
-                    text = bs(self.connection.get_page_text(self.parser.reader_read_books_page(i["html"])),
-                              features=self.connection.bs_parser)
+                    text = bs(self.web_connection.get_page_text(self.parser.reader_read_books_page(i["html"])),
+                              features=self.web_connection.bs_parser)
                     self.assertEqual(i["404_status"], self.parser.check_404(text))
 
     def test_reader_prefix(self):

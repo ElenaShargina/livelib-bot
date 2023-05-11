@@ -1,9 +1,10 @@
 import os
 import unittest
-from livelib import Config, Parser, WebConnection
+from livelib import Config, Parser, WebConnection, DBConnection
 import json
 import bs4
 from bs4 import BeautifulSoup as bs
+from typing import Any
 
 def get_correct_filename(filename: str, folder: str, ) -> str:
     """
@@ -16,17 +17,19 @@ def get_correct_filename(filename: str, folder: str, ) -> str:
 
 class CustomUnitTest(unittest.TestCase):
 
+    object: Any
     config: Config
     parser: Parser
     test_folder: str
-    connection : WebConnection
+    web_connection : WebConnection
+    db_connection: DBConnection
 
     def _str_to_bs(self, x: str) -> bs:
         """
         Служебная функция, переформартирует строку в объект BeautifulSoup
         в соответствии с настройками имеющегося экземпляра WebConnection
         """
-        return bs(x, self.connection.bs_parser)
+        return bs(x, self.web_connection.bs_parser)
 
     def process_json_compare_to_json(self, method: str, folder: str, json_output_name: str,  json_input_name :str = 'html',
                                      convert_html_to_bs: bool = True) -> None:
@@ -56,9 +59,9 @@ class CustomUnitTest(unittest.TestCase):
         with open(filename, mode='r', encoding=self.config.encoding) as f:
             cases = json.load(f)
             for i in cases:
-                with self.subTest(f'Test with {i[json_output_name]}'):
+                with self.subTest(f'Test with {i[json_output_name]} '):
                     input = self._str_to_bs(i[json_input_name]) if convert_html_to_bs else i[json_input_name]
-                    self.assertEqual(i[json_output_name], getattr(self.parser, method)(input))
+                    self.assertEqual(i[json_output_name], getattr(self.object, method)(input))
 
     def process_html_compare_to_json(self, method: str, folder: str, convert_html_to_bs: bool = True) -> None:
         """
@@ -101,9 +104,9 @@ class CustomUnitTest(unittest.TestCase):
         # для каждой папки сличаем результат парсинга и правильный сохраненный ответ
         for i in subdirs:
             with open(os.path.join(prefix_folder, str(i), 'file.html'), mode='r',
-                      encoding=self.connection.encoding) as f1:
+                      encoding=self.web_connection.encoding) as f1:
                 input = self._str_to_bs(f1.read()) if convert_html_to_bs else f1.read()
-                output = getattr(self.parser, method)(input)
+                output = getattr(self.object, method)(input)
                 # print(output)
                 f1.close()
             # код для обновления файлов с правильными ответами
@@ -111,7 +114,7 @@ class CustomUnitTest(unittest.TestCase):
             #     json.dump(output,f3, indent=4, ensure_ascii=False)
             #     f3.close()
             with open(os.path.join(prefix_folder, str(i), 'correct_output.json'), mode='r',
-                      encoding=self.connection.encoding) as f2:
+                      encoding=self.web_connection.encoding) as f2:
                 correct_output = json.load(f2)
                 f2.close()
             with self.subTest(f'Test method {method} with {i} subdir.'):

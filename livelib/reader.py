@@ -33,9 +33,11 @@ class Reader:
                  parser_db: type[Parser] = ParserForDB):
         self.login = login
         self.connection = connection
+        self.object_html = parser_html
+        self.object_db = parser_db
+        self.dbconnection = dbconnection
         self.parser_html = parser_html
         self.parser_db = parser_db
-        self.dbconnection = dbconnection
 
     @property
     def prefix(self) -> str:
@@ -55,11 +57,15 @@ class Reader:
         """
         return self.parser_html.reader_read_books_page(self.login)
 
-    def exists(self):
-        page = self.connection.get_page_bs(self.all_books, parser = self.parser_html)
-        print(page)
-        print(self.parser_html.check_404(page))
-        return True
+    def exists(self, login = None):
+        # проверяем логин на пустоту или недопустимые символы
+        if login != '' and not re.search(r'\W', login):
+            if login != None:
+                self.login = login
+            page = self.connection.get_page_bs(self.all_books, parser = self.parser_html)
+            return True if page else False
+        else:
+            return False
 
 
     def get_all_read_books(self) -> List or bool:

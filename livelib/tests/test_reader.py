@@ -21,13 +21,17 @@ class TestReader(CustomUnitTest):
     @classmethod
     def setUpClass(cls) -> None:
         cls.config = Config(get_correct_filename(cls.config_file, ''))
-        cls.connection = WebWithCache(cls.config)
+        cls.web_connection = WebWithCache(cls.config)
+        cls.db_connection = SQLite3Connection(cls.config.db_config.sqlite_db)
         logging.basicConfig(filename='log.log', level=logging.DEBUG, filemode='a',
                             format="%(asctime)s %(levelname)s %(message)s")
         cls.parser = ParserFromHTML
 
     def test_exists(self):
-        pass
+        self.object = Reader('Somebody', self.web_connection,self.db_connection)
+        self.process_json_compare_to_json('exists','exists','exists','input', convert_html_to_bs=False)
 
+if __name__=='__main__':
+    unittest.main()
 
 
