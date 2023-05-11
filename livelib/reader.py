@@ -18,14 +18,18 @@ class Reader:
     :type login: str
     :param connection: объект Connection для связи с сайтом
     :type connection: Сonnection
-    :param bs_parser: класс парсера, который будет применяться к страницам,
+    :param parser_html: класс парсера, который будет применяться к страницам html,
         defaults to Parser
-    :type bs_parser: str
+    :type parser_html: cls
+    :param parser_db: класс парсера, который будет применяться для работы с БД,
+        defaults to ParserForDB
+    :type parser_db: cls
     """
-    def __init__(self, login: str, connection: WebConnection, dbconnection: DBConnection, parser: Any = Parser):
+    def __init__(self, login: str, connection: WebConnection, dbconnection: DBConnection, parser_html: Parser = ParserFromHTML, parser_db: Parser = ParserForDB):
         self.login = login
         self.connection = connection
-        self.parser = parser
+        self.parser_html = parser_html
+        self.parser_db = parser_db
         self.dbconnection = dbconnection
 
     @property
@@ -35,7 +39,7 @@ class Reader:
         :return: префикс страниц
         :rtype: str
         """
-        return self.parser.reader_prefix(self.login)
+        return self.parser_html.reader_prefix(self.login)
 
     @property
     def all_books(self) -> str:
@@ -44,7 +48,7 @@ class Reader:
         :return: префикс главной страницы
         :rtype: str
         """
-        return self.parser.reader_read_books_page(self.login)
+        return self.parser_html.reader_read_books_page(self.login)
 
     def get_all_read_books(self) -> List or bool:
         """
@@ -58,14 +62,14 @@ class Reader:
             if not self.dbconnection.table_exists(self.login):
                 self.dbconnection.create_table(self.login, BookDataFormatter.all_properties_db())
             # вызовем первую страницу со всеми книгами, чтобы забрать оттуда из паджинатора список страниц с книгами
-            page = self.connection.get_page_bs(self.all_books, self.parser)
-            page_numbers = self.parser.get_paginator(page)
+            page = self.connection.get_page_bs(self.all_books, self.parser_html)
+            page_numbers = self.parser_html.get_paginator(page)
             # если у читателя меньше 20 книг, то паджинатора нет, но есть 1 страница с прочитанным
             if page_numbers == []: page_numbers = [1]
             # формируем список адресов страниц с книгами читателя
             pages = []
             for i in page_numbers:
-                pages.append(self.parser.reader_read_books_page_by_number(self.login,i))
+                pages.append(self.parser_html.reader_read_books_page_by_number(self.login,i))
             for i in pages:
                 books = []
                 print('page = ',i, ' из ', len(page_numbers))
@@ -90,9 +94,9 @@ class Reader:
         :return: список книг либо False, если страница не найдена
         :rtype: list or bool
         """
-        page = self.connection.get_page_bs(url,self.parser)
+        page = self.connection.get_page_bs(url,self.parser_html)
         if page:
-            books = self.parser.all_books_from_page(page)
+            books = self.parser_html.all_books_from_page(page)
             return books
         else:
             # если страница не найдена либо 404 на ЛЛ
@@ -107,6 +111,6 @@ class Reader:
         :return:
         :rtype:
         """
-        prepared_books = self.parser.prepare_books_for_db(books)
+        prepared_books = self.parser_db.prepare_books_for_db(books)
         result = self.dbconnection.insert_values(self.login, prepared_books)
         return result

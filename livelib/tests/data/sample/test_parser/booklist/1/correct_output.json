@@ -12,7 +12,7 @@
         "review_id": null,
         "review_text": null,
         "month": 1,
-        "year": "2021"
+        "year": 2021
     },
     {
         "author_id": 2082,
@@ -27,7 +27,7 @@
         "review_id": null,
         "review_text": null,
         "month": 1,
-        "year": "2021"
+        "year": 2021
     },
     {
         "author_id": 48,
@@ -42,7 +42,7 @@
         "review_id": null,
         "review_text": null,
         "month": 1,
-        "year": "2021"
+        "year": 2021
     },
     {
         "author_id": 226469,
@@ -57,7 +57,7 @@
         "review_id": null,
         "review_text": null,
         "month": 1,
-        "year": "2021"
+        "year": 2021
     },
     {
         "author_id": 10348,
@@ -72,7 +72,7 @@
         "review_id": null,
         "review_text": null,
         "month": 1,
-        "year": "2021"
+        "year": 2021
     },
     {
         "author_id": 1077443,
@@ -87,7 +87,7 @@
         "review_id": null,
         "review_text": null,
         "month": 1,
-        "year": "2021"
+        "year": 2021
     },
     {
         "author_id": 317405,
@@ -102,7 +102,7 @@
         "review_id": null,
         "review_text": null,
         "month": 12,
-        "year": "2020"
+        "year": 2020
     },
     {
         "author_id": 159772,
@@ -117,7 +117,7 @@
         "review_id": null,
         "review_text": null,
         "month": 12,
-        "year": "2020"
+        "year": 2020
     },
     {
         "author_id": 235003,
@@ -132,7 +132,7 @@
         "review_id": null,
         "review_text": null,
         "month": 12,
-        "year": "2020"
+        "year": 2020
     },
     {
         "author_id": 1077443,
@@ -147,7 +147,7 @@
         "review_id": null,
         "review_text": null,
         "month": 11,
-        "year": "2020"
+        "year": 2020
     },
     {
         "author_id": 2725,
@@ -162,7 +162,7 @@
         "review_id": null,
         "review_text": null,
         "month": 11,
-        "year": "2020"
+        "year": 2020
     },
     {
         "author_id": 114929,
@@ -177,7 +177,7 @@
         "review_id": null,
         "review_text": null,
         "month": 11,
-        "year": "2020"
+        "year": 2020
     },
     {
         "author_id": 309000,
@@ -192,7 +192,7 @@
         "review_id": null,
         "review_text": null,
         "month": 11,
-        "year": "2020"
+        "year": 2020
     },
     {
         "author_id": 1379,
@@ -207,7 +207,7 @@
         "review_id": null,
         "review_text": null,
         "month": 11,
-        "year": "2020"
+        "year": 2020
     },
     {
         "author_id": 213798,
@@ -222,7 +222,7 @@
         "review_id": null,
         "review_text": null,
         "month": 11,
-        "year": "2020"
+        "year": 2020
     },
     {
         "author_id": 27189,
@@ -237,7 +237,7 @@
         "review_id": null,
         "review_text": null,
         "month": 11,
-        "year": "2020"
+        "year": 2020
     },
     {
         "author_id": 1776,
@@ -252,7 +252,7 @@
         "review_id": null,
         "review_text": null,
         "month": 11,
-        "year": "2020"
+        "year": 2020
     },
     {
         "author_id": 2355,
@@ -267,7 +267,7 @@
         "review_id": null,
         "review_text": null,
         "month": 10,
-        "year": "2020"
+        "year": 2020
     },
     {
         "author_id": 102814,
@@ -282,7 +282,7 @@
         "review_id": null,
         "review_text": null,
         "month": 10,
-        "year": "2020"
+        "year": 2020
     },
     {
         "author_id": 162583,
@@ -297,6 +297,6 @@
         "review_id": null,
         "review_text": null,
         "month": 10,
-        "year": "2020"
+        "year": 2020
     }
 ]

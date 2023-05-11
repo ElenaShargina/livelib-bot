@@ -16,7 +16,7 @@ class DataFormatter:
 class BookDataFormatter(DataFormatter):
     """
     Класс содержит таблицу соответствий между свойствами книги в БД, в колонках экспортного файла
-    и методами парсера (класса Parser), вынимающими это свойство из html.
+    и методами парсера (класса ParserFromHTML), вынимающими это свойство из html.
     {
     'название_свойства': {
            'parser': 'метод_для_вынимания_свойства_из_html_кода',
@@ -26,7 +26,7 @@ class BookDataFormatter(DataFormatter):
     ...
     }
           свойства date, month, year не вынимаются из html стандартным способом,
-          поэтому его parser не задан. Они будут вынуты в методе Parser.all_books_from_page()
+          поэтому его parser не задан. Они будут вынуты в методе ParserFromHTML.all_books_from_page()
 
           На ЛЛ есть книги со ссылкой вида /book/book_id и произведения со ссылкой вида /work/work_id.
     """
@@ -90,7 +90,7 @@ class BookDataFormatter(DataFormatter):
     @classmethod
     def all_properties_parser(cls):
         """
-        Преобразует таблицу в удобный для Parser словарь.
+        Преобразует таблицу в удобный для ParserFromHTML словарь.
         :return: словарь вида {название_поля1: метод_обработки_поля1, название_поля2: метод_обработки_поля2, }
         :rtype: Dict
         """
@@ -124,6 +124,32 @@ class BookDataFormatter(DataFormatter):
 
 
 class Parser:
+
+    @staticmethod
+    def _clear_name(s:str)->str:
+        """
+        Служебная функция для очистки названий от переносов и лишних пробелов
+        """
+        s = re.sub(" +"," ", s)
+        s = re.sub("\n", "", s)
+        return s
+
+    @staticmethod
+    def create_filepath_csv(login: str) -> str:
+        """
+        Возвращает путь и безопасное имя файла CSV формата 'login-YYYY-MM-DD--HH-MM-SS.csv'.
+        Из логина читателя будут удалены небезопасные символы.
+        :param login: логин читателя
+        :type login: str
+        :return:
+        :rtype: str
+        """
+        login = login.translate(str.maketrans('', '', '\/:*?"<>|'))
+        filename = login + "-" + datetime.now().strftime("%Y-%m-%d--%H-%M-%S") + '.csv'
+        # @todo тут должна задаваться папка для сохранения csv
+        return (os.path.join('csv', filename))
+
+class ParserFromHTML(Parser):
     """
     Класс парсинга страниц сайта. Здесь задаются адресация страниц сайта и поиск данных в его верстке.
     """
@@ -148,7 +174,7 @@ class Parser:
         :return: страница с прочитанными книгами
         :rtype: str
         """
-        return Parser.reader_read_books_page_by_number(login=login, number=0)
+        return ParserFromHTML.reader_read_books_page_by_number(login=login, number=0)
 
     @staticmethod
     def reader_read_books_page_by_number(login: str, number: int = 0) -> str:
@@ -161,7 +187,7 @@ class Parser:
         :return: страница с прочитанными книгами
         :rtype: str
         """
-        return Parser.reader_prefix(login) + '/read/~' + str(number)
+        return ParserFromHTML.reader_prefix(login) + '/read/~' + str(number)
 
     @staticmethod
     def check_404(bsoup: bs4.BeautifulSoup) -> bool:
@@ -210,10 +236,10 @@ class Parser:
                     month = month_numbers.get(month.lower(), None)
                 # вытащим год
                 year = re.search(r'\d+', date)
-                if year != None: year = year.group()
+                if year != None: year = int(year.group())
             # если это блок с книгой, парсим ее как книгу и вносим месяц и год прочтения в результат
             elif 'book-item-manage' in block['class']:
-                book = Parser.book(block, formatter)
+                book = ParserFromHTML.book(block, formatter)
                 if month: book['month'] = month
                 if year: book['year'] = year
                 result.append(book)
@@ -236,26 +262,17 @@ class Parser:
         result = {}
         for property_name, parser_function in formatter.all_properties_parser().items():
             try:
-                if hasattr(Parser, parser_function):
-                    result[property_name] = getattr(Parser, parser_function)(bsoup)
+                if hasattr(ParserFromHTML, parser_function):
+                    result[property_name] = getattr(ParserFromHTML, parser_function)(bsoup)
             except AttributeError:
                 logging.exception(f'No parser function {parser_function} is found!', exc_info=True)
         return result
 
     @staticmethod
-    def _clear_name(s:str)->str:
-        """
-        Служебная функция для очистки названий от переносов и лишних пробелов
-        """
-        s = re.sub(" +"," ", s)
-        s = re.sub("\n", "", s)
-        return s
-
-    @staticmethod
     def get_author_name(bsoup: bs4.BeautifulSoup) -> str:
         result = bsoup.find('a', class_='brow-book-author')
         if result and bool(result.text):
-            return Parser._clear_name(result.text)
+            return ParserFromHTML._clear_name(result.text)
         else:
             return None
 
@@ -407,6 +424,27 @@ class Parser:
                 result = [int(i) for i in paginator.text.split()]
             return result
 
+class ParserForDB(Parser):
+    @staticmethod
+    def prepare_book_for_db(book: Dict, formatter=BookDataFormatter) -> List:
+        """
+        Преобразует книгу для сохранения в БД в соответствии с BookDataFormatter.
+        Нужен в случае, если название колонки в БД отличается от названия свойства парсера или
+        требуется предварительная обработка значения свойства.
+        :param book: словарь с информацией про книгу вида {'parser_field_name1':'field_value1','parser_field_name2':'field_value2'}
+        :type book: Dict
+        :param formatter: класс форматтера
+        :type formatter: Class
+        :return: словарь для сохранения  в БД вида {'db_field_name1':'field_value1', 'db_field_name2':'field_value2', ... }
+        :rtype: Dict
+        """
+        new_book = {}
+        for property in formatter.all_properties_db().keys():
+            value = book.get(property, None)
+            if value == None: value = ''
+            new_book[formatter.common[property]['db']['name']] = value
+        return new_book
+
     @staticmethod
     def prepare_books_for_db(books: List[Dict], formatter=BookDataFormatter) -> List:
         """
@@ -422,14 +460,10 @@ class Parser:
         """
         result = []
         for book in books:
-            new_book = {}
-            for property in formatter.all_properties_db().keys():
-                value = book.get(property, None)
-                if value == None: value = ''
-                new_book[formatter.common[property]['db']['name']] = value
-            result.append(new_book)
+            result.append(ParserForDB.prepare_book_for_db(book, formatter = formatter))
         return result
 
+class ParserForCSV(Parser):
     @staticmethod
     def create_filepath_csv(login: str) -> str:
         """
@@ -444,3 +478,7 @@ class Parser:
         filename = login + "-" + datetime.now().strftime("%Y-%m-%d--%H-%M-%S") + '.csv'
         # @todo тут должна задаваться папка для сохранения csv
         return (os.path.join('csv', filename))
+
+
+
+

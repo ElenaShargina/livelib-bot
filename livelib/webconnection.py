@@ -123,7 +123,9 @@ class SimpleWeb(WebConnection):
         :rtype: requests.Response
         :return: объект Response по запросу на заданный адрес
         """
+        logging.debug(f'Making request to {url}')
         if self.random_sleep:
+            logging.debug('Random sleep.')
             self.do_random_sleep()
         # если начало url - не ссылка на сайт, то добавляем
         if url[0] == '/':

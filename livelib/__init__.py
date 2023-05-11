@@ -1,5 +1,5 @@
 from .urlparser import Urlparser
-from .parser import Parser
+from .parser import Parser, ParserFromHTML, ParserForDB, ParserForCSV
 from .webconnection import WebConnection, SimpleWeb, WebWithCache
 from .reader import Reader
 from .dbconnection import DBConnection,SQLite3Connection

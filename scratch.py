@@ -11,14 +11,28 @@ from livelib.parser import BookDataFormatter
 
 def get_all(login):
     config = Config('.env')
-    db = SQLite3Connection(f'db/{login}.db')
+    db = SQLite3Connection(config.db_config.sqlite_db)
     formatter = BookDataFormatter
     r = Reader(login, WebWithCache(config, random_sleep=True), db)
-    db.create_table(r.login, BookDataFormatter.all_properties_db())
+    # db.create_table(r.login, BookDataFormatter.all_properties_db())
 
     books = r.get_all_read_books()
+    print(books)
 
-    CSVConnection.create_file(r.parser.create_filepath_csv(r.login), BookDataFormatter.all_properties_csv().keys(), books, config)
+    # import json
+    # try:
+    #     f3 = open('correct_output.json', mode='w', encoding='utf-8')
+    #     json.dump(books, f3, indent=4, ensure_ascii=False)
+    #     f3.close()
+    # except Exception as exc:
+    #     print(f'Error {exc}')
 
-for i in ['Eugenia_Novik', 'Feana', 'Kasssiopei', 'ElviraYakovleva', 'Shakespeare']:
+
+    # CSVConnection.create_file(ParserForCSV.create_filepath_csv(r.login), BookDataFormatter.all_properties_csv().keys(), books, config)
+
+# for i in ['Eugenia_Novik', 'Feana', 'Kasssiopei', 'ElviraYakovleva', 'Shakespeare']:
+for i in ['ElviraYakovleva', 'Feana']:
     get_all(i)
+
+
+
