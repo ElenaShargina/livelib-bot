@@ -5,7 +5,7 @@ import os
 import re
 import logging
 from typing import List
-from .parser import Parser
+from .parser import ParserFromHTML
 import time, random
 from .config import Config
 
@@ -59,7 +59,7 @@ class WebConnection:
         else:
             return result
 
-    def get_page_bs(self, url: str, parser=Parser) -> bs4.BeautifulSoup or bool:
+    def get_page_bs(self, url: str, parser=ParserFromHTML) -> bs4.BeautifulSoup or bool:
         """
         Если сайт не существует либо страница livelib по данному адресу выдает 404, возвращает False,
         иначе возвращает объект BeautifulSoup из этой страницы.
