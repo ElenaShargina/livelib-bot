@@ -8,46 +8,57 @@ import typing
 from typing import List, Dict
 from datetime import datetime
 
+
 class DataFormatter:
     pass
 
+
 class BookDataFormatter(DataFormatter):
-    # На ЛЛ есть книги со ссылкой вида /book/book_id и произведения со ссылкой вида /work/work_id.
-    # 'название_свойства': {
-    #       'parser': 'метод_для_вынимания_свойства_из_html_кода',
-    #       'db': { 'name': 'название_колонки_в_бд', 'type': 'тип_колонки_в_бд' },
-    #       'csv': { 'name': 'Название_колонки_в_csv', 'method': 'метод_для_форматирования_значения_для_csv' }
-    #       }
-    #       свойство date не вынимается из html, поэтому его parser не существует (не имплементировано)
+    """
+    Класс содержит таблицу соответствий между свойствами книги в БД, в колонках экспортного файла
+    и методами парсера (класса Parser), вынимающими это свойство из html.
+    {
+    'название_свойства': {
+           'parser': 'метод_для_вынимания_свойства_из_html_кода',
+           'db': { 'name': 'название_колонки_в_бд', 'type': 'тип_колонки_в_бд' },
+           'csv': { 'name': 'Название_колонки_в_csv', 'method': 'метод_для_форматирования_значения_для_csv' }
+           },
+    ...
+    }
+          свойства date, month, year не вынимаются из html стандартным способом,
+          поэтому его parser не задан. Они будут вынуты в методе Parser.all_books_from_page()
+
+          На ЛЛ есть книги со ссылкой вида /book/book_id и произведения со ссылкой вида /work/work_id.
+    """
 
     common = {
         'author_id': {'parser': 'get_author_id',
-                      'db': {'name':'author_id', 'type': 'INTEGER'},
-                      'csv': {'name':'Cсылка на автора', 'method':'create_author_link'}
+                      'db': {'name': 'author_id', 'type': 'INTEGER'},
+                      'csv': {'name': 'Cсылка на автора', 'method': 'create_author_link'}
                       },
         'author_name': {'parser': 'get_author_name',
-                        'db': {'name':'author_name', 'type': 'TEXT'},
-                        'csv': {'name':'Автор', }
+                        'db': {'name': 'author_name', 'type': 'TEXT'},
+                        'csv': {'name': 'Автор', }
                         },
-        'book_id': {'parser':'get_book_id',
-                    'db': {'name':'book_id', 'type': 'INTEGER'},
-                    'csv': {'name':'Ссылка на  книгу', 'method':'create_book_link'}
+        'book_id': {'parser': 'get_book_id',
+                    'db': {'name': 'book_id', 'type': 'INTEGER'},
+                    'csv': {'name': 'Ссылка на  книгу', 'method': 'create_book_link'}
                     },
         'work_id': {'parser': 'get_work_id',
                     'db': {'name': 'work_id', 'type': 'INTEGER'},
-                    'csv': {'name':'Ссылка на произведение', 'method':'create_work_link'}
+                    'csv': {'name': 'Ссылка на произведение', 'method': 'create_work_link'}
                     },
-        'book_name': {'parser':'get_book_name',
-                      'db': {'name':'book_name', 'type': 'TEXT'},
-                      'csv': {'name':'Название', }
+        'book_name': {'parser': 'get_book_name',
+                      'db': {'name': 'book_name', 'type': 'TEXT'},
+                      'csv': {'name': 'Название', }
                       },
-        'common_rating': {'parser':'get_common_rating',
-                          'db': {'name':'common_rating', 'type': 'REAL'},
-                          'csv': {'name':'Общая оценка', }
+        'common_rating': {'parser': 'get_common_rating',
+                          'db': {'name': 'common_rating', 'type': 'REAL'},
+                          'csv': {'name': 'Общая оценка', }
                           },
-        'picture_url': {'parser':'get_picture_url',
-                        'db': {'name':'picture_url', 'type': 'TEXT'},
-                        'csv': {'name':'Обложка', 'method':'create_picture_url'}
+        'picture_url': {'parser': 'get_picture_url',
+                        'db': {'name': 'picture_url', 'type': 'TEXT'},
+                        'csv': {'name': 'Обложка', 'method': 'create_picture_url'}
                         },
         'reader_rating': {'parser': 'get_reader_rating',
                           'db': {'name': 'reader_rating', 'type': 'REAL'},
@@ -66,11 +77,11 @@ class BookDataFormatter(DataFormatter):
                         'csv': {'name': 'ссылка на автора', 'method': 'create_author_link'}
                         },
         'date': {'parser': 'not_implemented',
-                        'csv': {'name': 'Дата прочтения',}
-                        },
-        'month': {'parser': 'not_implemented',
-                 'db': {'name': 'month', 'type': 'INTEGER'},
+                 'csv': {'name': 'Дата прочтения', }
                  },
+        'month': {'parser': 'not_implemented',
+                  'db': {'name': 'month', 'type': 'INTEGER'},
+                  },
         'year': {'parser': 'not_implemented',
                  'db': {'name': 'year', 'type': 'INTEGER'},
                  },
@@ -79,16 +90,18 @@ class BookDataFormatter(DataFormatter):
     @classmethod
     def all_properties_parser(cls):
         """
+        Преобразует таблицу в удобный для Parser словарь.
         :return: словарь вида {название_поля1: метод_обработки_поля1, название_поля2: метод_обработки_поля2, }
         :rtype: Dict
         """
-        return {i:j['parser'] for i,j in cls.common.items()}
+        return {i: j['parser'] for i, j in cls.common.items()}
 
     @classmethod
     def all_properties_db(cls):
         """
+        Преобразует таблицу в удобный для DBConnection словарь.
         :return: словарь вида {'название_поля1':'тип_обработки_поля1', 'название_поля2':'тип_обработки_поля1', ...}
-        :rtype: List
+        :rtype: Dict
         """
         result = {}
         for i in cls.common.values():
@@ -96,16 +109,15 @@ class BookDataFormatter(DataFormatter):
                 result[i['db']['name']] = i['db']['type']
         return result
 
-
     @classmethod
     def all_properties_csv(cls):
         """
-        Возвращает словарь вида {'author_id': {'name': 'Cсылка на автора', 'method': 'create_author_link'}, {}, ...}
-        :return:
-        :rtype:
+        Преобразует таблицу в удобный для CSVConnection словарь
+        :return: словарь вида {'author_id': {'name': 'Cсылка на автора', 'method': 'create_author_link'}, {}, ...}
+        :rtype: Dict
         """
         result = {}
-        for i,j in cls.common.items():
+        for i, j in cls.common.items():
             if j.get('csv'):
                 result[i] = j['csv']
         return result
@@ -115,6 +127,7 @@ class Parser:
     """
     Класс парсинга страниц сайта. Здесь задаются адресация страниц сайта и поиск данных в его верстке.
     """
+
     @staticmethod
     def reader_prefix(login: str) -> str:
         """
@@ -124,34 +137,36 @@ class Parser:
         :return: префикс страниц сайта для конкретного читателя
         :rtype: str
         """
-        return '/reader/'+login
+        return '/reader/' + login
 
     @staticmethod
-    def reader_all_books(login: str) -> str:
+    def reader_read_books_page(login: str) -> str:
         """
-        Возвращает страницу с книгами, прочитанными читателем
+        Возвращает начальную страницу с книгами, прочитанными читателем
         :param login: логин читателя
         :type login: str
         :return: страница с прочитанными книгами
         :rtype: str
         """
-        return Parser.reader_prefix(login) + '/read/listview/smalllist'
+        return Parser.reader_read_books_page_by_number(login=login, number=0)
 
     @staticmethod
-    def reader_read_books_page_by_number(login:str, number:int) -> str:
+    def reader_read_books_page_by_number(login: str, number: int = 0) -> str:
         """
-        Возвращает страницу с книгами, прочитанными читателем
+        Возвращает страницу с заданным номером с книгами, прочитанными читателем
         :param login: логин читателя
         :type login: str
+        :param number: номер страницы
+        :type number: int
         :return: страница с прочитанными книгами
         :rtype: str
         """
-        return Parser.reader_prefix(login)+'/read/~'+str(number)
+        return Parser.reader_prefix(login) + '/read/~' + str(number)
 
     @staticmethod
     def check_404(bsoup: bs4.BeautifulSoup) -> bool:
         """
-        Проверяет, не возвращает ли страница 404.
+        Проверяет, не возвращает ли страница штатные 404.
         :param bsoup: текст страницы
         :type bsoup:  bs4.BeautifulSoup
         :return: True, если 404, False иначе
@@ -163,7 +178,7 @@ class Parser:
             return False
 
     @staticmethod
-    def all_books_from_page(bsoup: bs4.BeautifulSoup, formatter: BookDataFormatter=BookDataFormatter) -> List[Dict]:
+    def all_books_from_page(bsoup: bs4.BeautifulSoup, formatter: BookDataFormatter = BookDataFormatter) -> List[Dict]:
         """
         Возвращает ифнормацию о всех книгах на данной странице в виде списка словарей.
         Словарь формируется с ключами из BookDataFormatter, соответствующие значения вычисляются
@@ -179,7 +194,7 @@ class Parser:
         # в коде страницы внутри блока <div id='booklist'></div>
         # чередуются блоки <div class='brow-h2'>Месяц Год</div> и <div class='book-item-manage'>КНИГА</div>
         # последовательно пойдем по этим блокам, присваивая книгам, следующим за датой, эту дату прочтения
-        result=[]
+        result = []
         month = None
         year = None
         for block in bsoup.find('div', id='booklist').children:
@@ -187,29 +202,25 @@ class Parser:
             if 'brow-h2' in block['class']:
                 date = block.text
                 # вытащим месяц (если он есть, для старых книг его может не быть), переведем его в цифру
-                month = re.search(r'\D+(?= )',date)
+                month = re.search(r'\D+(?= )', date)
                 if month != None:
                     month = month.group()
-                    month_numbers = {'январь':1, 'февраль':2, 'март':3, 'апрель':4, 'май':5, 'июнь':6,
-                                 'июль':7, 'август':8, 'сентябрь':9, 'октябрь':10, 'ноябрь':11, 'декабрь':12}
-                    month = month_numbers.get(month.lower(),None)
+                    month_numbers = {'январь': 1, 'февраль': 2, 'март': 3, 'апрель': 4, 'май': 5, 'июнь': 6,
+                                     'июль': 7, 'август': 8, 'сентябрь': 9, 'октябрь': 10, 'ноябрь': 11, 'декабрь': 12}
+                    month = month_numbers.get(month.lower(), None)
                 # вытащим год
                 year = re.search(r'\d+', date)
                 if year != None: year = year.group()
             # если это блок с книгой, парсим ее как книгу и вносим месяц и год прочтения в результат
             elif 'book-item-manage' in block['class']:
                 book = Parser.book(block, formatter)
-                # date = []
-                # if month: date.append(month)
-                # if year: date.append(year)
-                # book['date'] = ' '.join(date)
                 if month: book['month'] = month
                 if year: book['year'] = year
                 result.append(book)
         return result
 
     @staticmethod
-    def book(bsoup: bs4.BeautifulSoup, formatter: BookDataFormatter=BookDataFormatter) -> Dict[str,str]:
+    def book(bsoup: bs4.BeautifulSoup, formatter: BookDataFormatter = BookDataFormatter) -> Dict[str, str]:
         """
         Возвращает словарь с информацией о книге, представленной в заданном коде.
         Словарь формируется с ключами из BookDataFormatter, соответствующие значения вычисляются
@@ -224,27 +235,36 @@ class Parser:
         """
         result = {}
         for property_name, parser_function in formatter.all_properties_parser().items():
-                try:
-                    if hasattr(Parser, parser_function):
-                        result[property_name] = getattr(Parser, parser_function)(bsoup)
-                except AttributeError:
-                    logging.exception(f'No parser function {parser_function} is found!', exc_info=True)
+            try:
+                if hasattr(Parser, parser_function):
+                    result[property_name] = getattr(Parser, parser_function)(bsoup)
+            except AttributeError:
+                logging.exception(f'No parser function {parser_function} is found!', exc_info=True)
         return result
 
     @staticmethod
-    def get_author_name(bsoup: bs4.BeautifulSoup)->str:
+    def _clear_name(s:str)->str:
+        """
+        Служебная функция для очистки названий от переносов и лишних пробелов
+        """
+        s = re.sub(" +"," ", s)
+        s = re.sub("\n", "", s)
+        return s
+
+    @staticmethod
+    def get_author_name(bsoup: bs4.BeautifulSoup) -> str:
         result = bsoup.find('a', class_='brow-book-author')
         if result and bool(result.text):
-            return result.text
+            return Parser._clear_name(result.text)
         else:
             return None
 
     @staticmethod
-    def get_author_id(bsoup: bs4.BeautifulSoup)->str:
+    def get_author_id(bsoup: bs4.BeautifulSoup) -> str:
         author_id = re.compile(r'(?<=/author/)\d+(?=-)')
         link = bsoup.find('a', class_='brow-book-author')
         if link:
-            result = re.search(author_id,link.get('href'))
+            result = re.search(author_id, link.get('href'))
             return int(result.group()) if result else None
         else:
             return None
@@ -253,26 +273,26 @@ class Parser:
     def get_book_name(bsoup: bs4.BeautifulSoup) -> str:
         result = bsoup.find('a', class_='brow-book-name')
         if result and bool(result.text):
-            return result.text
+            return Parser._clear_name(result.text)
         else:
             return None
 
     @staticmethod
-    def get_book_id(bsoup: bs4.BeautifulSoup)->str:
+    def get_book_id(bsoup: bs4.BeautifulSoup) -> str:
         book_id = re.compile(r'(?<=/book/)\d+(?=-)')
         link = bsoup.find('a', class_='brow-book-name')
         if link:
-            result = re.search(book_id,link.get('href'))
+            result = re.search(book_id, link.get('href'))
             return int(result.group()) if result else None
         else:
             return None
 
     @staticmethod
-    def get_work_id(bsoup: bs4.BeautifulSoup)->str:
+    def get_work_id(bsoup: bs4.BeautifulSoup) -> str:
         book_id = re.compile(r'(?<=/work/)\d+(?=-)')
         link = bsoup.find('a', class_='brow-book-name')
         if link:
-            result = re.search(book_id,link.get('href'))
+            result = re.search(book_id, link.get('href'))
             return int(result.group()) if result else None
         else:
             return None
@@ -333,7 +353,7 @@ class Parser:
             # даже если теги скрыты, мы все равно их вытащим из кода страницы.
             more = re.compile(r'^Ещё \d+')
             for i in tags.find_all('a', class_='label-tag'):
-                if re.match(more, i.text)==None:
+                if re.match(more, i.text) == None:
                     result.append(i.text)
         return ';'.join(result)
 
@@ -343,7 +363,7 @@ class Parser:
         review_id = re.compile(r'(?<=review-)\d+(?=-full)')
         div = bsoup.find(id=review_id)
         if div != None:
-            result = int(re.search(review_id,div['id']).group())
+            result = int(re.search(review_id, div['id']).group())
         return result
 
     @staticmethod
@@ -351,13 +371,13 @@ class Parser:
         result = None
         review_id = re.compile(r'(?<=review-)\d+(?=-full)')
         div = bsoup.find(id=review_id)
-        if div!=None:
+        if div != None:
             # сохраняем текст рецензии
             body = ''.join([str(p) for p in div.find('div', itemprop='reviewBody').contents])
             # ищем и сохраняем
             events = div.find('div', class_='event-pad')
-            extra = ''.join([str(p) for p in events.contents]) if events!=None  else ''
-            result = body+extra
+            extra = ''.join([str(p) for p in events.contents]) if events != None else ''
+            result = body + extra
         return result
 
     @staticmethod
@@ -380,15 +400,15 @@ class Parser:
             last_page = paginator.find('a', title='Последняя страница')
             # если не все страницы представлены, но есть ссылка на самую последнюю страницу
             if last_page:
-                last_number = int(re.search(r'(?<=~)\d+',last_page['href']).group())
-                result = [i for i in range(1,last_number+1)]
+                last_number = int(re.search(r'(?<=~)\d+', last_page['href']).group())
+                result = [i for i in range(1, last_number + 1)]
             # если все страницы умещаются в низу страницы (их мало, до пяти штук)
             else:
                 result = [int(i) for i in paginator.text.split()]
             return result
 
     @staticmethod
-    def prepare_books_for_db(books:List[Dict], formatter = BookDataFormatter) -> List:
+    def prepare_books_for_db(books: List[Dict], formatter=BookDataFormatter) -> List:
         """
         Преобразует список книг для сохранения в БД в соответствии с BookDataFormatter.
         Нужен в случае, если название колонки в БД отличается от названия свойства парсера или
@@ -408,7 +428,6 @@ class Parser:
                 if value == None: value = ''
                 new_book[formatter.common[property]['db']['name']] = value
             result.append(new_book)
-        # print(result)
         return result
 
     @staticmethod
@@ -424,5 +443,4 @@ class Parser:
         login = login.translate(str.maketrans('', '', '\/:*?"<>|'))
         filename = login + "-" + datetime.now().strftime("%Y-%m-%d--%H-%M-%S") + '.csv'
         # @todo тут должна задаваться папка для сохранения csv
-        return(os.path.join('csv', filename))
-
+        return (os.path.join('csv', filename))

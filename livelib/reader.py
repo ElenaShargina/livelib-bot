@@ -44,7 +44,7 @@ class Reader:
         :return: префикс главной страницы
         :rtype: str
         """
-        return self.parser.reader_all_books(self.login)
+        return self.parser.reader_read_books_page(self.login)
 
     def get_all_read_books(self) -> List or bool:
         """
