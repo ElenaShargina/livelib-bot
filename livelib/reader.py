@@ -25,7 +25,12 @@ class Reader:
         defaults to ParserForDB
     :type parser_db: cls
     """
-    def __init__(self, login: str, connection: WebConnection, dbconnection: DBConnection, parser_html: Parser = ParserFromHTML, parser_db: Parser = ParserForDB):
+    def __init__(self,
+                 login: str,
+                 connection: WebConnection,
+                 dbconnection: DBConnection,
+                 parser_html: type[Parser] = ParserFromHTML,
+                 parser_db: type[Parser] = ParserForDB):
         self.login = login
         self.connection = connection
         self.parser_html = parser_html
@@ -49,6 +54,13 @@ class Reader:
         :rtype: str
         """
         return self.parser_html.reader_read_books_page(self.login)
+
+    def exists(self):
+        page = self.connection.get_page_bs(self.all_books, parser = self.parser_html)
+        print(page)
+        print(self.parser_html.check_404(page))
+        return True
+
 
     def get_all_read_books(self) -> List or bool:
         """

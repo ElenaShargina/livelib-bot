@@ -1,0 +1,14 @@
+[
+  {
+        "input": "qwertyuioop",
+        "exists" : false
+      },
+  {
+        "input": "zverek_alyona",
+        "exists" : true
+      },
+    {
+        "input": "",
+        "exists" : false
+      }
+]
