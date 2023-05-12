@@ -30,15 +30,6 @@ class TestDBConnection(CustomUnitTest):
         cls.parser = ParserFromHTML
         cls.object = SQLite3Connection(cls.config.db_config.sqlite_db)
 
-    # def tearDown(self) -> None:
-    #     logging.debug('Cleaning dbs after testing')
-    #     print('CLEARING')
-    #     print(self.temp_dbs)
-    #     for i in self.temp_dbs:
-    #         if os.path.exists(i):
-    #             os.remove(i)
-    #     pass
-
     def test_create_db(self):
         self.object.create_db(BookDataFormatter)
         self.process_json_compare_to_json('get_table_schema', 'create_db', 'output', 'table', convert_html_to_bs=False)
@@ -52,11 +43,10 @@ class TestDBConnection(CustomUnitTest):
         with open(get_correct_filename('file.json', os.path.join(self.test_folder, 'create_db')), mode='w', encoding='utf-8') as f:
              res = json.dump(correct_output, f, ensure_ascii=True)
         """
-        db_filename = get_correct_filename(self.object.filename, '')
-        try:
-            os.remove(db_filename)
-        except Exception as exc:
-            logging.exception(f'Can not remove test database file {db_filename}', exc_info=True)
+        # удаляем тестовые таблицы
+        self.object.run_single_sql("DROP TABLE IF EXISTS ReadBook")
+        self.object.run_single_sql("DROP TABLE IF EXISTS Reader")
+        self.object.run_single_sql("DROP TABLE IF EXISTS Book")
 
 
 
