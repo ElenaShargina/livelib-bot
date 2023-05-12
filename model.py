@@ -23,6 +23,7 @@ if current_reader.exists(login=login):
         update = input('Скачать новые записи?')
         if update == '1':
         # # # # Если скачать
+            reader.update_books()
             pass
         else:
         # # # # Если не надо скачивать
@@ -30,6 +31,8 @@ if current_reader.exists(login=login):
     else:
     # # если нет пользователя в БД
         print('У вас нет записей, начинаем скачивание...')
+        reader.get_books()
+    # reader.create_export_file(type='csv')
 else:
     # # # если нет логина на ЛЛ
     print('Вы не существуете!')

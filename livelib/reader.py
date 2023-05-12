@@ -154,3 +154,12 @@ class Reader:
         else:
             result = None
         return result
+
+    def update_books(self):
+        pass
+
+    def download_books(self):
+        pass
+
+    def create_export_file(self, type = 'csv'):
+        pass

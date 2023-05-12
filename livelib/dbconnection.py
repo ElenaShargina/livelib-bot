@@ -108,11 +108,11 @@ class SQLite3Connection(DBConnection):
                     result = con.execute(sql, params).fetchall()
             except sqlite3.Error:
                 logging.exception('Error while processing sql!', exc_info=True)
-                raise
+                # raise
             con.close()
         except sqlite3.Error:
             logging.exception(f'Error while processing sql {sql} in {self.filename} SQLiteConnection! ', exc_info=True)
-            raise
+            # raise
         return result
 
     def insert_values(self, table: str, values: List[Dict]) -> int:

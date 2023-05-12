@@ -1,3 +1,4 @@
+import datetime
 import json
 import os, sys
 
@@ -28,6 +29,14 @@ class TestDBConnection(CustomUnitTest):
         logging.basicConfig(filename='log.log', level=logging.DEBUG, filemode='a',
                             format="%(asctime)s %(levelname)s %(message)s")
         cls.parser = ParserFromHTML
+
+    def test_run_single_sql(self):
+        filename = get_correct_filename('test.db', os.path.join(self.test_folder, 'run_single_sql'))
+        self.object = SQLite3Connection(filename, create_if_not_exist=True)
+        self.process_json_compare_to_json('run_single_sql','run_single_sql','output', 'input', convert_html_to_bs=False)
+
+    def test_get_table_schema(self):
+        pass
 
     def test_create_db(self):
         filename = get_correct_filename('test.db', self.test_folder)
