@@ -2,7 +2,8 @@ from livelib import *
 
 config = Config('.env')
 db = SQLite3Connection(config.db_config.sqlite_db, create_if_not_exist=True)
-db.create_db(BookDataFormatter)
+# db.create_db(BookDataFormatter)
+# @todo почему не ругается?
 # web = WebWithCache(config, random_sleep=True)
 web = WebWithCache(config,random_sleep=False)
 
@@ -32,6 +33,7 @@ if current_reader.exists(login=login):
     # # если нет пользователя в БД
         print('У вас нет записей, начинаем скачивание...')
         current_reader.register()
+        print('currrrent_id=', current_reader.id)
         current_reader.get_all_read_books()
     # reader.create_export_file(type='csv')
 else:

@@ -102,9 +102,9 @@ class Reader:
         """
         # на всякий случай проверяем, нет ли пользователя с тем же логином
         old_id = self.get_db_id()
-        if not old_id:
-            self.db_connection.run_single_sql("INSERT INTO Reader (login) VALUES (?)", (self.login,))
-            result = self.get_db_id()
+        print('old_id',old_id)
+        if old_id == None:
+            result = self.db_connection.run_single_sql("INSERT INTO Reader (login) VALUES (?)", (self.login,), return_lastrowid=True)
             logging.info(f'Adding new Reader to DB: {self.login} at id = {result}')
             return result
         else:
@@ -117,7 +117,7 @@ class Reader:
         :rtype:
         """
         result = self.db_connection.run_single_sql("SELECT * FROM Reader WHERE login = ?",(self.login,))
-        if len(result)>0:
+        if result!=None or result != []:
             return result[0].get('id', None)
         else:
             return None
