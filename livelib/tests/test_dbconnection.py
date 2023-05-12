@@ -28,10 +28,10 @@ class TestDBConnection(CustomUnitTest):
         logging.basicConfig(filename='log.log', level=logging.DEBUG, filemode='a',
                             format="%(asctime)s %(levelname)s %(message)s")
         cls.parser = ParserFromHTML
-        print(get_correct_filename(cls.config.db_config.sqlite_db, ""))
-        cls.object = SQLite3Connection(get_correct_filename(cls.config.db_config.sqlite_db, ""))
 
     def test_create_db(self):
+        filename = get_correct_filename('test.db', self.test_folder)
+        self.object = SQLite3Connection(filename, create_if_not_exist=True)
         self.object.create_db(BookDataFormatter)
         self.process_json_compare_to_json('get_table_schema', 'create_db', 'output', 'table', convert_html_to_bs=False)
         # код для изменения файла с правильным ответом
@@ -44,15 +44,17 @@ class TestDBConnection(CustomUnitTest):
         with open(get_correct_filename('file.json', os.path.join(self.test_folder, 'create_db')), mode='w', encoding='utf-8') as f:
              res = json.dump(correct_output, f, ensure_ascii=True)
         """
-        # удаляем тестовые таблицы
-        self.object.run_single_sql("DROP TABLE IF EXISTS ReadBook")
-        self.object.run_single_sql("DROP TABLE IF EXISTS Reader")
-        self.object.run_single_sql("DROP TABLE IF EXISTS Book")
+        # удаляем тестовую базу данных
+        try:
+            os.remove(filename)
+            logging.info(f'Remove test database file {filename}')
+        except Exception as exc:
+            logging.exception(f'Can not remove test database file {filename}')
 
     def test_insert_values(self):
         filename = get_correct_filename('insert_values.db', self.test_folder)
-        con = SQLite3Connection(filename)
-        # con.run_single_sql("CREATE TABLE Foo (col1 INTEGER, col2 TEXT)")
+        con = SQLite3Connection(filename,create_if_not_exist=True)
+        con.run_single_sql("CREATE TABLE Foo (col1 INTEGER, col2 TEXT)")
         with self.subTest('Testing correct inserting values'):
             values = [
                 {'col1': 1, 'col2': 'smth'},
@@ -73,7 +75,12 @@ class TestDBConnection(CustomUnitTest):
             for i in values:
                 with self.assertRaises(Exception):
                     output = con.insert_values('Foo', i)
-
+        # удаляем тестовую базу данных
+        try:
+            os.remove(filename)
+            logging.info(f'Remove test database file {filename}')
+        except Exception as exc:
+            logging.exception(f'Can not remove test database file {filename}')
 
     def test_table_exists(self):
         filename = get_correct_filename('db.db', '/data/sample/test_sqlite3/table_exists/')

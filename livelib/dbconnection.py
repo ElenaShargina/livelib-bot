@@ -14,8 +14,16 @@ class SQLite3Connection(DBConnection):
     table_reader = 'Reader'
     table_readbook = 'ReadBook'
 
-    def __init__(self, filename: str):
+    def __init__(self, filename: str, create_if_not_exist:bool=False):
         self.filename = filename
+        # создаем файл с базой данной, если требуется
+        if not os.path.isfile(self.filename):
+            try:
+                f = open(self.filename, mode='w')
+                f.close()
+                logging.info(f'Create DB file {self.filename}')
+            except Exception as exc:
+                logging.exception(f'Can not create DB file {self.filename}', exc_info=True)
         try:
             con = sqlite3.connect(self.filename)
             logging.info(f'Successfully connected to {self.filename} db.')
