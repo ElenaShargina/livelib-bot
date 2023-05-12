@@ -75,7 +75,7 @@ class SQLite3Connection(DBConnection):
                               [f"FOREIGN KEY(book_id) REFERENCES {self.table_book}(id) "] +
                               [f"FOREIGN KEY(reader_id) REFERENCES {self.table_reader}(id) "]
                               )
-        sql = f"CREATE TABLE {self.table_readbook} ( {fields_str})"
+        sql = f"CREATE TABLE {self.table_readbook} ( {fields_str} UNIQUE(book_id, reader_id))"
         logging.debug(f'Creating new table: {sql}')
         try:
             self.run_single_sql(sql)

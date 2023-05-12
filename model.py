@@ -2,7 +2,7 @@ from livelib import *
 
 config = Config('.env')
 db = SQLite3Connection(config.db_config.sqlite_db, create_if_not_exist=True)
-# db.create_db(BookDataFormatter)
+db.create_db(BookDataFormatter)
 # @todo почему не ругается?
 # web = WebWithCache(config, random_sleep=True)
 web = WebWithCache(config,random_sleep=False)
