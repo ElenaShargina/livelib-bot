@@ -46,7 +46,7 @@ class SQLite3Connection(DBConnection):
         # создаем таблицу книг
         book_fields: dict[str, str] = {i: formatter.all_properties_db()[i] for i in formatter.book_properties_db}
         fields_str = ','.join(["id INTEGER PRIMARY KEY AUTOINCREMENT "] + [i + ' ' + j for i, j in book_fields.items()])
-        sql = f"CREATE TABLE {self.table_book} ( {fields_str})"
+        sql = f"CREATE TABLE {self.table_book} ( {fields_str} , UNIQUE(book_id), UNIQUE(work_id) )"
         logging.debug(f'Creating new table: {sql}')
         try:
             self.run_single_sql(sql)
@@ -139,7 +139,7 @@ class SQLite3Connection(DBConnection):
             con = sqlite3.connect(self.filename)
             try:
                 with con:
-                    result = con.executemany(f"INSERT INTO {table} ({field_names}) VALUES ({placeholders})",
+                    result = con.executemany(f"INSERT OR IGNORE INTO {table} ({field_names}) VALUES ({placeholders})",
                                              field_values).rowcount
             except sqlite3.Error:
                 logging.exception('Error while processing sql!', exc_info=True)

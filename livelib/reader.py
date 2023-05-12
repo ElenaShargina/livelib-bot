@@ -150,7 +150,7 @@ class Reader:
                 print('page = ', i, ' из ', len(page_numbers))
                 try:
                     books = self.get_books_from_page(i)
-                    print(books)
+                    # print(books)
                     num = self.save_books_in_db(books)
                     print(f'Saving {num} books to DB')
                     logging.info(f'Saving {num} books to DB')
@@ -190,12 +190,41 @@ class Reader:
         :rtype:
         """
         prepared_books = self.parser_db.prepare_books_for_db(books)
-        print(books)
+        print('books=',len(books))
+        # сохраняем книги в таблице Book
         book_properties = BookDataFormatter.book_properties_db
-        print(book_properties)
         for book in books:
-            result = self.db_connection.insert_values('Book', [{key:book[key] for key in book_properties},])
+            self.db_connection.insert_values('Book', [{key:book[key] for key in book_properties},])
+        # сохраняем связи между читателем и книгами в таблице ReadBook вместе с его оценкой и рецензией
+        # узнаем id добавленных книг
+        new_books = [book['book_id'] for book in books if book['book_id']]
+        new_works = [book['work_id'] for book in books if book['work_id']]
+        print('new_books+new_works=',new_books+new_works)
+        new_ids = self.db_connection.run_single_sql(f"SELECT id, book_id, work_id FROM Book where book_id in ({','.join(['?']*len(new_books))})"
+                                                    f" OR work_id in ({','.join(['?']*len(new_works))}) ",
+                                                    new_books+new_works)
+        # разбираем новые id, формируем список строк для занесения в ReadBook
+        print(len(new_ids))
+        readbook_rows = []
+        readbook_properties = BookDataFormatter.readbook_properties_db
+        for i in new_ids:
+            # находим соответствующую запись в общем массиве books
+            if i['book_id']:
+                entry = [item for item in books if item['book_id']==i['book_id']][0]
+            elif i['work_id']:
+                entry = [item for item in books if item['work_id']==i['work_id']][0]
+            # добавляем в новую запись нужные для таблицы свойства
+            new_entry = {key:value for key,value in entry.items() if key in readbook_properties}
+            new_entry['reader_id'] = self.id
+            new_entry['book_id'] = i['id']
+            readbook_rows.append(new_entry)
+        print('readbook_rows',len(readbook_rows))
+        # добавляем новые значения в таблицу ReadBook
+        result = self.db_connection.insert_values('ReadBook', readbook_rows)
+        print('result = ', result)
         return result
+
+
 
     def update_books(self):
         pass
