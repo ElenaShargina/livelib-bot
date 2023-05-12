@@ -6,6 +6,7 @@ sys.path.append(os.path.dirname(os.path.abspath(__file__)))
 import unittest
 from livelib import *
 import logging
+import datetime
 
 from utils import get_correct_filename, CustomUnitTest, remove_file
 
@@ -36,10 +37,23 @@ class TestReader(CustomUnitTest):
         filename = get_correct_filename('test_has_db_entries.db', self.test_folder)
         db_con = SQLite3Connection(filename,create_if_not_exist=True)
         db_con.create_db(BookDataFormatter)
-        db_con.insert_values('Reader',([{'login':'Ivan'},{'login':'Petr'}]))
-        self.object = Reader('Ivan', self.web_connection, db_con)
-        res = self.object.has_db_entries()
-        print(res)
+        now = str(datetime.datetime.now())
+        test_values = [
+            {'login': 'Ivan', 'update_time': now, 'exists' : True},
+            {'login': 'Petr', 'update_time': None, 'exists' : True},
+            {'login': 'PetrTY', 'update_time': None, 'exists' : False},
+            {'login': 'PetrTY', 'update_time': now, 'exists': False},
+        ]
+        db_con.insert_values('Reader',([{'login':i['login'],'update_time':i['update_time']} for i in test_values if i['exists']]))
+        for i in test_values:
+            self.object = Reader(i['login'], self.web_connection, db_con)
+            if i['exists']:
+                with self.subTest('Testing users with existing db_entries'):
+                    self.assertEqual(i['update_time'],self.object.has_db_entries())
+            else:
+                with self.subTest('Testing users with non-existing db_entries'):
+                    self.assertEqual(None,self.object.has_db_entries())
+        # удаляем тестовую базу данных
         remove_file(filename,'Remove test database', 'Can not remove test database')
 
 if __name__=='__main__':

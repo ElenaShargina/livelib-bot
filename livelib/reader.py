@@ -141,8 +141,15 @@ class Reader:
         result = self.db_connection.insert_values(self.login, prepared_books)
         return result
 
-    def has_db_entries(self) -> bool:
+    def has_db_entries(self) -> str|None:
+        """
+        Возвращает либо дату последнего обновления пользователя в БД,
+                    либо None, если пользователь не существует,
+                                или обновлений не было.
+        """
         result = self.db_connection.run_single_sql(f'SELECT * FROM Reader WHERE login=?', (self.login,))
-        if result:
-            pass
+        if result != []:
+            result = result[0].get('update_time', None)
+        else:
+            result = None
         return result
