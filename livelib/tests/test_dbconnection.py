@@ -1,23 +1,34 @@
+import json
 import os, sys
 
 # скрипт для правильной отработки тестов в github.actions
 sys.path.append(os.path.dirname(os.path.abspath(__file__)))
 
-from utils import get_correct_filename
+from utils import get_correct_filename, CustomUnitTest
 
 import sqlite3
 import unittest
-from livelib import SQLite3Connection
+from livelib import SQLite3Connection, Config, WebWithCache, BookDataFormatter, ParserFromHTML
 import logging
 
 
 
-class TestDBConnection(unittest.TestCase):
+class TestDBConnection(CustomUnitTest):
+    # папка с данными для проведения тестов
+    # внутри её есть подпапки для конкретных функций
+    test_folder: str = 'data/sample/test_sqlite3'
+    # файл с конфигом для проведения тестов.
+    # тесты имеют собственную папку кеша веб-страниц
+    config_file: str = '.env.sqlite3'
 
-    def setUp(self) -> None:
-        logging.basicConfig(filename='log.log', level=logging.DEBUG, filemode='w',
+    @classmethod
+    def setUpClass(cls) -> None:
+        cls.config = Config(get_correct_filename(cls.config_file, ''))
+        cls.web_connection = WebWithCache(cls.config)
+        logging.basicConfig(filename='log.log', level=logging.DEBUG, filemode='a',
                             format="%(asctime)s %(levelname)s %(message)s")
-        logging.debug('Starting to test TestDBConnection')
+        cls.parser = ParserFromHTML
+        cls.object = SQLite3Connection(cls.config.db_config.sqlite_db)
 
     # def tearDown(self) -> None:
     #     logging.debug('Cleaning dbs after testing')
@@ -28,6 +39,29 @@ class TestDBConnection(unittest.TestCase):
     #             os.remove(i)
     #     pass
 
+    def test_create_db(self):
+        self.object.create_db(BookDataFormatter)
+        self.process_json_compare_to_json('get_table_schema', 'create_db', 'output', 'table', convert_html_to_bs=False)
+        # код для изменения файла с правильным ответом
+        """
+        correct_output = []
+        for i in ['Book','Reader', 'ReadBook']:
+            output = self.object.get_table_schema(i)
+            correct_output.append({"table":i, "output":output})
+        print(correct_output)
+        with open(get_correct_filename('file.json', os.path.join(self.test_folder, 'create_db')), mode='w', encoding='utf-8') as f:
+             res = json.dump(correct_output, f, ensure_ascii=True)
+        """
+        db_filename = get_correct_filename(self.object.filename, '')
+        try:
+            os.remove(db_filename)
+        except Exception as exc:
+            logging.exception(f'Can not remove test database file {db_filename}', exc_info=True)
+
+
+
+
+    #@todo а надо ли сейчас вообще эта функция?
     def test_create_table(self):
         with self.subTest('Testing correct case of creating table'):
             filename = get_correct_filename('correct.db', '/db/')

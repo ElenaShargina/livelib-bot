@@ -85,7 +85,21 @@ class BookDataFormatter(DataFormatter):
         'year': {'parser': 'not_implemented',
                  'db': {'name': 'year', 'type': 'INTEGER'},
                  },
+        'livelib_id': {'parser':'not_implemented',
+                'db': {'name': 'livelib_id', 'type': 'INTEGER'},
+                },
+        'login': {'parser':'not_implemented',
+            'db': {'name': 'login', 'type': 'TEXT'},
+        },
+        'update_time': {'parser': 'not_implemented',
+                  'db': {'name': 'update_time', 'type': 'TEXT'},
+                  },
     }
+
+    book_properties_db = ['book_id', 'work_id', 'book_name', 'author_name', 'author_id', 'common_rating', 'picture_url']
+    reader_properties_db = ['livelib_id', 'login', 'update_time']
+    readbook_properties_db = ['review_text', 'review_id', 'tags', 'reader_rating', 'month', 'year']
+
 
     @classmethod
     def all_properties_parser(cls):

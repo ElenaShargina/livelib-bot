@@ -1,3 +1,4 @@
+import json
 import logging
 import sqlite3
 import os
@@ -9,6 +10,10 @@ class DBConnection:
     pass
 
 class SQLite3Connection(DBConnection):
+    table_book = 'Book'
+    table_reader = 'Reader'
+    table_readbook = 'ReadBook'
+
     def __init__(self, filename: str):
         self.filename = filename
         try:
@@ -19,6 +24,51 @@ class SQLite3Connection(DBConnection):
             raise
         else:
             con.close()
+
+    def create_db(self, formatter: type[BookDataFormatter] = BookDataFormatter) -> None:
+        """
+        Создание базы данных по заданным в BookDataFormatter полям.
+        Создает три таблицы: Book, Reader, ReadBook. Подробнее в прилагаемой к проекту диаграмме.
+        """
+        logging.debug('Starting to create new database.')
+        # создаем таблицу книг
+        book_fields: dict[str,str] = {i:formatter.all_properties_db()[i] for i in formatter.book_properties_db}
+        print(book_fields)
+        fields_str = ','.join(["id INTEGER PRIMARY KEY AUTOINCREMENT "] + [i+' '+j for i,j in book_fields.items()])
+        sql = f"CREATE TABLE {self.table_book} ( {fields_str})"
+        logging.debug(f'Creating new table: {sql}')
+        try:
+            self.run_single_sql(sql)
+        except sqlite3.Error:
+            logging.exception(f"Can't create table {self.table_book}!", exc_info=True)
+            raise
+        # создаем таблицу читателей
+        reader_fields: dict[str,str] = {i:formatter.all_properties_db()[i] for i in formatter.reader_properties_db}
+        fields_str = ','.join(["id INTEGER PRIMARY KEY AUTOINCREMENT "] + [i+' '+j for i,j in reader_fields.items()])
+        sql = f"CREATE TABLE {self.table_reader} ( {fields_str})"
+        logging.debug(f'Creating new table: {sql}')
+        try:
+            self.run_single_sql(sql)
+        except sqlite3.Error:
+            logging.exception(f"Can't create table {self.table_reader}!", exc_info=True)
+            raise
+        # создаем таблицу прочитанных книг
+        readbook_fields: dict[str,str] = {i:formatter.all_properties_db()[i] for i in formatter.readbook_properties_db}
+        fields_str = ','.join(["id INTEGER PRIMARY KEY AUTOINCREMENT "] +
+                              ["book_id INTEGER "] +
+                              ["reader_id INTEGER "] +
+                              [i+' '+j for i,j in readbook_fields.items()] +
+                              [f"FOREIGN KEY(book_id) REFERENCES {self.table_book}(id) "] +
+                              [f"FOREIGN KEY(reader_id) REFERENCES {self.table_reader}(id) "]
+                              )
+        sql = f"CREATE TABLE {self.table_readbook} ( {fields_str})"
+        logging.debug(f'Creating new table: {sql}')
+        try:
+            self.run_single_sql(sql)
+        except sqlite3.Error:
+            logging.exception(f"Can't create table {self.table_readbook}!", exc_info=True)
+            raise
+
 
     def run_single_sql(self, sql: str) -> int or None:
         result = None
@@ -109,20 +159,18 @@ class SQLite3Connection(DBConnection):
         finally:
             return result
 
-    def get_table_schema(self, table:str) -> list[tuple]:
+    def get_table_schema(self, table: str) -> str:
+        """
+        Возвращает схему таблицы в виде сериализованной для json строки
+        :param table: название таблицы
+        :type table: str
+        :return:
+        :rtype: str
+        """
         if self.table_exists(table):
-            return self.run_single_sql(f'PRAGMA table_info({table})')
+            result =  self.run_single_sql(f'PRAGMA table_info({table})')
+            return json.dumps(result)
         else:
             return None
 
-    # def create_tables(self):
-    #     con = sqlite3.connect(self.filename)
-    #     cursor = con.cursor()
-    #     sql = """CREATE TABLE Books(id INTEGER NOT NULL PRIMARY KEY,
-    #           title TEXT,
-    #           author TEXT)"""
-    #     cursor.execute(sql)
-    #     con.commit()
-    #     cursor.close()
-    #     con.close()
 

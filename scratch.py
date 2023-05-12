@@ -31,8 +31,17 @@ def get_all(login):
     # CSVConnection.create_file(ParserForCSV.create_filepath_csv(r.login), BookDataFormatter.all_properties_csv().keys(), books, config)
 
 # for i in ['Eugenia_Novik', 'Feana', 'Kasssiopei', 'ElviraYakovleva', 'Shakespeare']:
-for i in ['ElviraYakovleva', 'Feana']:
-    get_all(i)
+# for i in ['ElviraYakovleva', 'Feana']:
+#     get_all(i)
 
-
-
+config = Config('.env')
+db = SQLite3Connection(config.db_config.sqlite_db)
+formatter = BookDataFormatter
+# db.create_db(BookDataFormatter)
+schema = db.get_table_schema('Book')
+print(type(schema))
+print(schema)
+schema = db.get_table_schema('Reader')
+print(schema)
+schema = db.get_table_schema('BookReader')
+print(schema)
