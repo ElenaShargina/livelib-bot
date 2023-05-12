@@ -2,6 +2,7 @@ from livelib import *
 
 config = Config('.env')
 db = SQLite3Connection(config.db_config.sqlite_db)
+db.create_db(BookDataFormatter)
 # web = WebWithCache(config, random_sleep=True)
 web = SimpleWeb(config,random_sleep=False)
 

@@ -28,7 +28,8 @@ class TestDBConnection(CustomUnitTest):
         logging.basicConfig(filename='log.log', level=logging.DEBUG, filemode='a',
                             format="%(asctime)s %(levelname)s %(message)s")
         cls.parser = ParserFromHTML
-        cls.object = SQLite3Connection(cls.config.db_config.sqlite_db)
+        print(get_correct_filename(cls.config.db_config.sqlite_db, ""))
+        cls.object = SQLite3Connection(get_correct_filename(cls.config.db_config.sqlite_db, ""))
 
     def test_create_db(self):
         self.object.create_db(BookDataFormatter)
@@ -48,34 +49,10 @@ class TestDBConnection(CustomUnitTest):
         self.object.run_single_sql("DROP TABLE IF EXISTS Reader")
         self.object.run_single_sql("DROP TABLE IF EXISTS Book")
 
-
-
-
-    #@todo а надо ли сейчас вообще эта функция?
-    def test_create_table(self):
-        with self.subTest('Testing correct case of creating table'):
-            filename = get_correct_filename('correct.db', '/db/')
-            con = SQLite3Connection(filename)
-            con.create_table('Foo', {'col1': 'INTEGER', 'col2': 'TEXT'})
-            # @todo сделать отдельную функцию
-            output = con.get_table_schema('Foo')
-            correct_output = [(0, 'id', 'INTEGER', 0, None, 1), (1, 'col1', 'INTEGER', 0, None, 0),
-                              (2, 'col2', 'TEXT', 0, None, 0)]
-            self.assertEqual(output, correct_output)
-        #     не удаляем файл с бд, он пригодится в следующем кейсе
-
-        with self.subTest('Testing incorrect case of creating table: The table already exists. '):
-            filename = get_correct_filename('correct.db', '/db/')
-            con = SQLite3Connection(filename)
-            with self.assertRaises(sqlite3.Error):
-                con.create_table('Foo', {'col1': 'INTEGER', 'col2': 'TEXT'})
-            # удаляем файл с бд
-            os.remove(filename)
-
     def test_insert_values(self):
-        filename = get_correct_filename('insert_values.db', '/db/')
+        filename = get_correct_filename('insert_values.db', self.test_folder)
         con = SQLite3Connection(filename)
-        con.create_table('Foo',  {'col1': 'INTEGER', 'col2': 'TEXT'})
+        # con.run_single_sql("CREATE TABLE Foo (col1 INTEGER, col2 TEXT)")
         with self.subTest('Testing correct inserting values'):
             values = [
                 {'col1': 1, 'col2': 'smth'},
@@ -96,10 +73,10 @@ class TestDBConnection(CustomUnitTest):
             for i in values:
                 with self.assertRaises(Exception):
                     output = con.insert_values('Foo', i)
-        os.remove(filename)
+
 
     def test_table_exists(self):
-        filename = get_correct_filename('db.db', '/db/table_exists/')
+        filename = get_correct_filename('db.db', '/data/sample/test_sqlite3/table_exists/')
         con = SQLite3Connection(filename)
         with self.subTest('Testing if table exists'):
             self.assertTrue(con.table_exists('mytable'))
@@ -108,5 +85,4 @@ class TestDBConnection(CustomUnitTest):
 
 
 if __name__ == '__main__':
-    print(sys.path)
     unittest.main()

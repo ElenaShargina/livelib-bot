@@ -33,7 +33,6 @@ class SQLite3Connection(DBConnection):
         logging.debug('Starting to create new database.')
         # создаем таблицу книг
         book_fields: dict[str,str] = {i:formatter.all_properties_db()[i] for i in formatter.book_properties_db}
-        print(book_fields)
         fields_str = ','.join(["id INTEGER PRIMARY KEY AUTOINCREMENT "] + [i+' '+j for i,j in book_fields.items()])
         sql = f"CREATE TABLE {self.table_book} ( {fields_str})"
         logging.debug(f'Creating new table: {sql}')
@@ -85,23 +84,6 @@ class SQLite3Connection(DBConnection):
             logging.exception(f'Error while processing sql {sql} in {self.filename} SQLiteConnection! ', exc_info=True)
             raise
         return result
-
-    def create_table(self, name:str, fields_dict: List[Dict]):
-        """
-        Создает таблицу с заданным названием и структурой
-        :param name:
-        :type name:
-        :param fields_dict: словарь вида {'name_field1':'type_field1', 'name_field2':'type_field2', ...}
-        :type fields_dict:
-        """
-        fields_str = ','.join(["id INTEGER PRIMARY KEY AUTOINCREMENT "] + [i+' '+j for i,j in fields_dict.items()])
-        #@todo небезопасно вот тут
-        sql = f"CREATE TABLE {name} ({fields_str})"
-        try:
-            self.run_single_sql(sql)
-        except sqlite3.Error:
-            logging.exception(f"Can't create table {name}!", exc_info=True)
-            raise
 
     def insert_values(self, table: str, values: List[Dict]) -> int:
         """
