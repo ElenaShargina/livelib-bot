@@ -142,4 +142,7 @@ class Reader:
         return result
 
     def has_db_entries(self) -> bool:
-        pass
+        result = self.db_connection.run_single_sql(f'SELECT * FROM Reader WHERE login=?', (self.login,))
+        if result:
+            pass
+        return result

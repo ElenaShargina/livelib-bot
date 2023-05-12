@@ -4,7 +4,7 @@ import os, sys
 # скрипт для правильной отработки тестов в github.actions
 sys.path.append(os.path.dirname(os.path.abspath(__file__)))
 
-from utils import get_correct_filename, CustomUnitTest
+from utils import get_correct_filename, CustomUnitTest, remove_file
 
 import sqlite3
 import unittest
@@ -45,11 +45,7 @@ class TestDBConnection(CustomUnitTest):
              res = json.dump(correct_output, f, ensure_ascii=True)
         """
         # удаляем тестовую базу данных
-        try:
-            os.remove(filename)
-            logging.info(f'Remove test database file {filename}')
-        except Exception as exc:
-            logging.exception(f'Can not remove test database file {filename}')
+        remove_file(filename,'Remove test database', 'Can not remove test database')
 
     def test_insert_values(self):
         filename = get_correct_filename('insert_values.db', self.test_folder)
@@ -76,11 +72,8 @@ class TestDBConnection(CustomUnitTest):
                 with self.assertRaises(Exception):
                     output = con.insert_values('Foo', i)
         # удаляем тестовую базу данных
-        try:
-            os.remove(filename)
-            logging.info(f'Remove test database file {filename}')
-        except Exception as exc:
-            logging.exception(f'Can not remove test database file {filename}')
+        remove_file(filename, 'Remove test database', 'Can not remove test database')
+
 
     def test_table_exists(self):
         filename = get_correct_filename('db.db', '/data/sample/test_sqlite3/table_exists/')

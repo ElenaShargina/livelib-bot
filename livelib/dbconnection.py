@@ -2,19 +2,23 @@ import json
 import logging
 import sqlite3
 import os
+import typing
+
 from livelib.parser import BookDataFormatter
 from typing import Dict, List
 from livelib.config import Config
 
+
 class DBConnection:
     pass
+
 
 class SQLite3Connection(DBConnection):
     table_book = 'Book'
     table_reader = 'Reader'
     table_readbook = 'ReadBook'
 
-    def __init__(self, filename: str, create_if_not_exist:bool=False):
+    def __init__(self, filename: str, create_if_not_exist: bool = False):
         self.filename = filename
         # создаем файл с базой данной, если требуется
         if not os.path.isfile(self.filename):
@@ -40,8 +44,8 @@ class SQLite3Connection(DBConnection):
         """
         logging.debug('Starting to create new database.')
         # создаем таблицу книг
-        book_fields: dict[str,str] = {i:formatter.all_properties_db()[i] for i in formatter.book_properties_db}
-        fields_str = ','.join(["id INTEGER PRIMARY KEY AUTOINCREMENT "] + [i+' '+j for i,j in book_fields.items()])
+        book_fields: dict[str, str] = {i: formatter.all_properties_db()[i] for i in formatter.book_properties_db}
+        fields_str = ','.join(["id INTEGER PRIMARY KEY AUTOINCREMENT "] + [i + ' ' + j for i, j in book_fields.items()])
         sql = f"CREATE TABLE {self.table_book} ( {fields_str})"
         logging.debug(f'Creating new table: {sql}')
         try:
@@ -50,8 +54,9 @@ class SQLite3Connection(DBConnection):
             logging.exception(f"Can't create table {self.table_book}!", exc_info=True)
             raise
         # создаем таблицу читателей
-        reader_fields: dict[str,str] = {i:formatter.all_properties_db()[i] for i in formatter.reader_properties_db}
-        fields_str = ','.join(["id INTEGER PRIMARY KEY AUTOINCREMENT "] + [i+' '+j for i,j in reader_fields.items()])
+        reader_fields: dict[str, str] = {i: formatter.all_properties_db()[i] for i in formatter.reader_properties_db}
+        fields_str = ','.join(
+            ["id INTEGER PRIMARY KEY AUTOINCREMENT "] + [i + ' ' + j for i, j in reader_fields.items()])
         sql = f"CREATE TABLE {self.table_reader} ( {fields_str})"
         logging.debug(f'Creating new table: {sql}')
         try:
@@ -60,11 +65,12 @@ class SQLite3Connection(DBConnection):
             logging.exception(f"Can't create table {self.table_reader}!", exc_info=True)
             raise
         # создаем таблицу прочитанных книг
-        readbook_fields: dict[str,str] = {i:formatter.all_properties_db()[i] for i in formatter.readbook_properties_db}
+        readbook_fields: dict[str, str] = {i: formatter.all_properties_db()[i] for i in
+                                           formatter.readbook_properties_db}
         fields_str = ','.join(["id INTEGER PRIMARY KEY AUTOINCREMENT "] +
                               ["book_id INTEGER "] +
                               ["reader_id INTEGER "] +
-                              [i+' '+j for i,j in readbook_fields.items()] +
+                              [i + ' ' + j for i, j in readbook_fields.items()] +
                               [f"FOREIGN KEY(book_id) REFERENCES {self.table_book}(id) "] +
                               [f"FOREIGN KEY(reader_id) REFERENCES {self.table_reader}(id) "]
                               )
@@ -76,14 +82,30 @@ class SQLite3Connection(DBConnection):
             logging.exception(f"Can't create table {self.table_readbook}!", exc_info=True)
             raise
 
+    def run_single_sql(self, sql: str, params: typing.Iterable = ()) -> list or None:
+        """
+        Запускает одну команду sql, переданную в строке sql с подставленными параметрами params.
+        Невозможно с помощью подстановки параметров создать таблицу, удалить таблицу, проверить схему таблицы,
+        поэтому в таких случаях надо заранее собирать sql строку, обращая внимания на возможные sql инъекции.
+        :param sql: запрос SQL с возможными placeholders (?) для параметров из params
+        :type sql: str
+        :param params: список, кортеж, словарь подставляемых параметров
+        :type params: typing.Iterable
+        :return: результат запроса или None
+        :rtype: list|Nones
+        """
 
-    def run_single_sql(self, sql: str) -> int or None:
+        def dict_factory(cursor, row):
+            fields = [column[0] for column in cursor.description]
+            return {key: value for key, value in zip(fields, row)}
+
         result = None
         try:
             con = sqlite3.connect(self.filename)
+            con.row_factory = dict_factory
             try:
                 with con:
-                    result = con.execute(sql).fetchall()
+                    result = con.execute(sql, params).fetchall()
             except sqlite3.Error:
                 logging.exception('Error while processing sql!', exc_info=True)
                 raise
@@ -114,17 +136,19 @@ class SQLite3Connection(DBConnection):
             con = sqlite3.connect(self.filename)
             try:
                 with con:
-                    result = con.executemany(f"INSERT INTO {table} ({field_names}) VALUES ({placeholders})", field_values).rowcount
+                    result = con.executemany(f"INSERT INTO {table} ({field_names}) VALUES ({placeholders})",
+                                             field_values).rowcount
             except sqlite3.Error:
                 logging.exception('Error while processing sql!', exc_info=True)
                 raise
             con.close()
         except sqlite3.Error:
-            logging.exception(f'Error while processing executemany in {self.filename} SQLiteConnection! ', exc_info=True)
+            logging.exception(f'Error while processing executemany in {self.filename} SQLiteConnection! ',
+                              exc_info=True)
             raise
         return result
 
-    def table_exists(self, name:str) -> bool:
+    def table_exists(self, name: str) -> bool:
         """
         Проверяет, существует ли таблица с заданным именем.
         :param name: название таблицы
@@ -137,14 +161,16 @@ class SQLite3Connection(DBConnection):
             con = sqlite3.connect(self.filename)
             try:
                 with con:
-                    result = con.execute("SELECT name FROM sqlite_master WHERE type='table' AND name=?", (name,)).fetchone()
-                    result = True if result!=None else False
+                    result = con.execute("SELECT name FROM sqlite_master WHERE type='table' AND name=?",
+                                         (name,)).fetchone()
+                    result = True if result != None else False
             except sqlite3.Error:
                 logging.exception('Error while processing sql!', exc_info=True)
                 raise
             con.close()
         except sqlite3.Error:
-            logging.exception(f'Error while connecting to database in {self.filename} SQLiteConnection! ', exc_info=True)
+            logging.exception(f'Error while connecting to database in {self.filename} SQLiteConnection! ',
+                              exc_info=True)
             raise
         finally:
             return result
@@ -158,9 +184,7 @@ class SQLite3Connection(DBConnection):
         :rtype: str
         """
         if self.table_exists(table):
-            result =  self.run_single_sql(f'PRAGMA table_info({table})')
+            result = self.run_single_sql(f'PRAGMA table_info ({table})')
             return json.dumps(result)
         else:
             return None
-
-

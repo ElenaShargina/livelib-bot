@@ -7,7 +7,7 @@ import unittest
 from livelib import *
 import logging
 
-from utils import get_correct_filename, CustomUnitTest
+from utils import get_correct_filename, CustomUnitTest, remove_file
 
 
 class TestReader(CustomUnitTest):
@@ -30,6 +30,17 @@ class TestReader(CustomUnitTest):
     def test_exists(self):
         self.object = Reader('Somebody', self.web_connection,self.db_connection)
         self.process_json_compare_to_json('exists','exists','exists','input', convert_html_to_bs=False)
+
+    def test_has_db_entries(self):
+        # подготавливаем базу данных
+        filename = get_correct_filename('test_has_db_entries.db', self.test_folder)
+        db_con = SQLite3Connection(filename,create_if_not_exist=True)
+        db_con.create_db(BookDataFormatter)
+        db_con.insert_values('Reader',([{'login':'Ivan'},{'login':'Petr'}]))
+        self.object = Reader('Ivan', self.web_connection, db_con)
+        res = self.object.has_db_entries()
+        print(res)
+        remove_file(filename,'Remove test database', 'Can not remove test database')
 
 if __name__=='__main__':
     unittest.main()

@@ -1,5 +1,5 @@
 import os
-import unittest
+import unittest, logging
 from livelib import Config, Parser, WebConnection, DBConnection
 import json
 import bs4
@@ -14,6 +14,13 @@ def get_correct_filename(filename: str, folder: str, ) -> str:
     parent_dir = os.path.dirname(os.path.abspath(__file__))
     prefix_folder = os.path.join(parent_dir, *folder.split('/'))
     return os.path.join(prefix_folder, filename)
+
+def remove_file(filename : str, log_msg = 'Remove test file ', error_msg = 'Can not remove test file '):
+    try:
+        os.remove(filename)
+        logging.info(f'{log_msg} {filename}')
+    except Exception as exc:
+        logging.exception(f'{error_msg} {filename}', exc_info=True)
 
 class CustomUnitTest(unittest.TestCase):
 
