@@ -21,7 +21,7 @@ class SQLite3Connection(DBConnection):
     def __init__(self, filename: str, create_if_not_exist: bool = False):
         self.filename = filename
         # создаем файл с базой данной, если требуется
-        if not os.path.isfile(self.filename):
+        if not os.path.isfile(self.filename) and create_if_not_exist:
             try:
                 f = open(self.filename, mode='w')
                 f.close()
