@@ -117,7 +117,7 @@ class Reader:
         :rtype:
         """
         result = self.db_connection.run_single_sql("SELECT * FROM Reader WHERE login = ?",(self.login,))
-        if result!=None or result != []:
+        if result != None and result != []:
             return result[0].get('id', None)
         else:
             return None
