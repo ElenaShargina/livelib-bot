@@ -23,7 +23,8 @@ class TestReader(CustomUnitTest):
     def setUpClass(cls) -> None:
         cls.config = Config(get_correct_filename(cls.config_file, ''))
         cls.web_connection = WebWithCache(cls.config)
-        cls.db_connection = SQLite3Connection(cls.config.db_config.sqlite_db)
+        db_filename = get_correct_filename(cls.config.db_config.sqlite_db)
+        cls.db_connection = SQLite3Connection(db_filename)
         logging.basicConfig(filename='log.log', level=logging.DEBUG, filemode='a',
                             format="%(asctime)s %(levelname)s %(message)s")
         cls.parser = ParserFromHTML
