@@ -9,8 +9,8 @@ web = SimpleWeb(config,random_sleep=False)
 current_reader = Reader(login='', web_connection=web, db_connection=db, parser_html=ParserFromHTML, parser_db=ParserForDB)
 
 # Есть ли пользователь на ЛЛ
-login = input('Ввести логин \n')
-
+# login = input('Ввести логин \n')
+login = 'ElviraYakovleva'
 if current_reader.exists(login=login):
     # # # если есть логин на ЛЛ
     print('Вы существуете!')
@@ -20,10 +20,10 @@ if current_reader.exists(login=login):
         # # если есть пользователь
         print(f'У вас есть записи от {last_update}!')
         # # # Скачать новые записи?
-        update = input('Скачать новые записи?')
+        update = input('Скачать записи заново?')
         if update == '1':
         # # # # Если скачать
-            reader.update_books()
+            current_reader.update_books()
             pass
         else:
         # # # # Если не надо скачивать
@@ -31,7 +31,8 @@ if current_reader.exists(login=login):
     else:
     # # если нет пользователя в БД
         print('У вас нет записей, начинаем скачивание...')
-        reader.get_books()
+        current_reader.register()
+        current_reader.get_all_read_books()
     # reader.create_export_file(type='csv')
 else:
     # # # если нет логина на ЛЛ

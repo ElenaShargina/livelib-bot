@@ -64,6 +64,7 @@ class SQLite3Connection(DBConnection):
         except sqlite3.Error:
             logging.exception(f"Can't create table {self.table_reader}!", exc_info=True)
             raise
+        # @todo добавить ON DELETE
         # создаем таблицу прочитанных книг
         readbook_fields: dict[str, str] = {i: formatter.all_properties_db()[i] for i in
                                            formatter.readbook_properties_db}
@@ -82,7 +83,7 @@ class SQLite3Connection(DBConnection):
             logging.exception(f"Can't create table {self.table_readbook}!", exc_info=True)
             raise
 
-    def run_single_sql(self, sql: str, params: typing.Iterable = ()) -> list or None:
+    def run_single_sql(self, sql: str, params: typing.Iterable = (), return_lastrowid = False) -> list or None:
         """
         Запускает одну команду sql, переданную в строке sql с подставленными параметрами params.
         Невозможно с помощью подстановки параметров создать таблицу, удалить таблицу, проверить схему таблицы,
@@ -92,7 +93,7 @@ class SQLite3Connection(DBConnection):
         :param params: список, кортеж, словарь подставляемых параметров
         :type params: typing.Iterable
         :return: результат запроса или None
-        :rtype: list|Nones
+        :rtype: list|None
         """
 
         def dict_factory(cursor, row):
@@ -103,9 +104,11 @@ class SQLite3Connection(DBConnection):
         try:
             con = sqlite3.connect(self.filename)
             con.row_factory = dict_factory
+            cur = con.cursor()
             try:
-                with con:
-                    result = con.execute(sql, params).fetchall()
+                result = cur.execute(sql, params).fetchall()
+                if return_lastrowid:
+                    result = cur.lastrowid
             except sqlite3.Error:
                 logging.exception('Error while processing sql!', exc_info=True)
                 # raise

@@ -32,8 +32,16 @@ class TestDBConnection(CustomUnitTest):
 
     def test_run_single_sql(self):
         filename = get_correct_filename('test.db', os.path.join(self.test_folder, 'run_single_sql'))
-        self.object = SQLite3Connection(filename, create_if_not_exist=True)
+        self.object = SQLite3Connection(filename, create_if_not_exist=False)
         self.process_json_compare_to_json('run_single_sql','run_single_sql','output', 'input', convert_html_to_bs=False)
+
+    def test_run_single_sql_return_lastrowid(self):
+        filename = get_correct_filename('test_insert.db', os.path.join(self.test_folder, 'run_single_sql'))
+        self.object = SQLite3Connection(filename, create_if_not_exist=True)
+        self.object.create_db(BookDataFormatter)
+        result = self.object.run_single_sql('INSERT INTO Book (book_name) VALUES ("Тестовая книга")', return_lastrowid=True)
+        self.assertGreater(result,0)
+        remove_file(filename)
 
     def test_get_table_schema(self):
         filename = get_correct_filename('test.db', os.path.join(self.test_folder, 'get_table_schema'))

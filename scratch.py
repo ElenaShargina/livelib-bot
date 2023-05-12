@@ -35,7 +35,12 @@ def get_all(login):
 #     get_all(i)
 
 config = Config('.env')
+web = WebWithCache(config)
 db = SQLite3Connection(config.db_config.sqlite_db)
 formatter = BookDataFormatter
-# db.create_db(BookDataFormatter)
-db.run_single_sql('CREATE TABLE Foool (?)', ('col1'))
+
+r = Reader('Inelgerdis', web, db)
+print(r.exists())
+res = r.insert_into_db()
+print(res)
+# print(r.get_db_id())

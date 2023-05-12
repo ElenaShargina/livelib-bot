@@ -1,6 +1,8 @@
 import os, sys
 
 # скрипт для правильной отработки тестов в github.actions
+import random
+
 sys.path.append(os.path.dirname(os.path.abspath(__file__)))
 
 import unittest
@@ -56,6 +58,24 @@ class TestReader(CustomUnitTest):
                     self.assertEqual(None,self.object.has_db_entries())
         # удаляем тестовую базу данных
         remove_file(filename,'Remove test database', 'Can not remove test database')
+
+    def test_get_db_id(self):
+        with self.subTest(f'Testing correct login'):
+            r = Reader('Petr', self.web_connection, self.db_connection)
+            self.assertEqual(1, r.get_db_id())
+        with self.subTest(f'Testing incorrect login'):
+            r = Reader('Petr111111', self.web_connection, self.db_connection)
+            self.assertEqual(None, r.get_db_id())
+
+    def test_insert_db_id(self):
+        reader_name = 'Reader'+str(random.randint(100_000,100_000_000))
+        r = Reader(reader_name, self.web_connection, self.db_connection)
+        new_id = r.insert_into_db()
+        check_id = r.get_db_id()
+        with self.subTest('Testing adding new Reader '):
+            self.assertEqual(new_id, check_id)
+        with self.subTest('Testing adding existing Reader '):
+            self.assertEqual(new_id, r.insert_into_db())
 
 if __name__=='__main__':
     unittest.main()

@@ -41,6 +41,8 @@ class Reader:
         self.parser_html = parser_html
         self.parser_db = parser_db
 
+        self.id = None
+
     @property
     def prefix(self) -> str:
         """
@@ -67,6 +69,7 @@ class Reader:
         :return:
         :rtype: bool
         """
+        if login == None: login = self.login
         # проверяем логин на пустоту или недопустимые символы
         if login != '' and not re.search(r'\W', login):
             # если логин был предоставлен, заменяем им текущий логин читателя
@@ -77,6 +80,54 @@ class Reader:
         else:
             return False
 
+    def has_db_entries(self) -> typing.Optional[str]:
+        """
+        Возвращает либо дату последнего обновления пользователя в БД,
+                    либо None, если пользователь не существует,
+                                или обновлений не было.
+        """
+        result = self.db_connection.run_single_sql(f'SELECT * FROM Reader WHERE login=?', (self.login,))
+        if result != []:
+            result = result[0].get('update_time', None)
+        else:
+            result = None
+        return result
+
+    def insert_into_db(self) -> int:
+        """
+        Добавляет читателя в базу данных и возвращает его ID.
+        Если читатель уже есть в БД, то возвращает старый ID, не добавляя снова.
+        :return:
+        :rtype: int
+        """
+        # на всякий случай проверяем, нет ли пользователя с тем же логином
+        old_id = self.get_db_id()
+        if not old_id:
+            self.db_connection.run_single_sql("INSERT INTO Reader (login) VALUES (?)", (self.login,))
+            result = self.get_db_id()
+            logging.info(f'Adding new Reader to DB: {self.login} at id = {result}')
+            return result
+        else:
+            return old_id
+
+    def get_db_id(self) -> bool:
+        """
+        Возвращает ID читателя из БД. Если такого читателя нет, возвращает None
+        :return:
+        :rtype:
+        """
+        result = self.db_connection.run_single_sql("SELECT * FROM Reader WHERE login = ?",(self.login,))
+        if len(result)>0:
+            return result[0].get('id', None)
+        else:
+            return None
+
+    def register(self):
+        """
+        Регистрация читателя в базе данных и запоминание его id
+        """
+        self.id = self.insert_into_db()
+
     def get_all_read_books(self) -> List or bool:
         """
         Возвращает все прочитанные книги читателя
@@ -85,9 +136,6 @@ class Reader:
         """
         result = []
         try:
-            # проверяем, есть ли таблица для читателя в БД
-            if not self.db_connection.table_exists(self.login):
-                self.db_connection.create_table(self.login, BookDataFormatter.all_properties_db())
             # вызовем первую страницу со всеми книгами, чтобы забрать оттуда из паджинатора список страниц с книгами
             page = self.web_connection.get_page_bs(self.all_books, self.parser_html)
             page_numbers = self.parser_html.get_paginator(page)
@@ -102,6 +150,7 @@ class Reader:
                 print('page = ', i, ' из ', len(page_numbers))
                 try:
                     books = self.get_books_from_page(i)
+                    print(books)
                     num = self.save_books_in_db(books)
                     print(f'Saving {num} books to DB')
                     logging.info(f'Saving {num} books to DB')
@@ -130,29 +179,22 @@ class Reader:
             logging.warning(f'Page with books at {url} is not found or 404.')
             return False
 
+
+
     def save_books_in_db(self, books : list[dict]):
         """
-        Сохраняем книги в таблице с именем читателя
+        Сохраняем книги в БД
         :param books:
         :type books:
         :return:
         :rtype:
         """
         prepared_books = self.parser_db.prepare_books_for_db(books)
-        result = self.db_connection.insert_values(self.login, prepared_books)
-        return result
-
-    def has_db_entries(self) -> typing.Optional[str]:
-        """
-        Возвращает либо дату последнего обновления пользователя в БД,
-                    либо None, если пользователь не существует,
-                                или обновлений не было.
-        """
-        result = self.db_connection.run_single_sql(f'SELECT * FROM Reader WHERE login=?', (self.login,))
-        if result != []:
-            result = result[0].get('update_time', None)
-        else:
-            result = None
+        print(books)
+        book_properties = BookDataFormatter.book_properties_db
+        print(book_properties)
+        for book in books:
+            result = self.db_connection.insert_values('Book', [{key:book[key] for key in book_properties},])
         return result
 
     def update_books(self):
