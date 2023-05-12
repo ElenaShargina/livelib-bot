@@ -37,7 +37,6 @@ class TestDBConnection(CustomUnitTest):
 
     def test_get_table_schema(self):
         filename = get_correct_filename('test.db', os.path.join(self.test_folder, 'get_table_schema'))
-        print(filename)
         self.object = SQLite3Connection(filename, create_if_not_exist=True)
         self.object.run_single_sql("CREATE TABLE Foo (id INTEGER PRIMARY KEY AUTOINCREMENT, col1 TEXT, col2 INTEGER)")
         result = self.object.get_table_schema('Foo')
