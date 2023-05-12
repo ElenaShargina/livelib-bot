@@ -1,4 +1,5 @@
 import re
+import typing
 
 import bs4
 from bs4 import BeautifulSoup as bs
@@ -141,7 +142,7 @@ class Reader:
         result = self.db_connection.insert_values(self.login, prepared_books)
         return result
 
-    def has_db_entries(self) -> str|None:
+    def has_db_entries(self) -> typing.Optional[str]:
         """
         Возвращает либо дату последнего обновления пользователя в БД,
                     либо None, если пользователь не существует,
