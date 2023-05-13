@@ -77,6 +77,24 @@ class TestReader(CustomUnitTest):
         with self.subTest('Testing adding existing Reader '):
             self.assertEqual(new_id, r.insert_into_db())
 
+    def test_fill_update_time(self):
+        reader_name = 'Reader'+str(random.randint(100_000,100_000_000))
+        r = Reader(reader_name, self.web_connection, self.db_connection)
+        r.register()
+        with self.subTest(f'Testing filling update time for Reader {reader_name}'):
+            correct_update_time = r.fill_update_time()
+            self.assertEqual(correct_update_time, r.get_update_time())
+
+    def test_get_update_time(self):
+        reader_name = 'Reader'+str(random.randint(100_000,100_000_000))
+        r = Reader(reader_name, self.web_connection, self.db_connection)
+        r.register()
+        with self.subTest(f'Testing getting non-existing update time for Reader {reader_name}'):
+            self.assertEqual(None, r.get_update_time())
+        correct_update_time = str(r.fill_update_time())
+        with self.subTest(f'Testing getting update time for Reader {reader_name}'):
+            self.assertEqual(correct_update_time, r.get_update_time())
+
 if __name__=='__main__':
     unittest.main()
 

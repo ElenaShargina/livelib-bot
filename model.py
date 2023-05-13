@@ -11,7 +11,7 @@ current_reader = Reader(login='', web_connection=web, db_connection=db, parser_h
 
 # Есть ли пользователь на ЛЛ
 # login = input('Ввести логин \n')
-login = 'Inelgerdis'
+login = 'Eugenia_Novik'
 if current_reader.exists(login=login):
     # # # если есть логин на ЛЛ
     print('Вы существуете!')
@@ -34,7 +34,7 @@ if current_reader.exists(login=login):
         print('У вас нет записей, начинаем скачивание...')
         current_reader.register()
         print('currrrent_id=', current_reader.id)
-        current_reader.get_all_read_books()
+        current_reader.get_read_books()
     # reader.create_export_file(type='csv')
 else:
     # # # если нет логина на ЛЛ

@@ -1,3 +1,4 @@
+import datetime
 import re
 import typing
 
@@ -87,7 +88,7 @@ class Reader:
                                 или обновлений не было.
         """
         result = self.db_connection.run_single_sql(f'SELECT * FROM Reader WHERE login=?', (self.login,))
-        if result != []:
+        if result:
             result = result[0].get('update_time', None)
         else:
             result = None
@@ -100,7 +101,7 @@ class Reader:
         :rtype:
         """
         result = self.db_connection.run_single_sql("SELECT * FROM Reader WHERE login = ?",(self.login,))
-        if result != [] and result != None:
+        if result:
             return result[0].get('id', None)
         else:
             return None
@@ -127,9 +128,9 @@ class Reader:
         """
         self.id = self.insert_into_db()
 
-    def get_all_read_books(self) -> List or bool:
+    def get_read_books(self) -> List or bool:
         """
-        Возвращает все прочитанные книги читателя
+        Загружает все прочитанные книги читателя из сети (через WebConnection) в базу данных (через BDConnection)
         :return: list or bool
         :rtype: bs4.BeautifulSoup
         """
@@ -150,12 +151,15 @@ class Reader:
                 try:
                     books = self.get_books_from_page(i)
                     # print(books)
+                    # сохраняем порцию книг в базе данных
                     num = self.save_books_in_db(books)
                     print(f'Saving {num} books to DB')
                     logging.info(f'Saving {num} books to DB')
                 except Exception:
                     logging.exception(f'Read books for reader {self.login}  at {i} is not found! ', exc_info=True)
                 result = result + books
+            # помечаем время и дату последнего обновления книг в таблице читателей
+            self.fill_update_time()
             return result
         except Exception:
             logging.exception(f'The page with read books for reader {self.login} is not found! ', exc_info=True)
@@ -223,6 +227,30 @@ class Reader:
         print('result = ', result)
         return result
 
+    def fill_update_time(self) -> str:
+        """
+        Помечает в БД, что данные читателя обновлены сейчас.
+        Возвращает строковое представление вставленного времени формата '2023-05-13 10:14:10.121082'
+        :return:
+        :rtype: str
+        """
+        new_time = datetime.datetime.now()
+        self.db_connection.run_single_sql("UPDATE Reader SET update_time=? WHERE login=?", (new_time, self.login,))
+        logging.info(f'Filling update_time of Reader {self.login} to {new_time}')
+        return str(new_time)
+
+    def get_update_time(self) -> str or None:
+        """
+        Возвращает дату последнего обновления данных читателя в строковом формате '2023-05-13 10:14:10.121082' или None,
+        если данные еще не вносились/обновлялись.
+        :return:
+        :rtype:
+        """
+        result = self.db_connection.run_single_sql("SELECT update_time FROM Reader WHERE login=?", (self.login,))
+        if result:
+            return result[0]['update_time']
+        else:
+            return None
 
 
     def update_books(self):
