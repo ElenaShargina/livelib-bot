@@ -117,7 +117,7 @@ class CustomUnitTest(unittest.TestCase):
                 # print(output)
                 f1.close()
             # код для обновления файлов с правильными ответами
-            # with open(os.path.join(prefix_folder, str(i), 'correct_output.json'), mode='w', encoding=self.connection.encoding) as f3:
+            # with open(os.path.join(prefix_folder, str(i), 'correct_output.json'), mode='w', encoding=self.web_connection.encoding) as f3:
             #     json.dump(output,f3, indent=4, ensure_ascii=False)
             #     f3.close()
             with open(os.path.join(prefix_folder, str(i), 'correct_output.json'), mode='r',

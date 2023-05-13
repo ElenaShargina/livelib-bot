@@ -131,8 +131,8 @@ class Reader:
     def get_read_books_from_web(self) -> List or bool:
         """
         Загружает все прочитанные книги читателя из сети (через WebConnection) в базу данных (через BDConnection)
-        :return: list or bool
-        :rtype: bs4.BeautifulSoup
+        :return: список со словарями книг
+        :rtype: list or bool
         """
         result = []
         try:
@@ -149,14 +149,14 @@ class Reader:
                 books = []
                 print('page = ', i, ' из ', len(page_numbers))
                 try:
-                    books = self.get_books_from_page(i)
+                    books = self.get_read_books_from_page(i)
                     # print(books)
                     # сохраняем порцию книг в базе данных
-                    num = self.save_books_in_db(books)
+                    num = self.save_read_books_in_db(books)
                     print(f'Saving {num} books to DB')
                     logging.info(f'Saving {num} books to DB')
                 except Exception:
-                    logging.exception(f'Read books for reader {self.login}  at {i} is not found! ', exc_info=True)
+                    logging.exception(f'Error while getting and saving portion of books for reader {self.login}  at page {i}  .', exc_info=True)
                 result = result + books
             # помечаем время последнего обновления книг в таблице читателей
             self.fill_update_time()
@@ -165,7 +165,7 @@ class Reader:
             logging.exception(f'The page with read books for reader {self.login} is not found! ', exc_info=True)
             return False
 
-    def get_books_from_page(self, url: str) -> List or bool:
+    def get_read_books_from_page(self, url: str) -> List or bool:
         """
         Получает список книг с заданной страницы
         :param url: адрес страницы
@@ -182,7 +182,7 @@ class Reader:
             logging.warning(f'Page with books at {url} is not found or 404, or captcha.')
             return False
 
-    def save_books_in_db(self, books : list[dict]):
+    def save_read_books_in_db(self, books : list[dict]):
         """
         Сохраняем книги в БД
         :param books:
@@ -193,7 +193,7 @@ class Reader:
         prepared_books = self.parser_db.prepare_books_for_db(books)
         # сохраняем книги в таблице Book
         book_properties = BookDataFormatter.book_properties_db
-        print('всего книг ',len(books))
+        # print('всего книг ',len(books))
 
         for book in books:
             self.db_connection.insert_values('Book', [{key:book[key] for key in book_properties},])

@@ -269,8 +269,8 @@ class ParserFromHTML(Parser):
             # если это блок с книгой, парсим ее как книгу и вносим месяц и год прочтения в результат
             elif 'book-item-manage' in block['class']:
                 book = ParserFromHTML.book(block, formatter)
-                if month: book['month'] = month
-                if year: book['year'] = year
+                book['month'] = month
+                book['year'] = year
                 result.append(book)
         return result
 

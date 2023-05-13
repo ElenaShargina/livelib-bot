@@ -10,7 +10,9 @@
         "reader_rating": 3.0,
         "tags": "надо перечитать",
         "review_id": null,
-        "review_text": null
+        "review_text": null,
+        "month": null,
+        "year": null
     },
     {
         "author_id": 337,
@@ -23,7 +25,9 @@
         "reader_rating": 5.0,
         "tags": "набоков",
         "review_id": null,
-        "review_text": null
+        "review_text": null,
+        "month": null,
+        "year": null
     },
     {
         "author_id": 264,
@@ -36,7 +40,9 @@
         "reader_rating": 3.0,
         "tags": "",
         "review_id": null,
-        "review_text": null
+        "review_text": null,
+        "month": null,
+        "year": null
     },
     {
         "author_id": 102797,
@@ -49,7 +55,9 @@
         "reader_rating": 3.0,
         "tags": "",
         "review_id": null,
-        "review_text": null
+        "review_text": null,
+        "month": null,
+        "year": null
     },
     {
         "author_id": 8240,
@@ -62,7 +70,9 @@
         "reader_rating": 4.0,
         "tags": "",
         "review_id": null,
-        "review_text": null
+        "review_text": null,
+        "month": null,
+        "year": null
     },
     {
         "author_id": 1532,
@@ -75,7 +85,9 @@
         "reader_rating": 3.0,
         "tags": "",
         "review_id": null,
-        "review_text": null
+        "review_text": null,
+        "month": null,
+        "year": null
     },
     {
         "author_id": 196198,
@@ -88,7 +100,9 @@
         "reader_rating": 3.0,
         "tags": "",
         "review_id": null,
-        "review_text": null
+        "review_text": null,
+        "month": null,
+        "year": null
     },
     {
         "author_id": 4862,
@@ -101,6 +115,8 @@
         "reader_rating": 5.0,
         "tags": "",
         "review_id": null,
-        "review_text": null
+        "review_text": null,
+        "month": null,
+        "year": null
     }
 ]

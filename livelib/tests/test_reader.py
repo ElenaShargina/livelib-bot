@@ -25,7 +25,7 @@ class TestReader(CustomUnitTest):
     @classmethod
     def setUpClass(cls) -> None:
         cls.config = Config(get_correct_filename(cls.config_file, ''))
-        cls.web_connection = WebWithCache(cls.config)
+        cls.web_connection = WebWithCache(cls.config, random_sleep=False)
         db_filename = get_correct_filename(cls.config.db_config.sqlite_db, "")
         cls.db_connection = SQLite3Connection(db_filename)
         logging.basicConfig(filename='log.log', level=logging.DEBUG, filemode='a',
@@ -106,7 +106,7 @@ class TestReader(CustomUnitTest):
         filename=get_correct_filename('sample_books.json',os.path.join(self.test_folder, 'delete_read_books'))
         with open(filename, mode='r', encoding='utf-8') as f:
             books = json.load(f)
-        saved_books_num = r.save_books_in_db(books)
+        saved_books_num = r.save_read_books_in_db(books)
         r.fill_update_time()
         # проверяем, что они добавились с помощью save_books_in_db
         with self.subTest('Checking number of saved books'):
@@ -124,7 +124,25 @@ class TestReader(CustomUnitTest):
             self.assertEqual(0, len(r.get_read_books_from_db()))
 
     def test_update_books(self):
-        pass
+        # 1. Создаем нового читателя
+        # используем реального читателя с небольшим (60) количеством книг
+        reader_name = 'Kasssiopei'
+        r = Reader(reader_name, self.web_connection, self.db_connection)
+        r.register()
+        # 2. Скачиваем книги для него в базу данных
+        old_books_num = len(r.get_read_books_from_web())
+        old_update_time = r.get_update_time()
+        with self.subTest(f'Checking getting books from web for {reader_name}'):
+            self.assertGreater(old_books_num, 0)
+        # 3. Обновляем его книги
+        r.update_books()
+        # 4. Проверяем, что книги в базе данных есть.
+        new_books_num = len(r.get_read_books_from_db())
+        with self.subTest(f'Checking books after update for {reader_name}'):
+            self.assertEqual(old_books_num,new_books_num)
+        # 5. Проверяем, что время обновления в профиле читателя поменялось
+        with self.subTest(f'Checking new update time for {reader_name}'):
+            self.assertNotEqual(old_update_time, r.get_update_time())
 
     def test_get_read_books_from_db(self):
         pass
@@ -132,13 +150,13 @@ class TestReader(CustomUnitTest):
     def test_get_read_books_from_web(self):
         pass
 
-    def test_save_books_in_db(self):
+    def test_save_read_books_in_db(self):
         pass
 
     def test_register(self):
         pass
 
-    def test_get_books_from_page(self):
+    def test_get_read_books_from_page(self):
         pass
 
     def test_create_export_file(self):

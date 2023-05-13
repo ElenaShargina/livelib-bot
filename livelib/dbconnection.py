@@ -142,7 +142,11 @@ class SQLite3Connection(DBConnection):
                     result = con.executemany(f"INSERT OR IGNORE INTO {table} ({field_names}) VALUES ({placeholders})",
                                              field_values).rowcount
             except sqlite3.Error:
-                logging.exception('Error while processing sql!', exc_info=True)
+                sep = "\n"
+                logging.exception(f'Error while processing sql! table = {table}, \n'
+                                  f'field_names = {field_names}, \n'
+                                  f'place_holders = {placeholders}, \n'
+                                  f'field_values = {sep.join([str(i) for i in field_values])}', exc_info=True)
                 raise
             con.close()
         except sqlite3.Error:
