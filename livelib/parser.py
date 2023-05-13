@@ -218,6 +218,21 @@ class ParserFromHTML(Parser):
             return False
 
     @staticmethod
+    def check_captcha(bsoup: bs4.BeautifulSoup) -> bool:
+        """
+        Проверяет, не возвращает ли страница капчу на проверку ботов.
+        :param bsoup: текст страницы
+        :type bsoup:  bs4.BeautifulSoup
+        :return: True, если капча, False иначе
+        :rtype: Boolean
+        """
+        if bsoup.find(string='Please confirm that you and not a robot are sending requests'):
+            return True
+        else:
+            return False
+
+
+    @staticmethod
     def all_books_from_page(bsoup: bs4.BeautifulSoup, formatter: BookDataFormatter = BookDataFormatter) -> List[Dict]:
         """
         Возвращает ифнормацию о всех книгах на данной странице в виде списка словарей.

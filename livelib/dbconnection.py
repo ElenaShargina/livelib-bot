@@ -109,6 +109,7 @@ class SQLite3Connection(DBConnection):
                 result = cur.execute(sql, params).fetchall()
                 if return_lastrowid:
                     result = cur.lastrowid
+                con.commit()
             except sqlite3.Error:
                 logging.exception('Error while processing sql!', exc_info=True)
                 # raise

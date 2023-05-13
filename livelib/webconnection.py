@@ -61,8 +61,10 @@ class WebConnection:
 
     def get_page_bs(self, url: str, parser=ParserFromHTML) -> bs4.BeautifulSoup or bool:
         """
-        Если сайт не существует либо страница livelib по данному адресу выдает 404, возвращает False,
-        иначе возвращает объект BeautifulSoup из этой страницы.
+        Возвращает объект BeautifulSoup из этой страницы.
+        Возвращает False,   если сайт не существует,
+                            если livelib по данному адресу выдает 404,
+                            если livelib выдает капчу для защиты от роботов.
         :param url: адрес страницы
         :param parser: класс парсера для обработки страниц
             defaults to Parser
@@ -79,6 +81,9 @@ class WebConnection:
             # проверяем на 404
             if parser.check_404(result):
                 logging.warning(f'Page at {url} is 404!')
+                return False
+            elif parser.check_captcha(result):
+                logging.warning(f'Page at {url} is captcha!')
                 return False
             else:
                 return result

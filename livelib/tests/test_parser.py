@@ -45,6 +45,20 @@ class TestParserfromHTML(TestParser):
                               features=self.web_connection.bs_parser)
                     self.assertEqual(i["404_status"], self.parser.check_404(text))
 
+    def test_check_captcha(self):
+        def check_captcha_from_file(filename):
+            filename = get_correct_filename(filename, os.path.join(self.test_folder, 'captcha'))
+            config = Config(self.config_file)
+            with open(filename, mode = 'r', encoding='utf-8') as f:
+                bsoup = bs4.BeautifulSoup(f, features=config.bs_parser.features)
+            return self.object.check_captcha(bsoup)
+
+        with self.subTest('Testing captcha page'):
+            self.assertEqual(True,check_captcha_from_file('captcha.html'))
+        with self.subTest('Testing not captcha page'):
+            self.assertEqual(False,check_captcha_from_file('notcaptcha.html'))
+
+
     def test_reader_prefix(self):
         self.process_json_compare_to_json('reader_prefix', 'reader', 'reader_prefix', convert_html_to_bs=False)
 

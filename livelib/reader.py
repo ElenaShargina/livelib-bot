@@ -93,6 +93,18 @@ class Reader:
             result = None
         return result
 
+    def get_db_id(self) -> bool:
+        """
+        Возвращает ID читателя из БД. Если такого читателя нет, возвращает None
+        :return:
+        :rtype:
+        """
+        result = self.db_connection.run_single_sql("SELECT * FROM Reader WHERE login = ?",(self.login,))
+        if result != [] and result != None:
+            return result[0].get('id', None)
+        else:
+            return None
+
     def insert_into_db(self) -> int:
         """
         Добавляет читателя в базу данных и возвращает его ID.
@@ -102,25 +114,12 @@ class Reader:
         """
         # на всякий случай проверяем, нет ли пользователя с тем же логином
         old_id = self.get_db_id()
-        print('old_id',old_id)
         if old_id == None:
             result = self.db_connection.run_single_sql("INSERT INTO Reader (login) VALUES (?)", (self.login,), return_lastrowid=True)
             logging.info(f'Adding new Reader to DB: {self.login} at id = {result}')
             return result
         else:
             return old_id
-
-    def get_db_id(self) -> bool:
-        """
-        Возвращает ID читателя из БД. Если такого читателя нет, возвращает None
-        :return:
-        :rtype:
-        """
-        result = self.db_connection.run_single_sql("SELECT * FROM Reader WHERE login = ?",(self.login,))
-        if result != None and result != []:
-            return result[0].get('id', None)
-        else:
-            return None
 
     def register(self):
         """

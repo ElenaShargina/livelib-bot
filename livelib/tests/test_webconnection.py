@@ -1,4 +1,5 @@
 import os, sys
+
 # скрипт для правильной отработки тестов в github.actions
 sys.path.append(os.path.dirname(os.path.abspath(__file__)))
 
@@ -21,6 +22,7 @@ class TestSimpleWeb(unittest.TestCase):
         ['http://www.yandex.com', True, 200],
     ]
     config_file: str = '.env.webconnection'
+    test_folder = 'data/test_reader'
 
     @classmethod
     def setUpClass(cls) -> None:
@@ -75,7 +77,7 @@ class TestSimpleWeb(unittest.TestCase):
             ['http://www.livelib.com/jsndjsdnljdncldn/', True],
             ['http://www.livelib.ru/reader/alkasnmklas', False],
             ['http://www.livelib.com/reader/feana', True],
-            ['http://www.yandex.com', True],
+            ['http://www.google.com', True],
         ]
         con = SimpleWeb(Config(self.config_file))
         for i in test_values:
@@ -85,7 +87,7 @@ class TestSimpleWeb(unittest.TestCase):
                     self.assertEqual(type(con.get_page_bs(i[0])), bs4.BeautifulSoup,
                                      msg=f'BeautifulSoup should be found! {i[0]}')
                 else:
-                    # сайт не существует либо страница на livelib выдает 404
+                    # сайт не существует либо страница на livelib выдает 404, либо выдает капчу
                     self.assertEqual(False, con.get_page_bs(i[0]))
 
 
@@ -126,7 +128,6 @@ class TestWebWithCache(unittest.TestCase):
             shutil.rmtree(path)
         else:
             raise Exception(f"Can not remove folder {path}")
-
 
     def tearDown(self) -> None:
         logging.debug('Cleaning dirs and files after testing')

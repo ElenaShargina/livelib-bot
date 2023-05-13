@@ -60,7 +60,6 @@ class TestReader(CustomUnitTest):
         remove_file(filename,'Remove test database', 'Can not remove test database')
 
     def test_get_db_id(self):
-        # @todo тут ошибка на гитхабе
         with self.subTest(f'Testing correct login'):
             r = Reader('Petr', self.web_connection, self.db_connection)
             self.assertEqual(1, r.get_db_id())
