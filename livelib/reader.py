@@ -128,7 +128,7 @@ class Reader:
         """
         self.id = self.insert_into_db()
 
-    def get_read_books(self) -> List or bool:
+    def get_read_books_from_web(self) -> List or bool:
         """
         Загружает все прочитанные книги читателя из сети (через WebConnection) в базу данных (через BDConnection)
         :return: list or bool
@@ -158,7 +158,7 @@ class Reader:
                 except Exception:
                     logging.exception(f'Read books for reader {self.login}  at {i} is not found! ', exc_info=True)
                 result = result + books
-            # помечаем время и дату последнего обновления книг в таблице читателей
+            # помечаем время последнего обновления книг в таблице читателей
             self.fill_update_time()
             return result
         except Exception:
@@ -179,10 +179,8 @@ class Reader:
             return books
         else:
             # если страница не найдена либо 404 на ЛЛ
-            logging.warning(f'Page with books at {url} is not found or 404.')
+            logging.warning(f'Page with books at {url} is not found or 404, or captcha.')
             return False
-
-
 
     def save_books_in_db(self, books : list[dict]):
         """
@@ -193,21 +191,23 @@ class Reader:
         :rtype:
         """
         prepared_books = self.parser_db.prepare_books_for_db(books)
-        print('books=',len(books))
         # сохраняем книги в таблице Book
         book_properties = BookDataFormatter.book_properties_db
+        print('всего книг ',len(books))
+
         for book in books:
             self.db_connection.insert_values('Book', [{key:book[key] for key in book_properties},])
         # сохраняем связи между читателем и книгами в таблице ReadBook вместе с его оценкой и рецензией
         # узнаем id добавленных книг
         new_books = [book['book_id'] for book in books if book['book_id']]
         new_works = [book['work_id'] for book in books if book['work_id']]
-        print('new_books+new_works=',new_books+new_works)
+        # print('всего books ', len(new_books))
+        # print('всего works ', len(new_works))
         new_ids = self.db_connection.run_single_sql(f"SELECT id, book_id, work_id FROM Book where book_id in ({','.join(['?']*len(new_books))})"
                                                     f" OR work_id in ({','.join(['?']*len(new_works))}) ",
                                                     new_books+new_works)
+        # print('всего new_ids ', len(new_ids))
         # разбираем новые id, формируем список строк для занесения в ReadBook
-        print(len(new_ids))
         readbook_rows = []
         readbook_properties = BookDataFormatter.readbook_properties_db
         for i in new_ids:
@@ -221,10 +221,9 @@ class Reader:
             new_entry['reader_id'] = self.id
             new_entry['book_id'] = i['id']
             readbook_rows.append(new_entry)
-        print('readbook_rows',len(readbook_rows))
         # добавляем новые значения в таблицу ReadBook
         result = self.db_connection.insert_values('ReadBook', readbook_rows)
-        print('result = ', result)
+        logging.info(f'Added new {result} entries to ReadBook for Reader {self.id} {self.login}')
         return result
 
     def fill_update_time(self) -> str:
@@ -252,12 +251,29 @@ class Reader:
         else:
             return None
 
+    def delete_read_books(self):
+        """
+        Удаляет прочитанные книги читателем из таблицы ReadBook. В Book они сохраняются.
+        """
+        # удаляем связи читателя с книгами в таблице ReadBook
+        self.db_connection.run_single_sql("DELETE FROM ReadBook WHERE reader_id=?", (self.id,))
+        logging.info(f'Delete read books for Reader {self.id} {self.login}')
+
+    def get_read_books_from_db(self) -> list:
+        """
+        Возвращает книги, прочитанные читателем, из БД.
+        :return:
+        :rtype: list[dict]
+        """
+        result = self.db_connection.run_single_sql("SELECT * FROM Book WHERE id in (SELECT book_id FROM ReadBook WHERE reader_id=?)", (self.id,))
+        return result
 
     def update_books(self):
-        pass
-
-    def download_books(self):
-        pass
+        """
+        Обновляет прочитанные читателем книги в БД. Удаляет все связи книг и читателя в ReadBook, затем скачивает из сети новые.
+        """
+        self.delete_read_books()
+        self.get_read_books_from_web()
 
     def create_export_file(self, type = 'csv'):
         pass

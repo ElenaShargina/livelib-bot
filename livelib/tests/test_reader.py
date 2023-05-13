@@ -1,3 +1,4 @@
+import json
 import os, sys
 
 # скрипт для правильной отработки тестов в github.actions
@@ -61,8 +62,8 @@ class TestReader(CustomUnitTest):
 
     def test_get_db_id(self):
         with self.subTest(f'Testing correct login'):
-            r = Reader('Petr', self.web_connection, self.db_connection)
-            self.assertEqual(1, r.get_db_id())
+            r = Reader('Reader36385266', self.web_connection, self.db_connection)
+            self.assertEqual(3, r.get_db_id())
         with self.subTest(f'Testing incorrect login'):
             r = Reader('Petr111111', self.web_connection, self.db_connection)
             self.assertEqual(None, r.get_db_id())
@@ -94,6 +95,54 @@ class TestReader(CustomUnitTest):
         correct_update_time = str(r.fill_update_time())
         with self.subTest(f'Testing getting update time for Reader {reader_name}'):
             self.assertEqual(correct_update_time, r.get_update_time())
+
+    def test_delete_read_books(self):
+        # создаем нового читателя
+        reader_name = 'Reader'+str(random.randint(100_000,100_000_000))
+        r = Reader(reader_name, self.web_connection, self.db_connection)
+        r.register()
+
+        # сохраняем для него тестовые книги как прочитанные
+        filename=get_correct_filename('sample_books.json',os.path.join(self.test_folder, 'delete_read_books'))
+        with open(filename, mode='r', encoding='utf-8') as f:
+            books = json.load(f)
+        saved_books_num = r.save_books_in_db(books)
+        r.fill_update_time()
+        # проверяем, что они добавились с помощью save_books_in_db
+        with self.subTest('Checking number of saved books'):
+            self.assertEqual(len(books), saved_books_num)
+
+        # проверяем, что они добавились с помощью get_read_books_from_db
+        saved_books = r.get_read_books_from_db()
+        with self.subTest('Checking number of saved books once more'):
+            self.assertEqual(len(books), len(saved_books))
+
+        # удаляем книги читателя
+        r.delete_read_books()
+        # проверяем, что книги удалились
+        with self.subTest('Checking that books are deleted'):
+            self.assertEqual(0, len(r.get_read_books_from_db()))
+
+    def test_update_books(self):
+        pass
+
+    def test_get_read_books_from_db(self):
+        pass
+
+    def test_get_read_books_from_web(self):
+        pass
+
+    def test_save_books_in_db(self):
+        pass
+
+    def test_register(self):
+        pass
+
+    def test_get_books_from_page(self):
+        pass
+
+    def test_create_export_file(self):
+        pass
 
 if __name__=='__main__':
     unittest.main()

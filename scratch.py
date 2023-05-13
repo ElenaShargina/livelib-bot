@@ -1,3 +1,5 @@
+import json
+
 import livelib.config
 from livelib import *
 
@@ -39,8 +41,11 @@ web = WebWithCache(config)
 db = SQLite3Connection(config.db_config.sqlite_db)
 formatter = BookDataFormatter
 
-r = Reader('Inelgerdis', web, db)
-print(r.exists())
-res = r.insert_into_db()
-print(res)
-# print(r.get_db_id())
+r = Reader('Eugenia_Novik', web, db)
+books = r.get_read_books()
+print(books)
+with open('sample_books.json', mode='w', encoding='utf-8') as f:
+    json.dump(books, f, ensure_ascii=False)
+# r.register()
+# print('id=',r.id)
+# r.delete_readbooks()

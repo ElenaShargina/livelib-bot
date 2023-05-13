@@ -64,7 +64,6 @@ class SQLite3Connection(DBConnection):
         except sqlite3.Error:
             logging.exception(f"Can't create table {self.table_reader}!", exc_info=True)
             raise
-        # @todo добавить ON DELETE
         # создаем таблицу прочитанных книг
         readbook_fields: dict[str, str] = {i: formatter.all_properties_db()[i] for i in
                                            formatter.readbook_properties_db}
@@ -72,8 +71,8 @@ class SQLite3Connection(DBConnection):
                               ["book_id INTEGER "] +
                               ["reader_id INTEGER "] +
                               [i + ' ' + j for i, j in readbook_fields.items()] +
-                              [f"FOREIGN KEY(book_id) REFERENCES {self.table_book}(id) "] +
-                              [f"FOREIGN KEY(reader_id) REFERENCES {self.table_reader}(id) "]
+                              [f"CONSTRAINT fk_book_id FOREIGN KEY(book_id) REFERENCES {self.table_book}(id) ON DELETE CASCADE "] +
+                              [f"CONSTRAINT fk_reader_id FOREIGN KEY(reader_id) REFERENCES {self.table_reader}(id) ON DELETE CASCADE "]
                               )
         sql = f"CREATE TABLE {self.table_readbook} ( {fields_str} UNIQUE(book_id, reader_id))"
         logging.debug(f'Creating new table: {sql}')
