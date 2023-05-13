@@ -48,7 +48,7 @@ class TestParserfromHTML(TestParser):
     def test_check_captcha(self):
         def check_captcha_from_file(filename):
             filename = get_correct_filename(filename, os.path.join(self.test_folder, 'captcha'))
-            config = Config(self.config_file)
+            config = Config(get_correct_filename(self.config_file, ''))
             with open(filename, mode = 'r', encoding='utf-8') as f:
                 bsoup = bs4.BeautifulSoup(f, features=config.bs_parser.features)
             return self.object.check_captcha(bsoup)
