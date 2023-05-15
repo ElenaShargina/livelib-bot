@@ -20,8 +20,16 @@ class BookDataFormatter(DataFormatter):
     {
     'название_свойства': {
            'parser': 'метод_для_вынимания_свойства_из_html_кода',
-           'db': { 'name': 'название_колонки_в_бд', 'type': 'тип_колонки_в_бд' },
-           'csv': { 'name': 'Название_колонки_в_csv', 'method': 'метод_для_форматирования_значения_для_csv' }
+           'db': { 'name': 'название_колонки_в_бд',
+                    'type': 'тип_колонки_в_бд'
+                    },
+           'csv': { 'name': 'Название_колонки_в_csv',
+                    'method': 'метод_для_форматирования_значения_для_csv'
+                    },
+            'xlsx': {   'name': 'Название_колонки_в_xlsx',
+                        'method': 'метод_для_форматирования_значения_для_xlsx',
+                        'order': 'порядок следования в таблице в формате integer'
+                    }
            },
     ...
     }
@@ -34,50 +42,62 @@ class BookDataFormatter(DataFormatter):
     common = {
         'author_id': {'parser': 'get_author_id',
                       'db': {'name': 'author_id', 'type': 'INTEGER'},
-                      'csv': {'name': 'Cсылка на автора', 'method': 'create_author_link'}
+                      'csv': {'name': 'Cсылка на автора', 'method': 'create_author_link'},
+                      'xlsx': {'name': 'Cсылка на автора', 'method': 'create_author_link', 'order' :11},
                       },
         'author_name': {'parser': 'get_author_name',
                         'db': {'name': 'author_name', 'type': 'TEXT'},
-                        'csv': {'name': 'Автор', }
+                        'csv': {'name': 'Автор', },
+                        'xlsx': {'name': 'Автор', 'order':2 }
                         },
         'book_id': {'parser': 'get_book_id',
                     'db': {'name': 'book_id', 'type': 'INTEGER'},
-                    'csv': {'name': 'Ссылка на  книгу', 'method': 'create_book_link'}
+                    'csv': {'name': 'Ссылка на  книгу', 'method': 'create_book_link'},
+                    'xlsx': {'name': 'Ссылка на  книгу', 'method': 'create_book_link', 'order':10}
                     },
         'work_id': {'parser': 'get_work_id',
                     'db': {'name': 'work_id', 'type': 'INTEGER'},
-                    'csv': {'name': 'Ссылка на произведение', 'method': 'create_work_link'}
+                    'csv': {'name': 'Ссылка на произведение', 'method': 'create_work_link'},
+                    'xlsx': {'name': 'Ссылка на произведение', 'method': 'create_work_link','order':11}
                     },
         'book_name': {'parser': 'get_book_name',
                       'db': {'name': 'book_name', 'type': 'TEXT'},
-                      'csv': {'name': 'Название', }
+                      'csv': {'name': 'Название', },
+                      'xlsx': {'name': 'Название', 'order':1}
                       },
         'common_rating': {'parser': 'get_common_rating',
                           'db': {'name': 'common_rating', 'type': 'REAL'},
-                          'csv': {'name': 'Общая оценка', }
+                          'csv': {'name': 'Общая оценка', },
+                          'xlsx': {'name': 'Общая оценка', 'order':9}
                           },
         'picture_url': {'parser': 'get_picture_url',
                         'db': {'name': 'picture_url', 'type': 'TEXT'},
-                        'csv': {'name': 'Обложка', 'method': 'create_picture_url'}
+                        'csv': {'name': 'Обложка', 'method': 'create_picture_url'},
+                        'xlsx': {'name': 'Обложка', 'method': 'create_picture_url', 'order':3}
                         },
         'reader_rating': {'parser': 'get_reader_rating',
                           'db': {'name': 'reader_rating', 'type': 'REAL'},
-                          'csv': {'name': 'Моя оценка', }
+                          'csv': {'name': 'Моя оценка', },
+                          'xlsx': {'name': 'Моя оценка', 'order':4 }
                           },
         'tags': {'parser': 'get_tags',
                  'db': {'name': 'tags', 'type': 'TEXT'},
-                 'csv': {'name': 'Теги', }
+                 'csv': {'name': 'Теги', },
+                 'xlsx': {'name': 'Теги', 'order':7}
                  },
         'review_id': {'parser': 'get_review_id',
                       'db': {'name': 'review_id', 'type': 'INTEGER'},
-                      'csv': {'name': 'Ссылка на рецензию', 'method': 'create_review_link'}
+                      'csv': {'name': 'Ссылка на рецензию', 'method': 'create_review_link'},
+                      'xlsx': {'name': 'Ссылка на рецензию', 'method': 'create_review_link', 'order':6},
                       },
         'review_text': {'parser': 'get_review_text',
                         'db': {'name': 'review_text', 'type': 'TEXT'},
-                        'csv': {'name': 'ссылка на автора', 'method': 'create_author_link'}
+                        'csv': {'name': 'Рецензия', 'method': 'create_rexiew_text'},
+                        'xlsx': {'name': 'Рецензия', 'method': 'create_rexiew_text', 'order':5}
                         },
         'date': {'parser': 'not_implemented',
-                 'csv': {'name': 'Дата прочтения', }
+                 'csv': {'name': 'Дата прочтения', },
+                 'xlsx': {'name': 'Дата прочтения', 'order':8}
                  },
         'month': {'parser': 'not_implemented',
                   'db': {'name': 'month', 'type': 'INTEGER'},
@@ -85,21 +105,20 @@ class BookDataFormatter(DataFormatter):
         'year': {'parser': 'not_implemented',
                  'db': {'name': 'year', 'type': 'INTEGER'},
                  },
-        'livelib_id': {'parser':'not_implemented',
-                'db': {'name': 'livelib_id', 'type': 'INTEGER'},
-                },
-        'login': {'parser':'not_implemented',
-            'db': {'name': 'login', 'type': 'TEXT'},
-        },
-        'update_time': {'parser': 'not_implemented',
-                  'db': {'name': 'update_time', 'type': 'TEXT'},
+        'livelib_id': {'parser': 'not_implemented',
+                       'db': {'name': 'livelib_id', 'type': 'INTEGER'},
+                       },
+        'login': {'parser': 'not_implemented',
+                  'db': {'name': 'login', 'type': 'TEXT'},
                   },
+        'update_time': {'parser': 'not_implemented',
+                        'db': {'name': 'update_time', 'type': 'TEXT'},
+                        },
     }
 
     book_properties_db = ['book_id', 'work_id', 'book_name', 'author_name', 'author_id', 'common_rating', 'picture_url']
     reader_properties_db = ['livelib_id', 'login', 'update_time']
     readbook_properties_db = ['review_text', 'review_id', 'tags', 'reader_rating', 'month', 'year']
-
 
     @classmethod
     def all_properties_parser(cls):
@@ -136,15 +155,29 @@ class BookDataFormatter(DataFormatter):
                 result[i] = j['csv']
         return result
 
+    @classmethod
+    def all_properties_xlsx(cls):
+        """
+        Преобразует таблицу в удобный для XLSXConnection словарь, упорядоченный по заданному порядку
+        :return: Словарь вида {'author_id': {'name': 'Cсылка на автора', 'method': 'create_author_link'}, {}, ...}
+        :rtype: Dict
+        """
+        result = {}
+        for i, j in cls.common.items():
+            if j.get('xlsx'):
+                result[i] = j['xlsx']
+        sorted_result ={i[0]:i[1] for i in sorted(result.items(), key=lambda x: x[1]['order'])}
+        return sorted_result
+
 
 class Parser:
 
     @staticmethod
-    def _clear_name(s:str)->str:
+    def _clear_name(s: str) -> str:
         """
         Служебная функция для очистки названий от переносов и лишних пробелов
         """
-        s = re.sub(" +"," ", s)
+        s = re.sub(" +", " ", s)
         s = re.sub("\n", "", s)
         return s
 
@@ -162,6 +195,7 @@ class Parser:
         filename = login + "-" + datetime.now().strftime("%Y-%m-%d--%H-%M-%S") + '.csv'
         # @todo тут должна задаваться папка для сохранения csv
         return (os.path.join('csv', filename))
+
 
 class ParserFromHTML(Parser):
     """
@@ -230,7 +264,6 @@ class ParserFromHTML(Parser):
             return True
         else:
             return False
-
 
     @staticmethod
     def all_books_from_page(bsoup: bs4.BeautifulSoup, formatter: BookDataFormatter = BookDataFormatter) -> List[Dict]:
@@ -453,6 +486,7 @@ class ParserFromHTML(Parser):
                 result = [int(i) for i in paginator.text.split()]
             return result
 
+
 class ParserForDB(Parser):
     @staticmethod
     def prepare_book_for_db(book: Dict, formatter=BookDataFormatter) -> List:
@@ -489,8 +523,9 @@ class ParserForDB(Parser):
         """
         result = []
         for book in books:
-            result.append(ParserForDB.prepare_book_for_db(book, formatter = formatter))
+            result.append(ParserForDB.prepare_book_for_db(book, formatter=formatter))
         return result
+
 
 class ParserForCSV(Parser):
     @staticmethod
@@ -508,6 +543,27 @@ class ParserForCSV(Parser):
         # @todo тут должна задаваться папка для сохранения csv
         return (os.path.join('csv', filename))
 
-
-
-
+class ParserForXLSX(Parser):
+    @staticmethod
+    def prepare_book_for_xlsx(book: Dict, formatter=BookDataFormatter) -> List:
+        """
+        Преобразует книгу для сохранения в XLSX в соответствии с BookDataFormatter.
+        Нужен в случае, если название колонки в XLSX отличается от названия свойства парсера или
+        требуется предварительная обработка значения свойства.
+        :param book: словарь с информацией про книгу вида {'parser_field_name1':'field_value1','parser_field_name2':'field_value2'}
+        :type book: Dict
+        :param formatter: класс форматтера
+        :type formatter: Class
+        :return: словарь для сохранения  в XLSX вида {'db_field_name1':'field_value1', 'db_field_name2':'field_value2', ... }
+        :rtype: Dict
+        """
+        new_book = {}
+        for property in formatter.all_properties_xlsx().keys():
+            method = formatter.all_properties_xlsx()[property].get('method', None)
+            value = book.get(property, None)
+            if value == None:
+                value = ''
+            elif method and hasattr(ParserForXLSX, method):
+                value = getattr(ParserForXLSX,method)(value)
+            new_book[property] = value
+        return new_book

@@ -4,6 +4,7 @@ import livelib.config
 from livelib import *
 
 from livelib.parser import BookDataFormatter
+import openpyxl
 
 # Eugenia_Novik
 # Feana

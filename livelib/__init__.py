@@ -1,9 +1,9 @@
 from .urlparser import Urlparser
-from .parser import Parser, ParserFromHTML, ParserForDB, ParserForCSV, BookDataFormatter
+from .parser import Parser, ParserFromHTML, ParserForDB, ParserForCSV, BookDataFormatter, ParserForXLSX
 from .webconnection import WebConnection, SimpleWeb, WebWithCache
 from .reader import Reader
 from .dbconnection import DBConnection,SQLite3Connection
-from .csvconnection import CSVConnection
+from .export import Export, CSVExport, XLSXExport
 from .config import Config
 import logging
 

@@ -2,6 +2,7 @@ import datetime
 import re
 import typing
 
+
 import bs4
 from bs4 import BeautifulSoup as bs
 from livelib import *
@@ -11,6 +12,7 @@ import random
 import time
 from .dbconnection import DBConnection
 from .parser import BookDataFormatter
+from .export import Export
 
 
 class Reader:
@@ -32,13 +34,13 @@ class Reader:
                  login: str,
                  web_connection: WebConnection,
                  db_connection: DBConnection,
+                 export: Export,
                  parser_html: type[Parser] = ParserFromHTML,
                  parser_db: type[Parser] = ParserForDB):
         self.login = login
         self.web_connection = web_connection
-        self.object_html = parser_html
-        self.object_db = parser_db
         self.db_connection = db_connection
+        self.export = export
         self.parser_html = parser_html
         self.parser_db = parser_db
 
@@ -275,5 +277,9 @@ class Reader:
         self.delete_read_books()
         self.get_read_books_from_web()
 
-    def create_export_file(self, type = 'csv'):
-        pass
+    def create_export_xlsx_file(self):
+        books = self.get_read_books_from_db()
+        print(len(books))
+        print(self.login)
+        f = self.export.create_file(books = books, login = self.login)
+        return f

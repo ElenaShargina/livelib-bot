@@ -17,11 +17,20 @@ class DBConfig:
     sqlite_db: str # основная база данных в sqlite3
 
 @dataclass
+class XLSXConfig:
+    folder: str # папка для загрузки создаваемых файлов
+
+@dataclass
+class ExportConfig:
+    xlsx: XLSXConfig # класс хранения кданных для экспорта в xlsx
+
+@dataclass
 class Config:
     web_connection: WebConnectionConfig
     bs_parser: BSParserConfig
     encoding:str
     db_config: DBConfig
+    export: ExportConfig
 
     def __init__(self, path):
         env: Env = Env()
@@ -31,6 +40,7 @@ class Config:
             self.web_connection = WebConnectionConfig(site=env('SITE'), cache_folder=env('CACHE_FOLDER'))
             self.bs_parser = BSParserConfig(features=env('BS_FEATURES'))
             self.db_config = DBConfig(sqlite_db=env("SQLITE_DB"))
+            self.export = ExportConfig(xlsx=XLSXConfig(folder=env('XLSX_FOLDER')))
         else:
             print(f'Can not read configuration from {path} file!')
             raise Exception(f'Can not read configuration from {path} file!')
