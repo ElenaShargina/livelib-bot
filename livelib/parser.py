@@ -43,61 +43,61 @@ class BookDataFormatter(DataFormatter):
         'author_id': {'parser': 'get_author_id',
                       'db': {'name': 'author_id', 'type': 'INTEGER'},
                       'csv': {'name': 'Cсылка на автора', 'method': 'create_author_link'},
-                      'xlsx': {'name': 'Cсылка на автора', 'method': 'create_author_link', 'order' :11, 'column_width':50},
+                      'xlsx': {'name': 'Cсылка на автора', 'method': 'create_author_link', 'order' :11, 'column_width':30},
                       },
         'author_name': {'parser': 'get_author_name',
                         'db': {'name': 'author_name', 'type': 'TEXT'},
                         'csv': {'name': 'Автор', },
-                        'xlsx': {'name': 'Автор', 'order':2, 'column_width':50 }
+                        'xlsx': {'name': 'Автор', 'order':2, 'column_width':30 }
                         },
         'book_id': {'parser': 'get_book_id',
                     'db': {'name': 'book_id', 'type': 'INTEGER'},
                     'csv': {'name': 'Ссылка на  книгу', 'method': 'create_book_link'},
-                    'xlsx': {'name': 'Ссылка на  книгу', 'method': 'create_book_link', 'order':10, 'column_width':10}
+                    'xlsx': {'name': 'Ссылка на  книгу', 'method': 'create_book_link', 'order':10, 'column_width':30}
                     },
         'work_id': {'parser': 'get_work_id',
                     'db': {'name': 'work_id', 'type': 'INTEGER'},
                     'csv': {'name': 'Ссылка на произведение', 'method': 'create_work_link'},
-                    'xlsx': {'name': 'Ссылка на произведение', 'method': 'create_work_link','order':11, 'column_width':10}
+                    'xlsx': {'name': 'Ссылка на произведение', 'method': 'create_work_link','order':11, 'column_width':30}
                     },
         'book_name': {'parser': 'get_book_name',
                       'db': {'name': 'book_name', 'type': 'TEXT'},
                       'csv': {'name': 'Название', },
-                      'xlsx': {'name': 'Название', 'order':1, 'column_width':150}
+                      'xlsx': {'name': 'Название', 'order':1, 'column_width':30}
                       },
         'common_rating': {'parser': 'get_common_rating',
                           'db': {'name': 'common_rating', 'type': 'REAL'},
                           'csv': {'name': 'Общая оценка', },
-                          'xlsx': {'name': 'Общая оценка', 'order':9, 'column_width':30}
+                          'xlsx': {'name': 'Общая оценка', 'order':9, 'column_width':5}
                           },
         'picture_url': {'parser': 'get_picture_url',
                         'db': {'name': 'picture_url', 'type': 'TEXT'},
                         'csv': {'name': 'Обложка', 'method': 'create_picture_url'},
-                        'xlsx': {'name': 'Обложка', 'method': 'create_picture_url', 'order':3, 'column_width':100}
+                        'xlsx': {'name': 'Обложка', 'method': 'create_picture_url', 'order':3, 'column_width':10}
                         },
         'reader_rating': {'parser': 'get_reader_rating',
                           'db': {'name': 'reader_rating', 'type': 'REAL'},
                           'csv': {'name': 'Моя оценка', },
-                          'xlsx': {'name': 'Моя оценка', 'order':4, 'column_width':30}
+                          'xlsx': {'name': 'Моя оценка', 'order':4, 'column_width':5}
                           },
         'tags': {'parser': 'get_tags',
                  'db': {'name': 'tags', 'type': 'TEXT'},
                  'csv': {'name': 'Теги', },
-                 'xlsx': {'name': 'Теги', 'order':7, 'column_width':150}
+                 'xlsx': {'name': 'Теги', 'order':7, 'column_width':20}
                  },
         'review_id': {'parser': 'get_review_id',
                       'db': {'name': 'review_id', 'type': 'INTEGER'},
                       'csv': {'name': 'Ссылка на рецензию', 'method': 'create_review_link'},
-                      'xlsx': {'name': 'Ссылка на рецензию', 'method': 'create_review_link', 'order':6, 'column_width':50},
+                      'xlsx': {'name': 'Ссылка на рецензию', 'method': 'create_review_link', 'order':6, 'column_width':30},
                       },
         'review_text': {'parser': 'get_review_text',
                         'db': {'name': 'review_text', 'type': 'TEXT'},
                         'csv': {'name': 'Рецензия', 'method': 'create_rexiew_text'},
-                        'xlsx': {'name': 'Рецензия', 'method': 'create_rexiew_text', 'order':5, 'column_width':255}
+                        'xlsx': {'name': 'Рецензия', 'method': 'create_rexiew_text', 'order':5, 'column_width':100}
                         },
         'date': {'parser': 'not_implemented',
                  'csv': {'name': 'Дата прочтения', },
-                 'xlsx': {'name': 'Дата прочтения', 'order':8, 'column_width':50}
+                 'xlsx': {'name': 'Дата прочтения', 'order':8, 'column_width':10}
                  },
         'month': {'parser': 'not_implemented',
                   'db': {'name': 'month', 'type': 'INTEGER'},
@@ -566,6 +566,11 @@ class ParserForXLSX(Parser):
             elif method and hasattr(ParserForXLSX, method):
                 value = getattr(ParserForXLSX,method)(value)
             new_book[property] = value
+        # отдельно формируем дату из свойств month и year
+        month_numbers = {1:'январь', 2:'февраль', 3:'март', 4:'апрель', 5:'май', 6:'июнь',
+                         7:'июль',8: 'август', 9:'сентябрь',10: 'октябрь',11: 'ноябрь', 12: 'декабрь'}
+        month = "" if not book['month'] else month_numbers.get(book['month'], '')
+        new_book['date'] = " ".join((str(book['year']), month ))
         return new_book
 
     @staticmethod

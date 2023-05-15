@@ -4,6 +4,7 @@ import datetime
 
 import datetime as datetime
 import os.path
+import string
 
 import openpyxl
 from openpyxl import Workbook
@@ -62,14 +63,24 @@ class XLSXExport(Export):
         ws = wb.active
         ws.title = 'Прочитанные книги'
 
+        # Задаем ширину столбцов. Она берется из BookDataFormatter
+        index = string.ascii_uppercase
+        i = 0
+        for value in properties.values():
+            if value.get('column_width', None) and i<26:
+                ws.column_dimensions[index[i]].width = value['column_width']
+                i+=1
+
+        # Задаем названия столбцов
         title_row = [i['name'] for i in properties.values()]
         print(title_row)
         ws.append(title_row)
 
+        # Вводим данные про все книги
         for book in books:
             prepared_book = ParserForXLSX.prepare_book_for_xlsx(book)
-            # print(prepared_book)
             ws.append(list(prepared_book.values()))
+
         try:
             wb.save(filename)
             logging.info(f'Successfully saved! Export file with {len(books)} books in xlsx for reader {login} at {filename}')
