@@ -78,7 +78,7 @@ class XLSXExport(Export):
         # Вводим данные про все книги
         for book in books:
             prepared_book = ParserForXLSX.prepare_book_for_xlsx(book)
-            print(prepared_book)
+            # print(prepared_book)
             ws.append(list(prepared_book.values()))
             for link_property in ('author_id', 'book_id','work_id','picture_url'):
                 ws.cell(ws.max_row,properties[link_property]['order']).hyperlink = prepared_book[link_property]
