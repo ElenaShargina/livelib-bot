@@ -5,6 +5,7 @@ import datetime
 import datetime as datetime
 import os.path
 
+import openpyxl
 from openpyxl import Workbook
 from .parser import BookDataFormatter, ParserForXLSX
 from .config import Config
@@ -67,7 +68,7 @@ class XLSXExport(Export):
 
         for book in books:
             prepared_book = ParserForXLSX.prepare_book_for_xlsx(book)
-            print(prepared_book)
+            # print(prepared_book)
             ws.append(list(prepared_book.values()))
         try:
             wb.save(filename)
@@ -75,6 +76,17 @@ class XLSXExport(Export):
         except Exception as exc:
             logging.exception(f'Не удалось сохранить файл c экспортом по адресу {filename}')
             return None
-        else:
-            return filename
+
+        # wb = openpyxl.load_workbook(filename, read_only=False)
+        # ws = wb.worksheets[0]
+        # print(ws)
+        # i = 1
+        # for name,value in properties.items():
+        #     if value.get('column_width', None):
+        #         ws.column_dimensions[name].width = value['column_width']
+        #     i+=1
+        # print(ws.column_dimensions)
+        # wb.save(filename)
+
+
 
