@@ -54,7 +54,7 @@ class Reader:
         return self.parser_html.reader_prefix(self.login)
 
     @property
-    def all_books(self) -> str:
+    def all_books_page(self) -> str:
         """
         Возвращает префикс главной страницы, относящихся к текущему читателю. Введено для наглядности кода.
         :return: префикс главной страницы
@@ -76,7 +76,7 @@ class Reader:
             # если логин был предоставлен, заменяем им текущий логин читателя
             if login != None:
                 self.login = login
-            page = self.web_connection.get_page_bs(self.all_books, parser=self.parser_html)
+            page = self.web_connection.get_page_bs(self.all_books_page, parser=self.parser_html)
             return True if page else False
         else:
             return False
@@ -137,7 +137,7 @@ class Reader:
         result = []
         try:
             # вызовем первую страницу со всеми книгами, чтобы забрать оттуда из паджинатора список страниц с книгами
-            page = self.web_connection.get_page_bs(self.all_books, self.parser_html)
+            page = self.web_connection.get_page_bs(self.all_books_page, self.parser_html)
             page_numbers = self.parser_html.get_paginator(page)
             # если у читателя меньше 20 книг, то паджинатора нет, но есть 1 страница с прочитанным
             if page_numbers == []: page_numbers = [1]

@@ -33,32 +33,44 @@ class TestReader(CustomUnitTest):
         cls.parser = ParserFromHTML
 
     def test_exists(self):
-        self.object = Reader('Somebody', self.web_connection,self.db_connection)
-        self.process_json_compare_to_json('exists','exists','exists','input', convert_html_to_bs=False)
+        values = [
+            {"input": "qwertyuioop", "exists": False},
+            {"input": "zverek_alyona", "exists": True},
+            {"input": "&knla", "exists": False},
+            {"input": "", "exists": False},
+            {"input": "\\reader\\", "exists": False}
+        ]
+        for i in values:
+            with self.subTest(f'Checking if reader {i["input"]} exists ({i["exists"]})'):
+                r = Reader(i['input'], self.web_connection, self.db_connection)
+                self.assertEqual(r.exists(), i['exists'])
+                r = Reader(None, SimpleWeb(self.config), self.db_connection)
+                self.assertEqual(r.exists(i['input']), i['exists'])
 
     def test_has_db_entries(self):
         # подготавливаем базу данных
         filename = get_correct_filename('test_has_db_entries.db', self.test_folder)
-        db_con = SQLite3Connection(filename,create_if_not_exist=True)
+        db_con = SQLite3Connection(filename, create_if_not_exist=True)
         db_con.create_db(BookDataFormatter)
         now = str(datetime.datetime.now())
         test_values = [
-            {'login': 'Ivan', 'update_time': now, 'exists' : True},
-            {'login': 'Petr', 'update_time': None, 'exists' : True},
-            {'login': 'PetrTY', 'update_time': None, 'exists' : False},
+            {'login': 'Ivan', 'update_time': now, 'exists': True},
+            {'login': 'Petr', 'update_time': None, 'exists': True},
+            {'login': 'PetrTY', 'update_time': None, 'exists': False},
             {'login': 'PetrTY', 'update_time': now, 'exists': False},
         ]
-        db_con.insert_values('Reader',([{'login':i['login'],'update_time':i['update_time']} for i in test_values if i['exists']]))
+        db_con.insert_values('Reader', (
+        [{'login': i['login'], 'update_time': i['update_time']} for i in test_values if i['exists']]))
         for i in test_values:
             self.object = Reader(i['login'], self.web_connection, db_con)
             if i['exists']:
                 with self.subTest('Testing users with existing db_entries'):
-                    self.assertEqual(i['update_time'],self.object.has_db_entries())
+                    self.assertEqual(i['update_time'], self.object.has_db_entries())
             else:
                 with self.subTest('Testing users with non-existing db_entries'):
-                    self.assertEqual(None,self.object.has_db_entries())
+                    self.assertEqual(None, self.object.has_db_entries())
         # удаляем тестовую базу данных
-        remove_file(filename,'Remove test database', 'Can not remove test database')
+        remove_file(filename, 'Remove test database', 'Can not remove test database')
 
     def test_get_db_id(self):
         with self.subTest(f'Testing correct login'):
@@ -69,7 +81,7 @@ class TestReader(CustomUnitTest):
             self.assertEqual(None, r.get_db_id())
 
     def test_insert_db_id(self):
-        reader_name = 'Reader'+str(random.randint(100_000,100_000_000))
+        reader_name = 'Reader' + str(random.randint(100_000, 100_000_000))
         r = Reader(reader_name, self.web_connection, self.db_connection)
         new_id = r.insert_into_db()
         check_id = r.get_db_id()
@@ -79,7 +91,7 @@ class TestReader(CustomUnitTest):
             self.assertEqual(new_id, r.insert_into_db())
 
     def test_fill_update_time(self):
-        reader_name = 'Reader'+str(random.randint(100_000,100_000_000))
+        reader_name = 'Reader' + str(random.randint(100_000, 100_000_000))
         r = Reader(reader_name, self.web_connection, self.db_connection)
         r.register()
         with self.subTest(f'Testing filling update time for Reader {reader_name}'):
@@ -87,7 +99,7 @@ class TestReader(CustomUnitTest):
             self.assertEqual(correct_update_time, r.get_update_time())
 
     def test_get_update_time(self):
-        reader_name = 'Reader'+str(random.randint(100_000,100_000_000))
+        reader_name = 'Reader' + str(random.randint(100_000, 100_000_000))
         r = Reader(reader_name, self.web_connection, self.db_connection)
         r.register()
         with self.subTest(f'Testing getting non-existing update time for Reader {reader_name}'):
@@ -97,29 +109,31 @@ class TestReader(CustomUnitTest):
             self.assertEqual(correct_update_time, r.get_update_time())
 
     def test_delete_read_books(self):
-        # создаем нового читателя
-        reader_name = 'Reader'+str(random.randint(100_000,100_000_000))
+        # 1. Создаем нового читателя
+        reader_name = 'Reader' + str(random.randint(100_000, 100_000_000))
         r = Reader(reader_name, self.web_connection, self.db_connection)
         r.register()
 
-        # сохраняем для него тестовые книги как прочитанные
-        filename=get_correct_filename('sample_books.json',os.path.join(self.test_folder, 'delete_read_books'))
+        # 2. Сохраняем для него тестовые книги как прочитанные
+        filename = get_correct_filename('sample_books.json', os.path.join(self.test_folder, 'delete_read_books'))
         with open(filename, mode='r', encoding='utf-8') as f:
             books = json.load(f)
         saved_books_num = r.save_read_books_in_db(books)
         r.fill_update_time()
-        # проверяем, что они добавились с помощью save_books_in_db
+
+        # 3. Проверяем, что они добавились с помощью save_books_in_db
         with self.subTest('Checking number of saved books'):
             self.assertEqual(len(books), saved_books_num)
 
-        # проверяем, что они добавились с помощью get_read_books_from_db
+        # 4. Проверяем, что они добавились с помощью get_read_books_from_db
         saved_books = r.get_read_books_from_db()
         with self.subTest('Checking number of saved books once more'):
             self.assertEqual(len(books), len(saved_books))
 
-        # удаляем книги читателя
+        # 5. Удаляем книги читателя
         r.delete_read_books()
-        # проверяем, что книги удалились
+
+        # 6. Проверяем, что книги удалились
         with self.subTest('Checking that books are deleted'):
             self.assertEqual(0, len(r.get_read_books_from_db()))
 
@@ -139,30 +153,108 @@ class TestReader(CustomUnitTest):
         # 4. Проверяем, что книги в базе данных есть.
         new_books_num = len(r.get_read_books_from_db())
         with self.subTest(f'Checking books after update for {reader_name}'):
-            self.assertEqual(old_books_num,new_books_num)
+            self.assertEqual(old_books_num, new_books_num)
         # 5. Проверяем, что время обновления в профиле читателя поменялось
         with self.subTest(f'Checking new update time for {reader_name}'):
             self.assertNotEqual(old_update_time, r.get_update_time())
 
     def test_get_read_books_from_db(self):
-        pass
+        # 1. Создаем нового читателя
+        reader_name = 'Reader' + str(random.randint(100_000, 100_000_000))
+        self.object = Reader(reader_name, self.web_connection, self.db_connection)
+        self.object.register()
+
+        # 2. Сохраняем для него тестовые книги как прочитанные
+        filename = get_correct_filename('sample_books.json', os.path.join(self.test_folder, 'get_read_books_from_db'))
+        with open(filename, mode='r', encoding='utf-8') as f:
+            books = json.load(f)
+        self.object.save_read_books_in_db(books)
+        self.object.fill_update_time()
+
+        # 4. Проверяем, что они добавились с помощью get_read_books_from_db
+        saved_books = self.object.get_read_books_from_db()
+        with self.subTest('Testing getting books from db'):
+            self.process_json_compare_to_json('get_read_books_from_db', 'get_read_books_from_db', 'output', 'input',
+                                              False)
+
+        # 5. Удаляем книги читателя
+        self.object.delete_read_books()
 
     def test_get_read_books_from_web(self):
-        pass
+        # 1. Создаем нового читателя
+        # используем реального читателя с небольшим (60) количеством книг
+        reader_name = 'Eugenia_Novik'
+        # Формируем особый конфиг, чтобы кеш страниц брался из подготовленных данных.
+        # Если страница реального читателя поменяется, то сравнение в тесте будет все равно идти с сохраненной старой версией.
+        special_config = self.config
+        special_config.web_connection.cache_folder = 'data/sample/test_reader/get_read_books_from_web/cache'
+        self.object = Reader(reader_name, WebWithCache(special_config), self.db_connection)
+        # 2. Проверяем работу метода
+        self.process_json_compare_to_json('get_read_books_from_web', 'get_read_books_from_web', 'output', 'input',
+                                          False)
 
     def test_save_read_books_in_db(self):
-        pass
+        # 1. Создаем нового читателя
+        reader_name = 'Reader' + str(random.randint(100_000, 100_000_000))
+        self.object = Reader(reader_name, self.web_connection, self.db_connection)
+        self.object.register()
+
+        # 2. Сохраняем для него тестовые книги как прочитанные
+        filename = get_correct_filename('sample_books.json', os.path.join(self.test_folder, 'get_read_books_from_db'))
+        with open(filename, mode='r', encoding='utf-8') as f:
+            books = json.load(f)
+        self.object.save_read_books_in_db(books)
+        self.object.fill_update_time()
+
+        # 4. Проверяем, что они добавились с помощью sql запроса
+        saved_books = self.db_connection.run_single_sql(
+            "SELECT * FROM Book WHERE id in (SELECT book_id FROM ReadBook WHERE reader_id=?)", (self.object.id,))
+        with self.subTest("Testing save_read_books_in_db method"):
+            with open(filename, mode='r', encoding=self.config.encoding) as f:
+                correct_output = json.load(f)
+                self.assertEqual(saved_books,correct_output)
+
+        # код для обновления файла с правильным ответом
+        # with open(filename, mode='w', encoding=self.config.encoding) as f:
+        #     json.dump(saved_books,f,indent=4,ensure_ascii=False)
+
+        # 5. Удаляем книги читателя
+        self.object.delete_read_books()
 
     def test_register(self):
-        pass
+        # 1. Создаем нового читателя
+        reader_name = 'Reader' + str(random.randint(0, 100_000))
+        r = Reader(reader_name, self.web_connection, self.db_connection)
+        # 2. Регистрируем его
+        r.register()
+        # 3. Проверяем, у него теперь ненулевой id
+        with self.subTest('Checking not-null id'):
+            self.assertGreater(r.id, 0)
+        # 4. Проверяем, что он есть в БД
+        with self.subTest('Checking new reader is in DB'):
+            reader_in_db = self.db_connection.run_single_sql("SELECT * FROM Reader WHERE login=?", (reader_name,))
+            # ID должен быть не нулевым
+            self.assertNotEqual(0, reader_in_db[0]['id'])
+            self.assertEqual(r.id, reader_in_db[0]['id'])
+            # Время обновления должно быть None, так как книг еще не загружали.
+            self.assertEqual(None, reader_in_db[0]['update_time'])
 
     def test_get_read_books_from_page(self):
-        pass
+        # 1. Создаем нового читателя
+        # используем реального читателя с небольшим (60) количеством книг
+        reader_name = 'Kasssiopei'
+        # Формируем особый конфиг, чтобы кеш страниц брался из подготовленных данных.
+        # Если страница реального читателя поменяется, то сравнение в тесте все равно идти с сохраненной старой версией.
+        special_config = self.config
+        special_config.web_connection.cache_folder = 'data/sample/test_reader/get_read_books_from_page/cache'
+        self.object = Reader(reader_name, WebWithCache(special_config), self.db_connection)
+        # 2. Проверяем работу метода
+        self.process_json_compare_to_json('get_read_books_from_page', 'get_read_books_from_page', 'output', 'input',
+                                          False)
 
     def test_create_export_file(self):
         pass
 
-if __name__=='__main__':
+
+if __name__ == '__main__':
     unittest.main()
-
-
