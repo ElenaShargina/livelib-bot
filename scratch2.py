@@ -1,5 +1,4 @@
-from openpyxl import Workbook
-from livelib import BookDataFormatter, Reader, Config, WebWithCache, SQLite3Connection, ParserForXLSX, XLSXExport
+from livelib import BookDataFormatter, Reader, Config, WebWithCache, SQLite3Connection, XLSXExport
 
 config = Config('.env')
 web = WebWithCache(config)
