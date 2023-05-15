@@ -66,7 +66,9 @@ class CustomUnitTest(unittest.TestCase):
         with open(filename, mode='r', encoding=self.config.encoding) as f:
             cases = json.load(f)
             for i in cases:
-                with self.subTest(f'Test with {i[json_output_name]} '):
+                output_info = str(i[json_output_name])
+                if len(output_info)>500: output_info = output_info[:500]
+                with self.subTest(f'Test with {output_info} '):
                     input = self._str_to_bs(i[json_input_name]) if convert_html_to_bs else i[json_input_name]
                     if input:
                         output = getattr(self.object, method)(input)

@@ -1,0 +1,7 @@
+[
+  {
+        "html": "<div class=\"brow-ratings\">Моя оценка:<span class=\"brow-rating marg-right\"><span class=\"rating-book\">\n                <span class=\"rating-value stars-color-gray\">3</span><span class=\"rating\" style=\"\" title=\"Нейтральная оценка\">\n                <span class=\"r30-sc-gray\" title=\"рейтинг 3 из 5\"></span></span></span></span>Общая:<span class=\"brow-rating\">\n                <span class=\"rating-book\"><span class=\"rating-value stars-color-orange\">3.84</span>\n<span title=\"Рейтинг 3.836 (281  читатель, рейтинг ожидания 0.000)\"><span class=\"r40-sc-orange\"></span></span></span></span></div>",
+        "common_rating": 3.84,
+        "reader_rating": 3
+  }
+  ]
