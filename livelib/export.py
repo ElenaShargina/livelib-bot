@@ -8,6 +8,7 @@ import string
 
 import openpyxl
 from openpyxl import Workbook
+from openpyxl.drawing.image import Image
 from .parser import BookDataFormatter, ParserForXLSX
 from .config import Config
 
@@ -53,12 +54,11 @@ class XLSXExport(Export):
         :return: путь к сохраненному файлу
         :rtype str:
         """
+        # узнаем словарь с описание колонок в экспортном файле
         properties = BookDataFormatter.all_properties_xlsx()
-        print(properties)
-
+        # формируем путь и название экспортного файла
         filename = self.create_filename(login)
-        print(filename)
-
+        # создаем документ Excel
         wb = Workbook()
         ws = wb.active
         ws.title = 'Прочитанные книги'
@@ -73,31 +73,24 @@ class XLSXExport(Export):
 
         # Задаем названия столбцов
         title_row = [i['name'] for i in properties.values()]
-        print(title_row)
         ws.append(title_row)
 
         # Вводим данные про все книги
         for book in books:
             prepared_book = ParserForXLSX.prepare_book_for_xlsx(book)
+            print(prepared_book)
             ws.append(list(prepared_book.values()))
-
+            for link_property in ('author_id', 'book_id','work_id','picture_url'):
+                ws.cell(ws.max_row,properties[link_property]['order']).hyperlink = prepared_book[link_property]
+        # Сохраняем файл
         try:
             wb.save(filename)
             logging.info(f'Successfully saved! Export file with {len(books)} books in xlsx for reader {login} at {filename}')
+            return filename
         except Exception as exc:
             logging.exception(f'Не удалось сохранить файл c экспортом по адресу {filename}')
             return None
 
-        # wb = openpyxl.load_workbook(filename, read_only=False)
-        # ws = wb.worksheets[0]
-        # print(ws)
-        # i = 1
-        # for name,value in properties.items():
-        #     if value.get('column_width', None):
-        #         ws.column_dimensions[name].width = value['column_width']
-        #     i+=1
-        # print(ws.column_dimensions)
-        # wb.save(filename)
 
 
 

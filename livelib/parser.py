@@ -92,8 +92,8 @@ class BookDataFormatter(DataFormatter):
                       },
         'review_text': {'parser': 'get_review_text',
                         'db': {'name': 'review_text', 'type': 'TEXT'},
-                        'csv': {'name': 'Рецензия', 'method': 'create_rexiew_text'},
-                        'xlsx': {'name': 'Рецензия', 'method': 'create_rexiew_text', 'order':5, 'column_width':100}
+                        'csv': {'name': 'Рецензия', 'method': 'create_review_text'},
+                        'xlsx': {'name': 'Рецензия', 'method': 'create_review_text', 'order':5, 'column_width':100}
                         },
         'date': {'parser': 'not_implemented',
                  'csv': {'name': 'Дата прочтения', },
@@ -588,3 +588,10 @@ class ParserForXLSX(Parser):
     @staticmethod
     def create_review_link(id):
         return 'https://livelib.ru/review/'+str(id)
+
+    @staticmethod
+    def create_review_text(text):
+        bsoup = bs4.BeautifulSoup(text,features='lxml')
+        result = bsoup.get_text("\n")
+        result = result.replace("\n\n", "\n")
+        return result
