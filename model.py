@@ -6,8 +6,9 @@ db.create_db(BookDataFormatter)
 # @todo почему не ругается?
 # web = WebWithCache(config, random_sleep=True)
 web = WebWithCache(config,random_sleep=True)
+xlsx_export = XLSXExport(config)
 
-current_reader = Reader(login='', web_connection=web, db_connection=db, parser_html=ParserFromHTML, parser_db=ParserForDB)
+current_reader = Reader(login='', web_connection=web, db_connection=db, parser_html=ParserFromHTML, parser_db=ParserForDB, export = xlsx_export )
 
 # Есть ли пользователь на ЛЛ
 login = input('Ввести логин \n')
@@ -39,7 +40,7 @@ if current_reader.exists(login=login):
         print('Скачивание завершено')
     print('Тут выдается файл для экспорта.')
     print('У вас книг ',len(current_reader.get_read_books_from_db()))
-    # reader.create_export_file(type='csv')
+    print(current_reader.create_export_xlsx_file())
 
 else:
     # # # если нет логина на ЛЛ

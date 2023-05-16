@@ -267,11 +267,9 @@ class Reader:
         :return:
         :rtype: list[dict]
         """
-        # @todo тут надо переделать запрос, чтобы в нем не было дублирующего book_id
         result = self.db_connection.run_single_sql("SELECT  *, Book.book_id as book_id FROM Book INNER JOIN ReadBook ON Book.id=ReadBook.book_id WHERE ReadBook.reader_id=?", (self.id,))
         # нужно удалить reader_id  и id из полученного ответа
         # для прохождения юнит тестов с динамически генерируемыми пользователями
-        print(result)
         for i in result:
             del i["reader_id"]
             del i["id"]
@@ -286,6 +284,6 @@ class Reader:
 
     def create_export_xlsx_file(self):
         books = self.get_read_books_from_db()
-        print(books[0])
+        # print(books[0])
         f = self.export.create_file(books = books, login = self.login)
         return f

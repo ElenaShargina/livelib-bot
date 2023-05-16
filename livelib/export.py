@@ -8,7 +8,7 @@ import string
 
 import openpyxl
 from openpyxl import Workbook
-from openpyxl.drawing.image import Image
+from openpyxl.styles import PatternFill, Border, Side, Alignment, Protection, Font
 from .parser import BookDataFormatter, ParserForXLSX
 from .config import Config
 
@@ -74,14 +74,26 @@ class XLSXExport(Export):
         # Задаем названия столбцов
         title_row = [i['name'] for i in properties.values()]
         ws.append(title_row)
+        #  Задаем стиль для первой строки
+        for i in range(1, 1 + len(properties)):
+            ws.cell(ws.max_row, i).style = 'Title'
+
 
         # Вводим данные про все книги
         for book in books:
             prepared_book = ParserForXLSX.prepare_book_for_xlsx(book)
             # print(prepared_book)
             ws.append(list(prepared_book.values()))
+            # свойства-ссылки вводим как ссылки
             for link_property in ('author_id', 'book_id','work_id','picture_url'):
                 ws.cell(ws.max_row,properties[link_property]['order']).hyperlink = prepared_book[link_property]
+                ws.cell(ws.max_row, properties[link_property]['order']).style = 'Hyperlink'
+            # если есть рецензия, то увеличиваем высоту ячейки и делаем вертикальное выравнивание
+            if prepared_book['review_text']:
+                ws.row_dimensions[ws.max_row].height = 100
+                for i in range(1, 1+len(properties)):
+                    ws.cell(ws.max_row, i).alignment = Alignment(vertical='center')
+                ws.cell(ws.max_row, properties['review_text']['order']).alignment = Alignment(wrapText=True, vertical='center')
         # Сохраняем файл
         try:
             wb.save(filename)
