@@ -183,8 +183,8 @@ class TestReader(CustomUnitTest):
 
     def test_get_read_books_from_web(self):
         # 1. Создаем нового читателя
-        # используем реального читателя с небольшим (60) количеством книг
-        reader_name = 'Eugenia_Novik'
+        # используем реального читателя с небольшим (58) количеством книг
+        reader_name = 'Humming_Bird'
         # Формируем особый конфиг, чтобы кеш страниц брался из подготовленных данных.
         # Если страница реального читателя поменяется, то сравнение в тесте будет все равно идти с сохраненной старой версией.
         special_config = self.config
@@ -193,6 +193,8 @@ class TestReader(CustomUnitTest):
         # 2. Проверяем работу метода
         self.process_json_compare_to_json('get_read_books_from_web', 'get_read_books_from_web', 'output', 'input',
                                           False)
+        # 3. Удаляем книги читателя
+        self.object.delete_read_books()
 
     def test_save_read_books_in_db(self):
         # 1. Создаем нового читателя
