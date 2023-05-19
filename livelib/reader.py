@@ -268,11 +268,12 @@ class Reader:
         :rtype: list[dict]
         """
         result = self.db_connection.run_single_sql("SELECT  *, Book.book_id as book_id FROM Book INNER JOIN ReadBook ON Book.id=ReadBook.book_id WHERE ReadBook.reader_id=?", (self.id,))
-        # нужно удалить reader_id  и id из полученного ответа
+        # нужно удалить reader_id и id из полученного ответа
         # для прохождения юнит тестов с динамически генерируемыми пользователями
         for i in result:
             del i["reader_id"]
             del i["id"]
+        # print(result)
         return result
 
     def update_books(self):
