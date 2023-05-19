@@ -6,6 +6,7 @@ import bs4
 from bs4 import BeautifulSoup as bs
 from typing import Any
 
+
 def get_correct_filename(filename: str, folder: str, ) -> str:
     """
     служебная функция для получения корректного пути до тестовых файлов конфига, дб и тд,
@@ -15,20 +16,21 @@ def get_correct_filename(filename: str, folder: str, ) -> str:
     prefix_folder = os.path.join(parent_dir, *folder.split('/'))
     return os.path.join(prefix_folder, filename)
 
-def remove_file(filename : str, log_msg = 'Remove test file ', error_msg = 'Can not remove test file '):
+
+def remove_file(filename: str, log_msg='Remove test file ', error_msg='Can not remove test file '):
     try:
         os.remove(filename)
         logging.info(f'{log_msg} {filename}')
     except Exception as exc:
         logging.exception(f'{error_msg} {filename}', exc_info=True)
 
-class CustomUnitTest(unittest.TestCase):
 
+class CustomUnitTest(unittest.TestCase):
     object: Any
     config: Config
     parser: Parser
     test_folder: str
-    web_connection : WebConnection
+    web_connection: WebConnection
     db_connection: DBConnection
 
     def _str_to_bs(self, x: str) -> bs:
@@ -38,7 +40,8 @@ class CustomUnitTest(unittest.TestCase):
         """
         return bs(x, self.web_connection.bs_parser)
 
-    def process_json_compare_to_json(self, method: str, folder: str, json_output_name: str,  json_input_name :str = 'html',
+    def process_json_compare_to_json(self, method: str, folder: str, json_output_name: str,
+                                     json_input_name: str = 'html',
                                      convert_html_to_bs: bool = True) -> None:
         """
         Тестируем метод на небольшой вводной информации (как правило - небольших кусках html),
@@ -67,7 +70,7 @@ class CustomUnitTest(unittest.TestCase):
             cases = json.load(f)
             for i in cases:
                 output_info = str(i[json_output_name])
-                if len(output_info)>500: output_info = output_info[:500]
+                if len(output_info) > 500: output_info = output_info[:500]
                 with self.subTest(f'Test with {output_info} '):
                     input = self._str_to_bs(i[json_input_name]) if convert_html_to_bs else i[json_input_name]
                     if input:

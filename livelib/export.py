@@ -15,7 +15,6 @@ from .config import Config
 class Export:
     pass
 
-# другой способ, тесно связанный с Экселем. https://www.excelguide.ru/2019/12/excel-python-basics.html
 # @todo для csv убрать из рецензий теги, сделать ли ссылки? возможный экспорт в bookmate?
 class CSVExport(Export):
     @staticmethod
@@ -85,7 +84,7 @@ class XLSXExport(Export):
             # print(prepared_book)
             ws.append(list(prepared_book.values()))
             # свойства-ссылки вводим как ссылки
-            for link_property in ('author_id', 'book_id','work_id','picture_url'):
+            for link_property in ('author_id', 'book_id','work_id','picture_url', 'review_id'):
                 ws.cell(ws.max_row,properties[link_property]['order']).hyperlink = prepared_book[link_property]
                 ws.cell(ws.max_row, properties[link_property]['order']).style = 'Hyperlink'
             # если есть рецензия, то увеличиваем высоту ячейки и делаем вертикальное выравнивание
