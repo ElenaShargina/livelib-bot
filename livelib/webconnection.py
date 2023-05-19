@@ -304,6 +304,7 @@ class WebWithCache(WebConnection):
         path, file_name = self._parse_url_in_filepath_and_filename(url)
         # если страница уже есть в кеше, то возвращаем текст из файла
         if os.path.isfile(path + file_name):
+            print(f'Page {url} is in dump.')
             logging.debug(f'Page {url} is in dump.')
             try:
                 f = open(path + file_name, mode='r', encoding=self.encoding)
