@@ -36,13 +36,16 @@ class Reader:
                  db_connection: DBConnection,
                  export: Export,
                  parser_html: type[Parser] = ParserFromHTML,
-                 parser_db: type[Parser] = ParserForDB):
+                 parser_db: type[Parser] = ParserForDB,
+                 parser_xlsx: type[Parser] = ParserForXLSX):
         self.login = login
+
         self.web_connection = web_connection
         self.db_connection = db_connection
         self.export = export
         self.parser_html = parser_html
         self.parser_db = parser_db
+        self.parser_xlsx = parser_xlsx
 
         self.id = None
 
@@ -96,11 +99,11 @@ class Reader:
             result = None
         return result
 
-    def _get_db_id(self) -> bool:
+    def _get_db_id(self) -> int or None:
         """
         Возвращает ID читателя из БД. Если такого читателя нет, возвращает None
         :return:
-        :rtype:
+        :rtype: int or None
         """
         result = self.db_connection.run_single_sql("SELECT * FROM Reader WHERE login = ?",(self.login,))
         if result:
@@ -134,7 +137,7 @@ class Reader:
         """
         Загружает все прочитанные книги читателя из сети (через WebConnection) в базу данных (через BDConnection)
         :return: список со словарями книг
-        :rtype: list or bool
+        :rtype: list or False
         """
         result = []
         try:
@@ -291,5 +294,5 @@ class Reader:
         """
         books = self.get_read_books_from_db()
         # print(books[0])
-        f = self.export.create_file(books = books, login = self.login)
+        f = self.export.create_file(books = books, login = self.login, parser_xlsx = self.parser_xlsx)
         return f

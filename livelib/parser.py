@@ -187,22 +187,6 @@ class Parser:
         s = re.sub("\n", "", s)
         return s
 
-    @staticmethod
-    def create_filepath_csv(login: str) -> str:
-        """
-        Возвращает путь и безопасное имя файла CSV формата 'login-YYYY-MM-DD--HH-MM-SS.csv'.
-        Из логина читателя будут удалены небезопасные символы.
-        :param login: логин читателя
-        :type login: str
-        :return:
-        :rtype: str
-        """
-        login = login.translate(str.maketrans('', '', '\/:*?"<>|'))
-        filename = login + "-" + datetime.now().strftime("%Y-%m-%d--%H-%M-%S") + '.csv'
-        # @todo тут должна задаваться папка для сохранения csv
-        return (os.path.join('csv', filename))
-
-
 class ParserFromHTML(Parser):
     """
     Класс парсинга страниц сайта. Здесь задаются адресация страниц сайта и поиск данных в его верстке.
@@ -495,7 +479,7 @@ class ParserFromHTML(Parser):
 
 class ParserForDB(Parser):
     @staticmethod
-    def prepare_book_for_db(book: Dict, formatter=BookDataFormatter) -> List:
+    def _prepare_book_for_db(book: Dict, formatter=BookDataFormatter) -> List:
         """
         Преобразует книгу для сохранения в БД в соответствии с BookDataFormatter.
         Нужен в случае, если название колонки в БД отличается от названия свойства парсера или
@@ -529,7 +513,7 @@ class ParserForDB(Parser):
         """
         result = []
         for book in books:
-            result.append(ParserForDB.prepare_book_for_db(book, formatter=formatter))
+            result.append(ParserForDB._prepare_book_for_db(book, formatter=formatter))
         return result
 
 

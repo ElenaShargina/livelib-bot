@@ -50,7 +50,7 @@ class XLSXExport(Export):
         filename = timestamp + '-' + reader_name + '.xlsx'
         return os.path.join(self.folder, filename)
 
-    def create_file(self, books: list, login: str) -> str or None:
+    def create_file(self, books: list, login: str, parser_xlsx: ParserForXLSX) -> str or None:
         """
         Сохраняет файл с заданными книгами в формате xlsx для читателя с заданным логином.
         Логин будет использован в названии файла.
@@ -81,11 +81,11 @@ class XLSXExport(Export):
         ws.append(title_row)
         #  Задаем стиль для первой строки
         for i in range(1, 1 + len(properties)):
-            ws.cell(ws.max_row, i).style = 'Title'
+            ws.cell(ws.max_row, i).style = 'Headline 2'
 
         # Вводим данные про все книги
         for book in books:
-            prepared_book = ParserForXLSX.prepare_book_for_xlsx(book)
+            prepared_book = parser_xlsx.prepare_book_for_xlsx(book)
             # print(prepared_book)
             ws.append(list(prepared_book.values()))
             # свойства-ссылки вводим как ссылки

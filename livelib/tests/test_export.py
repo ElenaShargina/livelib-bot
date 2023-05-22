@@ -27,8 +27,8 @@ class TestXLSXExport(CustomUnitTest):
         logging.basicConfig(filename='log.log', level=logging.DEBUG, filemode='a',
                             format="%(asctime)s %(levelname)s %(message)s")
         cls.web_connection = WebWithCache(cls.config, random_sleep=False)
-        db_filename = get_correct_filename(cls.config.db_config.sqlite_db, "")
-        cls.db_connection = SQLite3Connection(db_filename, create_if_not_exist=False)
+        cls.config.db.sqlite_db = get_correct_filename(cls.config.db.sqlite_db, "")
+        cls.db_connection = SQLite3Connection(cls.config, create_if_not_exist=False)
         cls.parser = ParserFromHTML
         cls.export = XLSXExport(cls.config)
 
@@ -69,6 +69,7 @@ class TestXLSXExport(CustomUnitTest):
             # загружаем образец
             correct_output_filename = get_correct_filename(reader_name+'-correct_output.xlsx',self.test_folder)
             correct_output = openpyxl.reader.excel.load_workbook(correct_output_filename, read_only = True)
+            # correct_output = openpyxl.reader.excel.load_workbook(output_filename, read_only=True)
             wb = correct_output.active
             correct_values = [i for i in wb.values]
             correct_output.close()

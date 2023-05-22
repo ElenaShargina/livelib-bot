@@ -1,3 +1,4 @@
+import copy
 import datetime
 import json
 import os, sys
@@ -11,7 +12,6 @@ import sqlite3
 import unittest
 from livelib import SQLite3Connection, Config, WebWithCache, BookDataFormatter, ParserFromHTML
 import logging
-
 
 
 class TestDBConnection(CustomUnitTest):
@@ -31,31 +31,39 @@ class TestDBConnection(CustomUnitTest):
         cls.parser = ParserFromHTML
 
     def test_run_single_sql(self):
-        filename = get_correct_filename('test.db', os.path.join(self.test_folder, 'run_single_sql'))
-        self.object = SQLite3Connection(filename, create_if_not_exist=False)
-        self.process_json_compare_to_json('run_single_sql','run_single_sql','output', 'input', convert_html_to_bs=False)
+        special_config = copy.deepcopy(self.config)
+        special_config.db.sqlite_db = get_correct_filename('test.db', os.path.join(self.test_folder, 'run_single_sql'))
+        self.object = SQLite3Connection(special_config, create_if_not_exist=False)
+        self.process_json_compare_to_json('run_single_sql', 'run_single_sql', 'output', 'input',
+                                          convert_html_to_bs=False)
 
     def test_run_single_sql_return_lastrowid(self):
-        filename = get_correct_filename('test_insert.db', os.path.join(self.test_folder, 'run_single_sql'))
-        self.object = SQLite3Connection(filename, create_if_not_exist=True)
+        special_config = copy.deepcopy(self.config)
+        special_config.db.sqlite_db = get_correct_filename('test_insert.db',
+                                                           os.path.join(self.test_folder, 'run_single_sql'))
+        self.object = SQLite3Connection(special_config, create_if_not_exist=True)
         self.object.create_db(BookDataFormatter)
-        result = self.object.run_single_sql('INSERT INTO Book (book_name) VALUES ("Тестовая книга")', return_lastrowid=True)
-        self.assertGreater(result,0)
-        remove_file(filename)
+        result = self.object.run_single_sql('INSERT INTO Book (book_name) VALUES ("Тестовая книга")',
+                                            return_lastrowid=True)
+        self.assertGreater(result, 0)
+        remove_file(special_config.db.sqlite_db)
 
     def test_get_table_schema(self):
-        filename = get_correct_filename('test.db', os.path.join(self.test_folder, 'get_table_schema'))
-        self.object = SQLite3Connection(filename, create_if_not_exist=True)
+        special_config = copy.deepcopy(self.config)
+        special_config.db.sqlite_db = get_correct_filename('test.db',
+                                                           os.path.join(self.test_folder, 'get_table_schema'))
+        self.object = SQLite3Connection(special_config, create_if_not_exist=True)
         self.object.run_single_sql("CREATE TABLE Foo (id INTEGER PRIMARY KEY AUTOINCREMENT, col1 TEXT, col2 INTEGER)")
         result = self.object.get_table_schema('Foo')
         with open(get_correct_filename('file.json', os.path.join(self.test_folder, 'get_table_schema')), mode='r') as f:
             self.assertEqual(result, json.load(f))
         # удаляем тестовую базу данных
-        remove_file(filename, 'Remove test database', 'Can not remove test database')
+        remove_file(special_config.db.sqlite_db, 'Remove test database', 'Can not remove test database')
 
     def test_create_db(self):
-        filename = get_correct_filename('test.db', self.test_folder)
-        self.object = SQLite3Connection(filename, create_if_not_exist=True)
+        special_config = copy.deepcopy(self.config)
+        special_config.db.sqlite_db = get_correct_filename('test.db', self.test_folder)
+        self.object = SQLite3Connection(special_config, create_if_not_exist=True)
         self.object.create_db(BookDataFormatter)
         self.process_json_compare_to_json('get_table_schema', 'create_db', 'output', 'table', convert_html_to_bs=False)
         # код для изменения файла с правильным ответом
@@ -69,11 +77,12 @@ class TestDBConnection(CustomUnitTest):
              res = json.dump(correct_output, f, ensure_ascii=True)
         """
         # удаляем тестовую базу данных
-        remove_file(filename,'Remove test database', 'Can not remove test database')
+        remove_file(special_config.db.sqlite_db, 'Remove test database', 'Can not remove test database')
 
     def test_insert_values(self):
-        filename = get_correct_filename('insert_values.db', self.test_folder)
-        con = SQLite3Connection(filename,create_if_not_exist=True)
+        special_config = copy.deepcopy(self.config)
+        special_config.db.sqlite_db = get_correct_filename('insert_values.db', self.test_folder)
+        con = SQLite3Connection(special_config, create_if_not_exist=True)
         con.run_single_sql("CREATE TABLE Foo (col1 INTEGER, col2 TEXT)")
         with self.subTest('Testing correct inserting values'):
             values = [
@@ -96,12 +105,12 @@ class TestDBConnection(CustomUnitTest):
                 with self.assertRaises(Exception):
                     output = con.insert_values('Foo', i)
         # удаляем тестовую базу данных
-        remove_file(filename, 'Remove test database', 'Can not remove test database')
-
+        remove_file(special_config.db.sqlite_db, 'Remove test database', 'Can not remove test database')
 
     def test_table_exists(self):
-        filename = get_correct_filename('db.db', '/data/sample/test_sqlite3/table_exists/')
-        con = SQLite3Connection(filename)
+        special_config = copy.deepcopy(self.config)
+        special_config.db.sqlite_db = get_correct_filename('db.db', '/data/sample/test_sqlite3/table_exists/')
+        con = SQLite3Connection(special_config)
         with self.subTest('Testing if table exists'):
             self.assertTrue(con.table_exists('mytable'))
         with self.subTest("Testing if table doesn't exist"):

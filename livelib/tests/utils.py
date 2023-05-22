@@ -38,7 +38,7 @@ class CustomUnitTest(unittest.TestCase):
         Служебная функция, переформартирует строку в объект BeautifulSoup
         в соответствии с настройками имеющегося экземпляра WebConnection
         """
-        return bs(x, self.web_connection.bs_parser)
+        return bs(x, 'lxml')
 
     def process_json_compare_to_json(self, method: str, folder: str, json_output_name: str,
                                      json_input_name: str = 'html',

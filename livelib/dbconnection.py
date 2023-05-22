@@ -5,6 +5,7 @@ import os
 import typing
 
 from livelib.parser import BookDataFormatter
+from livelib.config import Config
 from typing import Dict, List
 
 
@@ -108,7 +109,7 @@ class SQLite3Connection(DBConnection):
     table_reader: str = 'Reader'
     table_readbook: str = 'ReadBook'
 
-    def __init__(self, filename: str, create_if_not_exist: bool = False):
+    def __init__(self, config: Config, create_if_not_exist: bool = False):
         """
         Создает объект соединения с заданным файлом БД, создает этот файл, если указано
         :param filename: путь до файла БД
@@ -116,7 +117,7 @@ class SQLite3Connection(DBConnection):
         :param create_if_not_exist: нужно ли создавать файл БД, если его не найдено
         :type create_if_not_exist: bool
         """
-        self.filename: str = filename  # файл базы данных
+        self.filename: str = config.db.sqlite_db  # файл базы данных
         # создаем файл с базой данной, если требуется
         if not os.path.isfile(self.filename) and create_if_not_exist:
             try:

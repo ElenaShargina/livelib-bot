@@ -3,7 +3,7 @@ from livelib import *
 # загружаем файл конфига
 config = Config('.env')
 # создаем связь с БД
-db = SQLite3Connection(config.db_config.sqlite_db, create_if_not_exist=True)
+db = SQLite3Connection(config, create_if_not_exist=True)
 # создаем БД, если нужно
 # db.create_db(BookDataFormatter)
 # Создаем связь с сетью. Сайт ЛЛ очень медленный и там стоит защита от частых запросов,
@@ -18,6 +18,7 @@ current_reader = Reader(    login='',
                             db_connection=db,
                             parser_html=ParserFromHTML,
                             parser_db=ParserForDB,
+                            parser_xlsx=ParserForXLSX,
                             export = xlsx_export
                         )
 

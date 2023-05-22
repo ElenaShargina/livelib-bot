@@ -1,3 +1,4 @@
+import copy
 import json
 import os, sys
 
@@ -26,8 +27,8 @@ class TestReader(CustomUnitTest):
     def setUpClass(cls) -> None:
         cls.config = Config(get_correct_filename(cls.config_file, ''))
         cls.web_connection = WebWithCache(cls.config, random_sleep=False)
-        db_filename = get_correct_filename(cls.config.db_config.sqlite_db, "")
-        cls.db_connection = SQLite3Connection(db_filename)
+        cls.config.db.sqlite_db = get_correct_filename(cls.config.db.sqlite_db, "")
+        cls.db_connection = SQLite3Connection(cls.config)
         cls.export = XLSXExport(cls.config)
         logging.basicConfig(filename='log.log', level=logging.DEBUG, filemode='a',
                             format="%(asctime)s %(levelname)s %(message)s")
@@ -50,8 +51,9 @@ class TestReader(CustomUnitTest):
 
     def test_has_db_entries(self):
         # подготавливаем базу данных
-        filename = get_correct_filename('test_has_db_entries.db', self.test_folder)
-        db_con = SQLite3Connection(filename, create_if_not_exist=True)
+        special_config = copy.deepcopy(self.config)
+        special_config.db.sqlite_db = get_correct_filename('test_has_db_entries.db', self.test_folder)
+        db_con = SQLite3Connection(special_config, create_if_not_exist=True)
         db_con.create_db(BookDataFormatter)
         now = str(datetime.datetime.now())
         test_values = [
@@ -71,7 +73,7 @@ class TestReader(CustomUnitTest):
                 with self.subTest('Testing users with non-existing db_entries'):
                     self.assertEqual(None, self.object.has_db_entries())
         # удаляем тестовую базу данных
-        remove_file(filename, 'Remove test database', 'Can not remove test database')
+        remove_file(special_config.db.sqlite_db, 'Remove test database', 'Can not remove test database')
 
     def test_get_db_id(self):
         with self.subTest(f'Testing correct login'):

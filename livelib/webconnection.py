@@ -16,9 +16,6 @@ class WebConnection:
     :param site: адрес сайта формата "http://www.livelib.ru",
         defaults to  'http://www.livelib.ru'
     :type site: str
-    :param bs_parser: тип парсера BeautifulSoup, который будет применяться к страницам,
-        defaults to 'lxml'
-    :type bs_parser: str
     :param encoding: кодировка сайта
         defaults to 'utf-8'
     :type encoding: str
@@ -52,7 +49,7 @@ class WebConnection:
         :rtype: bs4.BeautifulSoup
         """
         try:
-            result = bs4.BeautifulSoup(self.get_page_text(url), features=self.bs_parser)
+            result = bs4.BeautifulSoup(self.get_page_text(url), features='lxml')
         except Exception:
             logging.exception(f'Can not get BS object from {url}', exc_info=True)
             result = None
@@ -73,7 +70,7 @@ class WebConnection:
         :rtype: bs4.BeautifulSoup
         """
         try:
-            result = bs4.BeautifulSoup(self.get_page_text(url), features=self.bs_parser)
+            result = bs4.BeautifulSoup(self.get_page_text(url), features='lxml')
         except Exception:
             logging.exception(f'Can not get BS object from {url}', exc_info=True)
             return False
@@ -97,9 +94,6 @@ class SimpleWeb(WebConnection):
     :param site: адрес сайта формата "http://www.livelib.ru",
         defaults to  'http://www.livelib.ru'
     :type site: str
-    :param bs_parser: тип парсера BeautifulSoup, который будет применяться к страницам,
-        defaults to 'lxml'
-    :type bs_parser: str
     :param encoding: кодировка сайта
         defaults to 'utf-8'
     :type encoding: str
@@ -110,7 +104,6 @@ class SimpleWeb(WebConnection):
 
     def __init__(self, config: Config, random_sleep=False):
         self.site = config.web_connection.site
-        self.bs_parser = config.bs_parser.features
         self.encoding = config.encoding
         self.random_sleep = random_sleep
 
@@ -186,9 +179,6 @@ class WebWithCache(WebConnection):
     :param site: адрес сайта формата "http://www.livelib.ru",
         defaults to  'http://www.livelib.ru'
     :type site: str
-    :param bs_parser: тип парсера BeautifulSoup, который будет применяться к страницам,
-        defaults to 'lxml'
-    :type bs_parser: str
     :param encoding: кодировка сайта
         defaults to 'utf-8'
     :type encoding: str
@@ -212,7 +202,6 @@ class WebWithCache(WebConnection):
     def __init__(self, config: Config, random_sleep=False):
         self.config = config
         self.site = config.web_connection.site
-        self.bs_parser = config.bs_parser.features
         self.encoding = config.encoding
         self.folder = config.web_connection.cache_folder
         self.random_sleep = random_sleep
