@@ -96,7 +96,7 @@ class Reader:
             result = None
         return result
 
-    def get_db_id(self) -> bool:
+    def _get_db_id(self) -> bool:
         """
         Возвращает ID читателя из БД. Если такого читателя нет, возвращает None
         :return:
@@ -108,7 +108,7 @@ class Reader:
         else:
             return None
 
-    def insert_into_db(self) -> int:
+    def _insert_into_db(self) -> int:
         """
         Добавляет читателя в базу данных и возвращает его ID.
         Если читатель уже есть в БД, то возвращает старый ID, не добавляя снова.
@@ -116,7 +116,7 @@ class Reader:
         :rtype: int
         """
         # на всякий случай проверяем, нет ли пользователя с тем же логином
-        old_id = self.get_db_id()
+        old_id = self._get_db_id()
         if old_id == None:
             result = self.db_connection.run_single_sql("INSERT INTO Reader (login) VALUES (?)", (self.login,), return_lastrowid=True)
             logging.info(f'Adding new Reader to DB: {self.login} at id = {result}')
@@ -128,7 +128,7 @@ class Reader:
         """
         Регистрация читателя в базе данных и запоминание его id
         """
-        self.id = self.insert_into_db()
+        self.id = self._insert_into_db()
 
     def get_read_books_from_web(self) -> List or bool:
         """
@@ -151,10 +151,10 @@ class Reader:
                 books = []
                 print('page = ', i, ' из ', len(page_numbers))
                 try:
-                    books = self.get_read_books_from_page(i)
+                    books = self._get_read_books_from_page(i)
                     # print(books)
                     # сохраняем порцию книг в базе данных
-                    num = self.save_read_books_in_db(books)
+                    num = self._save_read_books_in_db(books)
                     print(f'Saving {num} books to DB')
                     logging.info(f'Saving {num} books to DB')
                 except Exception:
@@ -167,7 +167,7 @@ class Reader:
             logging.exception(f'The page with read books for reader {self.login} is not found! ', exc_info=True)
             return False
 
-    def get_read_books_from_page(self, url: str) -> List or bool:
+    def _get_read_books_from_page(self, url: str) -> List or bool:
         """
         Получает список книг с заданной страницы
         :param url: адрес страницы
@@ -184,15 +184,15 @@ class Reader:
             logging.warning(f'Page with books at {url} is not found or 404, or captcha.')
             return False
 
-    def save_read_books_in_db(self, books : list[dict]):
+    def _save_read_books_in_db(self, books : list[dict]) -> int or None:
         """
         Сохраняем книги в БД
-        :param books:
-        :type books:
-        :return:
-        :rtype:
+        :param books: список словарей с данными о книгах. Словари будут обработаны с помощью BookDataFormatter
+        :type books: list[dict]
+        :return: количество добавленных в БД строк, None, если ничего не было добавлено
+        :rtype: int or None
         """
-        prepared_books = self.parser_db.prepare_books_for_db(books)
+        # prepared_books = self.parser_db.prepare_books_for_db(books)
         # сохраняем книги в таблице Book
         book_properties = BookDataFormatter.book_properties_db
         # print('всего книг ',len(books))
@@ -283,7 +283,12 @@ class Reader:
         self.delete_read_books()
         self.get_read_books_from_web()
 
-    def create_export_xlsx_file(self):
+    def create_export_xlsx_file(self) -> str or None:
+        """
+        Создает файл  экспорта в xlsx и возвращает строку с путем до него или None, если экспорт нен удался.
+        :return:
+        :rtype: str or None
+        """
         books = self.get_read_books_from_db()
         # print(books[0])
         f = self.export.create_file(books = books, login = self.login)

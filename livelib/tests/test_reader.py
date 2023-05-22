@@ -76,20 +76,20 @@ class TestReader(CustomUnitTest):
     def test_get_db_id(self):
         with self.subTest(f'Testing correct login'):
             r = Reader('Reader36385266', self.web_connection, self.db_connection, self.export)
-            self.assertEqual(3, r.get_db_id())
+            self.assertEqual(3, r._get_db_id())
         with self.subTest(f'Testing incorrect login'):
             r = Reader('Petr111111', self.web_connection, self.db_connection, self.export)
-            self.assertEqual(None, r.get_db_id())
+            self.assertEqual(None, r._get_db_id())
 
     def test_insert_db_id(self):
         reader_name = 'Reader' + str(random.randint(100_000, 100_000_000))
         r = Reader(reader_name, self.web_connection, self.db_connection, self.export)
-        new_id = r.insert_into_db()
-        check_id = r.get_db_id()
+        new_id = r._insert_into_db()
+        check_id = r._get_db_id()
         with self.subTest('Testing adding new Reader '):
             self.assertEqual(new_id, check_id)
         with self.subTest('Testing adding existing Reader '):
-            self.assertEqual(new_id, r.insert_into_db())
+            self.assertEqual(new_id, r._insert_into_db())
 
     def test_fill_update_time(self):
         reader_name = 'Reader' + str(random.randint(100_000, 100_000_000))
@@ -119,7 +119,7 @@ class TestReader(CustomUnitTest):
         filename = get_correct_filename('sample_books.json', os.path.join(self.test_folder, 'delete_read_books'))
         with open(filename, mode='r', encoding='utf-8') as f:
             books = json.load(f)
-        saved_books_num = r.save_read_books_in_db(books)
+        saved_books_num = r._save_read_books_in_db(books)
         r.fill_update_time()
 
         # 3. Проверяем, что они добавились с помощью save_books_in_db
@@ -169,7 +169,7 @@ class TestReader(CustomUnitTest):
         filename = get_correct_filename('sample_books.json', os.path.join(self.test_folder, 'get_read_books_from_db'))
         with open(filename, mode='r', encoding='utf-8') as f:
             books = json.load(f)
-        self.object.save_read_books_in_db(books)
+        self.object._save_read_books_in_db(books)
         self.object.fill_update_time()
 
         # 4. Проверяем, что они добавились с помощью get_read_books_from_db
@@ -196,7 +196,7 @@ class TestReader(CustomUnitTest):
         # 3. Удаляем книги читателя
         self.object.delete_read_books()
 
-    def test_save_read_books_in_db(self):
+    def test__save_read_books_in_db(self):
         # 1. Создаем нового читателя
         reader_name = 'Reader' + str(random.randint(100_000, 100_000_000))
         self.object = Reader(reader_name, self.web_connection, self.db_connection, self.export)
@@ -206,7 +206,7 @@ class TestReader(CustomUnitTest):
         input_filename = get_correct_filename('sample_books.json', os.path.join(self.test_folder, 'save_read_books_in_db'))
         with open(input_filename, mode='r', encoding='utf-8') as f:
             books = json.load(f)
-        self.object.save_read_books_in_db(books)
+        self.object._save_read_books_in_db(books)
         self.object.fill_update_time()
 
         # 4. Проверяем, что они добавились с помощью sql запроса
@@ -243,7 +243,7 @@ class TestReader(CustomUnitTest):
             # Время обновления должно быть None, так как книг еще не загружали.
             self.assertEqual(None, reader_in_db[0]['update_time'])
 
-    def test_get_read_books_from_page(self):
+    def test__get_read_books_from_page(self):
         # 1. Создаем нового читателя
         # используем реального читателя с небольшим (60) количеством книг
         reader_name = 'Kasssiopei'
@@ -253,7 +253,7 @@ class TestReader(CustomUnitTest):
         special_config.web_connection.cache_folder = 'data/sample/test_reader/get_read_books_from_page/cache'
         self.object = Reader(reader_name, WebWithCache(special_config), self.db_connection, self.export)
         # 2. Проверяем работу метода
-        self.process_json_compare_to_json('get_read_books_from_page', 'get_read_books_from_page', 'output', 'input',
+        self.process_json_compare_to_json('_get_read_books_from_page', 'get_read_books_from_page', 'output', 'input',
                                           False)
 
     def test_create_export_file(self):

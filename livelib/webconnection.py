@@ -108,7 +108,6 @@ class SimpleWeb(WebConnection):
     :type random_sleep: bool
     """
 
-    # @todo нужно ли поменять на https? Проверить по юнит тестам.
     def __init__(self, config: Config, random_sleep=False):
         self.site = config.web_connection.site
         self.bs_parser = config.bs_parser.features
