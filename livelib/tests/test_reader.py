@@ -253,10 +253,6 @@ class TestReader(CustomUnitTest):
         special_config.web_connection.cache_folder = 'data/sample/test_reader/get_read_books_from_page/cache'
         self.object = Reader(reader_name, WebWithCache(special_config), self.db_connection, self.export)
         # 2. Проверяем работу метода
-        print(self.object.get_read_books_from_page("/reader/Kasssiopei/read/~0"))
-        with open(get_correct_filename('file.json',os.path.join(self.test_folder,'get_read_books_from_page')), mode='r') as f:
-            cases = json.load(f)
-            print(cases)
         self.process_json_compare_to_json('get_read_books_from_page', 'get_read_books_from_page', 'output', 'input',
                                           False)
 
