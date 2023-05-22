@@ -66,32 +66,32 @@ class CustomUnitTest(unittest.TestCase):
         :type convert_html_to_bs: bool
         """
         filename = get_correct_filename('file.json', os.path.join(self.test_folder, folder))
-        # with open(filename, mode='r', encoding=self.config.encoding) as f:
-        #     cases = json.load(f)
-        #     for i in cases:
-        #         output_info = str(i[json_output_name])
-        #         if len(output_info) > 500: output_info = output_info[:500]
-        #         with self.subTest(f'Test with {output_info} '):
-        #             input = self._str_to_bs(i[json_input_name]) if convert_html_to_bs else i[json_input_name]
-        #             if input:
-        #                 output = getattr(self.object, method)(input)
-        #             else:
-        #                 output = getattr(self.object, method)()
-        #             self.assertEqual(i[json_output_name], output)
-        # код для формирования проверочного файла
         with open(filename, mode='r', encoding=self.config.encoding) as f:
             cases = json.load(f)
-            correct_outputs = []
             for i in cases:
-                input = self._str_to_bs(i[json_input_name]) if convert_html_to_bs else i[json_input_name]
-                if input:
-                    output = getattr(self.object, method)(input)
-                else:
-                    output = getattr(self.object, method)()
-                print('input=', input, 'output:',output)
-                correct_outputs.append({json_input_name:i[json_input_name], json_output_name: output})
-        with open(filename, mode='w', encoding=self.config.encoding) as f:
-            json.dump(correct_outputs,f, indent=4, ensure_ascii=False)
+                output_info = str(i[json_output_name])
+                if len(output_info) > 500: output_info = output_info[:500]
+                with self.subTest(f'Test with {output_info} '):
+                    input = self._str_to_bs(i[json_input_name]) if convert_html_to_bs else i[json_input_name]
+                    if input:
+                        output = getattr(self.object, method)(input)
+                    else:
+                        output = getattr(self.object, method)()
+                    self.assertEqual(i[json_output_name], output)
+        # код для формирования проверочного файла
+        # with open(filename, mode='r', encoding=self.config.encoding) as f:
+        #     cases = json.load(f)
+        #     correct_outputs = []
+        #     for i in cases:
+        #         input = self._str_to_bs(i[json_input_name]) if convert_html_to_bs else i[json_input_name]
+        #         if input:
+        #             output = getattr(self.object, method)(input)
+        #         else:
+        #             output = getattr(self.object, method)()
+        #         print('input=', input, 'output:',output)
+        #         correct_outputs.append({json_input_name:i[json_input_name], json_output_name: output})
+        # with open(filename, mode='w', encoding=self.config.encoding) as f:
+        #     json.dump(correct_outputs,f, indent=4, ensure_ascii=False)
 
     def process_html_compare_to_json(self, method: str, folder: str, convert_html_to_bs: bool = True) -> None:
         """
