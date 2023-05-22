@@ -1,4 +1,4 @@
-name: special_test_reader(Unittesting)
+name: test_export(Unittesting)
 
 on: [push]
 
@@ -22,4 +22,4 @@ jobs:
           python -m pip install --upgrade pip
           pip install -r requirements.txt
       - name: Test class Connection with unittest
-        run: python -m unittest livelib/tests/test_reader.py -k test_get_read_books_from_web -v
+        run: python -m unittest livelib/tests/test_export.py
