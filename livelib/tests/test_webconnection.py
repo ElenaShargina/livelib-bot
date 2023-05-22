@@ -18,7 +18,7 @@ class TestSimpleWeb(unittest.TestCase):
     test_values = [
         ['http://www.example.com', True, 200],
         ['http://example4567.com', False, 0],
-        ['http://www.livelib.com', True, 200],
+        ['http://www.livelib.ru', True, 200],
         ['http://www.yandex.com', True, 200],
     ]
     config_file: str = '.env.webconnection'
@@ -73,10 +73,10 @@ class TestSimpleWeb(unittest.TestCase):
         test_values = [
             ['http://www.example.com', True],
             ['http://example4567.com', False],
-            ['http://www.livelib.com', True],
-            ['http://www.livelib.com/jsndjsdnljdncldn/', True],
+            ['http://www.livelib.ru', True],
+            ['http://www.livelib.ru/jsndjsdnljdncldn/', False],
             ['http://www.livelib.ru/reader/alkasnmklas', False],
-            ['http://www.livelib.com/reader/feana', True],
+            ['http://www.livelib.ru/reader/feana', True],
             ['http://www.google.com', True],
         ]
         con = SimpleWeb(Config(self.config_file))
@@ -87,7 +87,7 @@ class TestSimpleWeb(unittest.TestCase):
                     self.assertEqual(type(con.get_page_bs(i[0])), bs4.BeautifulSoup,
                                      msg=f'BeautifulSoup should be found! {i[0]}')
                 else:
-                    # сайт не существует либо страница на livelib выдает 404, либо выдает капчу
+                    # сайт не существует, либо страница на livelib выдает 404, либо выдает капчу
                     self.assertEqual(False, con.get_page_bs(i[0]))
 
 

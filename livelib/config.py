@@ -23,7 +23,7 @@ class WebConnectionConfig:
     """
     Класс для хранения конфигурации веб-соединений.
     """
-    site: str         # Адрес сайта по умолчанию формата http://www.livelib.ru
+    site: str         # Адрес сайта по умолчанию (формата http://www.livelib.ru )
     cache_folder: str # папка для хранения кешированных страниц
 
 @dataclass
@@ -56,6 +56,9 @@ class ExportConfig:
 
 @dataclass
 class Config:
+    """
+    Класс для хранения конфигураций, необходимых для работы пакета.
+    """
     web_connection: WebConnectionConfig
     bs_parser: BSParserConfig
     encoding: str

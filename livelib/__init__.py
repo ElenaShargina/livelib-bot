@@ -2,14 +2,14 @@ from .parser import Parser, ParserFromHTML, ParserForDB, ParserForCSV, BookDataF
 from .webconnection import WebConnection, SimpleWeb, WebWithCache
 from .reader import Reader
 from .dbconnection import DBConnection,SQLite3Connection
-from .export import Export, CSVExport, XLSXExport
+from .export import Export, XLSXExport
 from .config import Config
 import logging
 
 logging.basicConfig(filename='log.log', level=logging.DEBUG, filemode='a', format="%(asctime)s %(levelname)s %(message)s")
 
 """
-Модуль livelib для парсинга данных с сайта livelib.ru.
+Пакет livelib для парсинга данных с сайта livelib.ru.
 
 В версии 1.0 :
  - забирает прочитанные указанным читателем книги 

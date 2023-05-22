@@ -213,14 +213,14 @@ class TestReader(CustomUnitTest):
         saved_books = self.db_connection.run_single_sql(
             "SELECT * FROM Book WHERE id in (SELECT book_id FROM ReadBook WHERE reader_id=?)", (self.object.id,))
         output_filename = get_correct_filename('file.json', os.path.join(self.test_folder, 'save_read_books_in_db'))
-        # with self.subTest("Testing save_read_books_in_db method"):
-        #     with open(output_filename, mode='r', encoding=self.config.encoding) as f:
-        #         correct_output = json.load(f)
-        #         self.assertEqual(saved_books,correct_output)
+        with self.subTest("Testing save_read_books_in_db method"):
+            with open(output_filename, mode='r', encoding=self.config.encoding) as f:
+                correct_output = json.load(f)
+                self.assertEqual(saved_books,correct_output)
 
         # код для обновления файла с правильным ответом
-        with open(output_filename, mode='w', encoding=self.config.encoding) as f:
-            json.dump(saved_books,f,indent=4,ensure_ascii=False)
+        # with open(output_filename, mode='w', encoding=self.config.encoding) as f:
+        #     json.dump(saved_books,f,indent=4,ensure_ascii=False)
 
         # 5. Удаляем книги читателя
         self.object.delete_read_books()
