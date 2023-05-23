@@ -255,6 +255,8 @@ class TestReader(CustomUnitTest):
         special_config.web_connection.cache_folder = 'data/sample/test_reader/get_read_books_from_page/cache'
         self.object = Reader(reader_name, WebWithCache(special_config), self.db_connection, self.export)
         # 2. Проверяем работу метода
+        books = self.object._get_read_books_from_page("/reader/Kasssiopei/read/~0")
+        print([i['author_name'] for i in books])
         self.process_json_compare_to_json('_get_read_books_from_page', 'get_read_books_from_page', 'output', 'input',
                                           False)
 

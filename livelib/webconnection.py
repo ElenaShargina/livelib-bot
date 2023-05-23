@@ -51,7 +51,7 @@ class WebConnection:
         try:
             result = bs4.BeautifulSoup(self.get_page_text(url), features='lxml')
         except Exception:
-            logging.exception(f'Can not get BS object from {url}', exc_info=True)
+            self.logger.exception(f'Can not get BS object from {url}', exc_info=True)
             result = None
         else:
             return result
@@ -72,15 +72,15 @@ class WebConnection:
         try:
             result = bs4.BeautifulSoup(self.get_page_text(url), features='lxml')
         except Exception:
-            logging.exception(f'Can not get BS object from {url}', exc_info=True)
+            self.logger.exception(f'Can not get BS object from {url}', exc_info=True)
             return False
         else:
             # проверяем на 404
             if parser.check_404(result):
-                logging.warning(f'Page at {url} is 404!')
+                self.logger.warning(f'Page at {url} is 404!')
                 return False
             elif parser.check_captcha(result):
-                logging.warning(f'Page at {url} is captcha!')
+                self.logger.warning(f'Page at {url} is captcha!')
                 return False
             else:
                 return result
@@ -106,6 +106,7 @@ class SimpleWeb(WebConnection):
         self.site = config.web_connection.site
         self.encoding = config.encoding
         self.random_sleep = random_sleep
+        self.logger = logging.getLogger()
 
     def do_random_sleep(self):
         time_to_sleep = random.randint(90, 120)
@@ -120,14 +121,14 @@ class SimpleWeb(WebConnection):
         :rtype: requests.Response
         :return: объект Response по запросу на заданный адрес
         """
-        logging.debug(f'Making request to {url}')
+        self.logger.debug(f'Making request to {url}')
         if self.random_sleep:
-            logging.debug('Random sleep.')
+            self.logger.debug('Random sleep.')
             self.do_random_sleep()
         # если начало url - не ссылка на сайт, то добавляем
         if url[0] == '/':
             url = self.site + url
-            logging.debug(f'Add site prefix to url')
+            self.logger.debug(f'Add site prefix to url')
         try:
             headers = requests.utils.default_headers()
             headers.update(
@@ -139,7 +140,7 @@ class SimpleWeb(WebConnection):
             result.encoding = self.encoding
             return result
         except Exception:
-            logging.exception(f'Can not open this page!', exc_info=True)
+            self.logger.exception(f'Can not open this page!', exc_info=True)
             raise
 
     def get_page_status(self, url: str) -> int:
@@ -166,7 +167,7 @@ class SimpleWeb(WebConnection):
         try:
             page = self._get_page(url)
         except Exception:
-            logging.exception(f'Can not get text from page! {url}', exc_info=True)
+            self.logger.exception(f'Can not get text from page! {url}', exc_info=True)
             raise
         else:
             return page.text
@@ -205,6 +206,7 @@ class WebWithCache(WebConnection):
         self.encoding = config.encoding
         self.folder = config.web_connection.cache_folder
         self.random_sleep = random_sleep
+        self.logger = logging.getLogger()
 
     def _parse_url_in_filepath_and_filename(self, url: str) -> list[str, str]:
         """
@@ -259,26 +261,26 @@ class WebWithCache(WebConnection):
             path_dir = ''
             for i in range(len(dirs)):
                 path_dir = '/'.join(dirs[:i + 1])
-                logging.debug(f'Dir {path_dir} is found? {os.path.isdir(path_dir)}')
+                self.logger.debug(f'Dir {path_dir} is found? {os.path.isdir(path_dir)}')
                 if not os.path.isdir(path_dir):
-                    logging.debug(f'Create dir {path_dir}')
+                    self.logger.debug(f'Create dir {path_dir}')
                     os.mkdir(path_dir)
             # создаем файл
             try:
                 my_file = open(path + file_name, mode='x', encoding=self.encoding)
                 my_file.write(text)
-                logging.debug(f'Create file {my_file} ')
+                self.logger.debug(f'Create file {my_file} ')
                 my_file.close()
             except Exception:
-                logging.exception(f'Can not open file for offline connection at {path}{file_name} .', exc_info=True)
+                self.logger.exception(f'Can not open file for offline connection at {path}{file_name} .', exc_info=True)
                 return False
         # открываем вновь созданный или имеющийся файл
         try:
-            logging.debug(f'Already have {path + file_name}')
+            self.logger.debug(f'Already have {path + file_name}')
             f = open(path + file_name, mode='r', encoding=self.encoding)
             return f
         except Exception:
-            logging.exception(f'Can not open file for offline connection at {path}{file_name} .', exc_info=True)
+            self.logger.exception(f'Can not open file for offline connection at {path}{file_name} .', exc_info=True)
             return False
 
     def _get_page(self, url: str) -> str:
@@ -292,15 +294,15 @@ class WebWithCache(WebConnection):
         path, file_name = self._parse_url_in_filepath_and_filename(url)
         # если страница уже есть в кеше, то возвращаем текст из файла
         if os.path.isfile(path + file_name):
-            # print(f'Page {url} is in dump.')
-            logging.debug(f'Page {url} is in dump.')
+            print(f'Page {url} is in dump at {path} {file_name}.')
+            self.logger.debug(f'Page {url} is in dump.')
             try:
                 f = open(path + file_name, mode='r', encoding=self.encoding)
                 result = f.read()
                 f.close()
                 return result
             except Exception as exc:
-                logging.exception(f'Can not load file {path}{file_name} ', exc_info=True)
+                self.logger.exception(f'Can not load file {path}{file_name} ', exc_info=True)
                 raise
         # если нет, вызываем ее через simpleweb и сохраняем в кеше
         else:
@@ -313,7 +315,7 @@ class WebWithCache(WebConnection):
                 f.close()
                 return result
             else:
-                logging.exception(f'Can not get page at {url}', exc_info=True)
+                self.logger.exception(f'Can not get page at {url}', exc_info=True)
                 raise
 
     def get_page_status(self, url: str) -> int:
