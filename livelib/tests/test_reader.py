@@ -192,7 +192,7 @@ class TestReader(CustomUnitTest):
         # Формируем особый конфиг, чтобы кеш страниц брался из подготовленных данных.
         # Если страница реального читателя поменяется, то сравнение в тесте будет все равно идти с сохраненной старой версией.
         special_config = self.config
-        special_config.web_connection.cache_folder = 'data/sample/test_reader/get_read_books_from_web/cache'
+        special_config.web_connection.cache_folder = get_correct_filename('', 'data/sample/test_reader/get_read_books_from_web/cache')
         self.object = Reader(reader_name, WebWithCache(special_config), self.db_connection, self.export)
         # 2. Проверяем работу метода
         self.process_json_compare_to_json('get_read_books_from_web', 'get_read_books_from_web', 'output', 'input',
