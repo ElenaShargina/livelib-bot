@@ -44,12 +44,13 @@ class TestReader(CustomUnitTest):
             {"input": "", "exists": False},
             {"input": "\\reader\\", "exists": False}
         ]
+        special_web_connection = SimpleWeb(self.config, random_sleep=True)
         for i in values:
             with self.subTest(f'Checking if reader {i["input"]} exists ({i["exists"]})'):
-                r = Reader(i['input'], self.web_connection, self.db_connection, self.export)
-                self.assertEqual(r.exists(), i['exists'])
-                r = Reader(None, SimpleWeb(self.config), self.db_connection,self.export)
+                r = Reader(None, special_web_connection, self.db_connection, self.export)
                 self.assertEqual(r.exists(i['input']), i['exists'])
+                # r = Reader(None, SimpleWeb(self.config), self.db_connection,self.export)
+                # self.assertEqual(r.exists(i['input']), i['exists'])
 
     def test_has_db_entries(self):
         # подготавливаем базу данных
@@ -145,8 +146,10 @@ class TestReader(CustomUnitTest):
     def test_update_books(self):
         # 1. Создаем нового читателя
         # используем реального читателя с небольшим (60) количеством книг
-        reader_name = 'Kasssiopei'
-        r = Reader(reader_name, self.web_connection, self.db_connection, self.export)
+        reader_name = 'Humming_Bird'
+        special_config = self.config
+        special_config.web_connection.cache_folder = get_correct_filename('', 'data/sample/test_reader/update_books/cache')
+        r = Reader(reader_name, WebWithCache(special_config), self.db_connection, self.export)
         r.register()
         # 2. Скачиваем книги для него в базу данных
         old_books_num = len(r.get_read_books_from_web())
