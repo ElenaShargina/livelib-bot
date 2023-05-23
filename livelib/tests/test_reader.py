@@ -245,7 +245,7 @@ class TestReader(CustomUnitTest):
             # Время обновления должно быть None, так как книг еще не загружали.
             self.assertEqual(None, reader_in_db[0]['update_time'])
 
-    def test__get_read_books_from_page(self):
+    def test_get_read_books_from_page(self):
         # 1. Создаем нового читателя
         # используем реального читателя с небольшим (60) количеством книг
         reader_name = 'Kasssiopei'
