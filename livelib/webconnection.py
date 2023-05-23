@@ -294,8 +294,7 @@ class WebWithCache(WebConnection):
         path, file_name = self._parse_url_in_filepath_and_filename(url)
         # если страница уже есть в кеше, то возвращаем текст из файла
         if os.path.isfile(path + file_name):
-            print(f'!!!!!Page {url} is in dump at {path} {file_name}.')
-            self.logger.debug(f'Page {url} is in dump.')
+            self.logger.debug(f'Page {url} is in dump at {path} {file_name}.')
             try:
                 f = open(path + file_name, mode='r', encoding=self.encoding)
                 result = f.read()
@@ -306,7 +305,7 @@ class WebWithCache(WebConnection):
                 raise
         # если нет, вызываем ее через simpleweb и сохраняем в кеше
         else:
-            print(f'!!!!!Can not find page {url} atin dump at {path} {file_name}. ')
+            self.logger.info(f'Can not find page {url} in dump at {path} {file_name}. ')
             web = SimpleWeb(config=self.config,
                             random_sleep=self.random_sleep)
             web_text = web.get_page_text(url)

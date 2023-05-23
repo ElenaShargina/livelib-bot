@@ -41,7 +41,7 @@ class TestParserfromHTML(TestParser):
             cases = json.load(f)
             for i in cases:
                 with self.subTest(f'Test with {i["html"]}'):
-                    text = bs(self.web_connection.get_page_text(self.parser.reader_read_books_page(i["html"])))
+                    text = bs(self.web_connection.get_page_text(self.parser.reader_read_books_page(i["html"])), 'lxml')
                     self.assertEqual(i["404_status"], self.parser.check_404(text))
 
     def test_check_captcha(self):

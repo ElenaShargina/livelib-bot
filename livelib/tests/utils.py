@@ -14,8 +14,11 @@ def get_correct_filename(filename: str, folder: str, ) -> str:
     """
     parent_dir = os.path.dirname(os.path.abspath(__file__))
     prefix_folder = os.path.join(parent_dir, *folder.split('/'))
-    return os.path.join(prefix_folder, filename)
-
+    prefix_folder = prefix_folder.replace('\\', '/')
+    if filename != '':
+        return os.path.join(prefix_folder, filename)
+    else:
+        return prefix_folder
 
 def remove_file(filename: str, log_msg='Remove test file ', error_msg='Can not remove test file '):
     try:

@@ -26,6 +26,7 @@ class TestXLSXExport(CustomUnitTest):
         cls.config = Config(get_correct_filename(cls.config_file, ''))
         logging.basicConfig(filename='log.log', level=logging.DEBUG, filemode='a',
                             format="%(asctime)s %(levelname)s %(message)s")
+        cls.config.web_connection.cache_folder = get_correct_filename(cls.config.web_connection.cache_folder)
         cls.web_connection = WebWithCache(cls.config, random_sleep=False)
         cls.config.db.sqlite_db = get_correct_filename(cls.config.db.sqlite_db, "")
         cls.db_connection = SQLite3Connection(cls.config, create_if_not_exist=False)

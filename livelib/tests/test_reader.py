@@ -27,7 +27,7 @@ class TestReader(CustomUnitTest):
     def setUpClass(cls) -> None:
         cls.config = Config(get_correct_filename(cls.config_file, ''))
         cls.config.web_connection.cache_folder = get_correct_filename('',cls.config.web_connection.cache_folder)
-        print('NEW CACHE '+cls.config.web_connection.cache_folder)
+        # print('NEW CACHE '+cls.config.web_connection.cache_folder)
         cls.web_connection = WebWithCache(cls.config, random_sleep=False)
         cls.config.db.sqlite_db = get_correct_filename(cls.config.db.sqlite_db, "")
         cls.db_connection = SQLite3Connection(cls.config)
@@ -146,20 +146,24 @@ class TestReader(CustomUnitTest):
     def test_update_books(self):
         # 1. Создаем нового читателя
         # используем реального читателя с небольшим (60) количеством книг
-        reader_name = 'Humming_Bird'
-        special_config = self.config
+        reader_name = 'Ilaritagli'
+        special_config = copy.deepcopy(self.config)
         special_config.web_connection.cache_folder = get_correct_filename('', 'data/sample/test_reader/update_books/cache')
-        r = Reader(reader_name, WebWithCache(special_config), self.db_connection, self.export)
+        r = Reader(reader_name, WebWithCache(special_config, random_sleep=True), self.db_connection, self.export)
+        print(self.db_connection.filename)
         r.register()
         # 2. Скачиваем книги для него в базу данных
-        old_books_num = len(r.get_read_books_from_web())
+        old_books = r.get_read_books_from_web()
+        old_books_num = len(old_books)
         old_update_time = r.get_update_time()
         with self.subTest(f'Checking getting books from web for {reader_name}'):
             self.assertGreater(old_books_num, 0)
         # 3. Обновляем его книги
+        print('update books')
         r.update_books()
         # 4. Проверяем, что книги в базе данных есть.
-        new_books_num = len(r.get_read_books_from_db())
+        new_books = r.get_read_books_from_db()
+        new_books_num = len(new_books)
         with self.subTest(f'Checking books after update for {reader_name}'):
             self.assertEqual(old_books_num, new_books_num)
         # 5. Проверяем, что время обновления в профиле читателя поменялось
@@ -194,7 +198,7 @@ class TestReader(CustomUnitTest):
         reader_name = 'Humming_Bird'
         # Формируем особый конфиг, чтобы кеш страниц брался из подготовленных данных.
         # Если страница реального читателя поменяется, то сравнение в тесте будет все равно идти с сохраненной старой версией.
-        special_config = self.config
+        special_config = copy.deepcopy(self.config)
         special_config.web_connection.cache_folder = get_correct_filename('', 'data/sample/test_reader/get_read_books_from_web/cache')
         self.object = Reader(reader_name, WebWithCache(special_config), self.db_connection, self.export)
         # 2. Проверяем работу метода
@@ -256,12 +260,11 @@ class TestReader(CustomUnitTest):
         reader_name = 'Kasssiopei'
         # Формируем особый конфиг, чтобы кеш страниц брался из подготовленных данных.
         # Если страница реального читателя поменяется, то сравнение в тесте все равно идти с сохраненной старой версией.
-        special_config = self.config
+        special_config = copy.deepcopy(self.config)
         special_config.web_connection.cache_folder = get_correct_filename('','data/sample/test_reader/get_read_books_from_page/cache')
         self.object = Reader(reader_name, WebWithCache(special_config), self.db_connection, self.export)
         # 2. Проверяем работу метода
         books = self.object._get_read_books_from_page("/reader/Kasssiopei/read/~0")
-        print([i['author_name'] for i in books])
         self.process_json_compare_to_json('_get_read_books_from_page', 'get_read_books_from_page', 'output', 'input',
                                           False)
 
