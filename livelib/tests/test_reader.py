@@ -26,6 +26,8 @@ class TestReader(CustomUnitTest):
     @classmethod
     def setUpClass(cls) -> None:
         cls.config = Config(get_correct_filename(cls.config_file, ''))
+        cls.config.web_connection.cache_folder = get_correct_filename('',cls.config.web_connection.cache_folder)
+        print('NEW CACHE '+cls.config.web_connection.cache_folder)
         cls.web_connection = WebWithCache(cls.config, random_sleep=False)
         cls.config.db.sqlite_db = get_correct_filename(cls.config.db.sqlite_db, "")
         cls.db_connection = SQLite3Connection(cls.config)
@@ -252,7 +254,7 @@ class TestReader(CustomUnitTest):
         # Формируем особый конфиг, чтобы кеш страниц брался из подготовленных данных.
         # Если страница реального читателя поменяется, то сравнение в тесте все равно идти с сохраненной старой версией.
         special_config = self.config
-        special_config.web_connection.cache_folder = 'data/sample/test_reader/get_read_books_from_page/cache'
+        special_config.web_connection.cache_folder = get_correct_filename('','data/sample/test_reader/get_read_books_from_page/cache')
         self.object = Reader(reader_name, WebWithCache(special_config), self.db_connection, self.export)
         # 2. Проверяем работу метода
         books = self.object._get_read_books_from_page("/reader/Kasssiopei/read/~0")
