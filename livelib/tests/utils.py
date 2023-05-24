@@ -39,7 +39,7 @@ def create_logger_for_tests(filename: str) -> None:
     :param filename: название файла формата test_smth.log
     :type filename: str
     """
-    log_filename = get_correct_filename(filename, 'livelib/test/logs')
+    log_filename = get_correct_filename(filename, 'logs')
     print('log_filename = ', log_filename)
     try:
         f = open(log_filename, mode='w+')
