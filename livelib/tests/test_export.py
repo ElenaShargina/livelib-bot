@@ -24,8 +24,9 @@ class TestXLSXExport(CustomUnitTest):
     @classmethod
     def setUpClass(cls) -> None:
         cls.config = Config(get_correct_filename(cls.config_file, ''))
-        logging.basicConfig(filename='log.log', level=logging.DEBUG, filemode='a',
+        logging.basicConfig(filename=get_correct_filename('log.log',''), level=logging.DEBUG, filemode='a',
                             format="%(asctime)s %(levelname)s %(message)s")
+        logging.debug('hello')
         cls.config.web_connection.cache_folder = get_correct_filename('',cls.config.web_connection.cache_folder)
         cls.web_connection = WebWithCache(cls.config, random_sleep=False)
         cls.config.db.sqlite_db = get_correct_filename(cls.config.db.sqlite_db, "")
@@ -60,7 +61,7 @@ class TestXLSXExport(CustomUnitTest):
 
             # 2. Формируем экспортный файл
             output_filename = my_reader.create_export_xlsx_file()
-            print(output_filename)
+            # print(output_filename)
 
             # 3. Сравниваем с образцом
             # загружаем полученный ранее вариант
@@ -71,7 +72,7 @@ class TestXLSXExport(CustomUnitTest):
 
             # загружаем образец
             correct_output_filename = os.path.join(self.test_folder,reader_name+'-correct_output.xlsx')
-            print(correct_output_filename)
+            # print(correct_output_filename)
             correct_output = openpyxl.reader.excel.load_workbook(correct_output_filename, read_only = True)
             # correct_output = openpyxl.reader.excel.load_workbook(output_filename, read_only=True)
             wb = correct_output.active
