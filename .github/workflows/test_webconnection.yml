@@ -23,16 +23,6 @@ jobs:
           pip install -r requirements.txt
       - name: Test class WebConnection with unittest
         run: python -m unittest livelib/tests/test_webconnection.py
-      - name: Archive log file 2
-        uses: actions/upload-artifact@v3
-        with:
-          name: log2_for_test_web_connection
-          path: livelib/log.log  
-      - name: Archive log file
-        uses: actions/upload-artifact@v3
-        with:
-          name: log_for_test_web_connection
-          path: livelib/tests/log.log
       - name: Upload artifact .log
         uses: actions/upload-artifact@v3
         with:

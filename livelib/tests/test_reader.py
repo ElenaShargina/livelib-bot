@@ -151,7 +151,6 @@ class TestReader(CustomUnitTest):
         special_config = copy.deepcopy(self.config)
         special_config.web_connection.cache_folder = get_correct_filename('', 'data/sample/test_reader/update_books/cache')
         r = Reader(reader_name, WebWithCache(special_config, random_sleep=True), self.db_connection, self.export)
-        print(self.db_connection.filename)
         r.register()
         # 2. Скачиваем книги для него в базу данных
         old_books = r.get_read_books_from_web()

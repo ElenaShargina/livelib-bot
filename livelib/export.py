@@ -48,7 +48,7 @@ class XLSXExport(Export):
             logging.exception('При экспорте не был указан логин читателя!')
         timestamp = datetime.datetime.now().strftime('%Y-%m-%d--%H-%M')
         filename = timestamp + '-' + reader_name + '.xlsx'
-        return os.path.join(self.folder, filename)
+        return os.path.join(self.folder, filename).replace('\\', '/')
 
     def create_file(self, books: list, login: str, parser_xlsx: ParserForXLSX) -> str or None:
         """

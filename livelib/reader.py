@@ -152,13 +152,17 @@ class Reader:
                 pages.append(self.parser_html.reader_read_books_page_by_number(self.login, i))
             for i in pages:
                 books = []
-                print('page = ', i, ' из ', len(page_numbers))
+                if re.search(r'\d+$', i):
+                    page_number = re.search(r'\d+$', i).group()
+                else:
+                    page_number = 1
+                print('Скачиваем книги со страницы ', page_number, ' из ', len(page_numbers))
                 try:
                     books = self._get_read_books_from_page(i)
                     # print(books)
                     # сохраняем порцию книг в базе данных
                     num = self._save_read_books_in_db(books)
-                    print(f'Saving {num} books to DB')
+                    # print(f'Saving {num} books to DB')
                     logging.info(f'Saving {num} books to DB')
                 except Exception:
                     logging.exception(f'Error while getting and saving portion of books for reader {self.login}  at page {i}  .', exc_info=True)
@@ -234,18 +238,18 @@ class Reader:
     def fill_update_time(self) -> str:
         """
         Помечает в БД, что данные читателя обновлены сейчас.
-        Возвращает строковое представление вставленного времени формата '2023-05-13 10:14:10.121082'
+        Возвращает строковое представление вставленного времени формата '2023-05-13 10:14:10'
         :return:
         :rtype: str
         """
-        new_time = datetime.datetime.now()
+        new_time = datetime.datetime.now().strftime('%Y-%m-%d  %H:%M:%S')
         self.db_connection.run_single_sql("UPDATE Reader SET update_time=? WHERE login=?", (new_time, self.login,))
         logging.info(f'Filling update_time of Reader {self.login} to {new_time}')
         return str(new_time)
 
     def get_update_time(self) -> str or None:
         """
-        Возвращает дату последнего обновления данных читателя в строковом формате '2023-05-13 10:14:10.121082' или None,
+        Возвращает дату последнего обновления данных читателя в строковом формате '2023-05-13 10:14:10' или None,
         если данные еще не вносились/обновлялись.
         :return:
         :rtype:

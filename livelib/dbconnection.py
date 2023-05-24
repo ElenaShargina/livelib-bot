@@ -122,6 +122,7 @@ class SQLite3Connection(DBConnection):
         if not os.path.isfile(self.filename) and create_if_not_exist:
             try:
                 f = open(self.filename, mode='w')
+                self.create_db(BookDataFormatter)
                 f.close()
                 logging.info(f'Create DB file {self.filename}')
             except Exception as exc:
