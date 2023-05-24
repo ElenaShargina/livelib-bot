@@ -25,7 +25,7 @@ class TestReader(CustomUnitTest):
 
     @classmethod
     def setUpClass(cls) -> None:
-        create_logger_for_tests(__name__+'.log')
+        create_logger_for_tests('test_reader.log')
         cls.config = Config(get_correct_filename(cls.config_file, ''))
         cls.config.web_connection.cache_folder = get_correct_filename('',cls.config.web_connection.cache_folder)
         # print('NEW CACHE '+cls.config.web_connection.cache_folder)

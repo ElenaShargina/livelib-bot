@@ -26,7 +26,7 @@ class TestSimpleWeb(unittest.TestCase):
 
     @classmethod
     def setUpClass(cls) -> None:
-        create_logger_for_tests(__name__+'.log')
+        create_logger_for_tests('test_webconnection.log')
         cls.config_file = get_correct_filename(filename=cls.config_file, folder='')
 
     def test_get_page_status(self):
