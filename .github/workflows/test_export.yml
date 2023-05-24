@@ -25,6 +25,7 @@ jobs:
         run: python -m unittest livelib/tests/test_export.py
       - name: Upload artifact .log
         uses: actions/upload-artifact@v3
+        if: always()
         with:
           name: test_export.log
           path: livelib/tests/logs/test_export.log
