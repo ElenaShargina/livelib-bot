@@ -82,6 +82,6 @@ class TestXLSXExport(CustomUnitTest):
 
             # 5. Удаляем данные
             # удаляем книги читателя из БД
-            # my_reader.delete_read_books()
+            my_reader.delete_read_books()
             # удаляем файл экспорта
             remove_file(output_filename)

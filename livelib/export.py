@@ -92,9 +92,9 @@ class XLSXExport(Export):
             for link_property in ('author_id', 'book_id', 'work_id', 'picture_url', 'review_id'):
                 ws.cell(ws.max_row, properties[link_property]['order']).hyperlink = prepared_book[link_property]
                 ws.cell(ws.max_row, properties[link_property]['order']).style = 'Hyperlink'
-            # если есть рецензия, то увеличиваем высоту ячейки и делаем вертикальное выравнивание
+            # если есть рецензия, то делаем вертикальное выравнивание
             if prepared_book['review_text']:
-                ws.row_dimensions[ws.max_row].height = 100
+                # ws.row_dimensions[ws.max_row].height = 100
                 for i in range(1, 1 + len(properties)):
                     ws.cell(ws.max_row, i).alignment = Alignment(vertical='center')
                 ws.cell(ws.max_row, properties['review_text']['order']).alignment = Alignment(wrapText=True,
