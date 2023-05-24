@@ -9,7 +9,7 @@ import bs4
 from bs4 import BeautifulSoup as bs
 import logging
 
-from utils import get_correct_filename, CustomUnitTest
+from utils import get_correct_filename, CustomUnitTest, create_logger_for_tests
 from livelib import Parser, ParserFromHTML, WebWithCache, Config
 
 class TestParser(CustomUnitTest):
@@ -25,6 +25,7 @@ class TestParserfromHTML(TestParser):
 
     @classmethod
     def setUpClass(cls) -> None:
+        create_logger_for_tests(__name__+'.log')
         cls.config = Config(get_correct_filename(cls.config_file, ''))
         cls.web_connection = WebWithCache(cls.config)
         logging.basicConfig(filename='log.log', level=logging.DEBUG, filemode='a',
