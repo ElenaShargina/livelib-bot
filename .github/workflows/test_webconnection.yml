@@ -26,6 +26,11 @@ jobs:
       - name: Archive log file
         uses: actions/upload-artifact@v3
         with:
-          name: log file of test_wev_connection
+          name: log_for_test_web_connection
           path: livelib/tests/log.log
+      - name: Archive log file 2
+        uses: actions/upload-artifact@v3
+        with:
+          name: log2_for_test_web_connection
+          path: livelib/log.log
 
