@@ -31,13 +31,14 @@ class TestXLSXExport(CustomUnitTest):
         cls.config.db.sqlite_db = get_correct_filename(cls.config.db.sqlite_db, "")
         cls.db_connection = SQLite3Connection(cls.config, create_if_not_exist=False)
         cls.parser = ParserFromHTML
+        cls.config.export.xlsx.folder = get_correct_filename('',cls.config.export.xlsx.folder)
         cls.export = XLSXExport(cls.config)
 
     def test__create_filename(self):
         timestamp = datetime.datetime.now().strftime('%Y-%m-%d--%H-%M')
-        values = [{'reader_name': 'some_reader', 'folder': 'xlsx', 'output': f"xlsx\\{timestamp}-some_reader.xlsx"},
-                  {'reader_name': 'Foo', 'folder': 'xlsx\somefolder',
-                   'output': f"xlsx\\somefolder\\{timestamp}-Foo.xlsx"},
+        values = [{'reader_name': 'some_reader', 'folder': 'xlsx', 'output': f"xlsx/{timestamp}-some_reader.xlsx"},
+                  {'reader_name': 'Foo', 'folder': 'xlsx/somefolder',
+                   'output': f"xlsx/somefolder/{timestamp}-Foo.xlsx"},
                   {'reader_name': 'some_reader', 'folder': '', 'output': f"{timestamp}-some_reader.xlsx"}]
         for i in values:
             special_config = Config(get_correct_filename(self.config_file, ''))
