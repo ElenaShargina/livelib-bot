@@ -8,7 +8,7 @@ db = SQLite3Connection(config, create_if_not_exist=True)
 # db.create_db(BookDataFormatter)
 # Создаем связь с сетью. Сайт ЛЛ очень медленный и там стоит защита от частых запросов,
 # поэтому нужно задавать параметр случайных задержек random_sleep как True
-web = WebWithCache(config,random_sleep=True)
+web = WebWithCache(config,random_sleep=False)
 # Создаем экспортера в xlsx.
 xlsx_export = XLSXExport(config)
 
