@@ -25,13 +25,11 @@ jobs:
         run: python -m unittest livelib/tests/test_webconnection.py
       - name: Archive log file 2
         uses: actions/upload-artifact@v3
-        if: failure()
         with:
           name: log2_for_test_web_connection
           path: livelib/log.log  
       - name: Archive log file
         uses: actions/upload-artifact@v3
-        if: failure()
         with:
           name: log_for_test_web_connection
           path: livelib/tests/log.log

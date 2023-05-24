@@ -23,3 +23,10 @@ jobs:
           pip install -r requirements.txt
       - name: Test class XLSXExport with unittest
         run: python -m unittest livelib/tests/test_export.py
+      - name: Display structure of files
+        run: ls -R
+        working-directory: livelib/tests/
+        
+      - name: Display structure of files 2
+        run: ls -R
+        working-directory: livelib
