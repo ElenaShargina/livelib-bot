@@ -149,24 +149,6 @@ class TestWebWithCache(unittest.TestCase):
                 self.assertEqual(True, os.path.isfile(i[1][0] + i[1][1]))
                 new_file.close()
 
-    def _test_get_page_text(self):
-        # тестовые данные вида [подпапка, сайт, адрес_страницы, ожидается_ли_ответ]
-        # подпапки нужны так как в тестовых данных встречаются разные сайты и их нужно разделить
-        # в самой программе при штатной работе будет только один сайт
-        for i in self.values_text:
-            with self.subTest(msg=f'Okey with {i[2]}'):
-                config = Config(self.config_file)
-                config.web_connection.site = i[1]
-                config.web_connection.cache_folder = config.web_connection.cache_folder + '/' + i[0]
-                con = WebWithCache(config)
-                if i[3]:
-                    # сайт существует
-                    self.assertGreater(len(con.get_page_text(i[2])), 0, msg=f'Text should be found! {i[2]}')
-                else:
-                    # сайт не существует
-                    with self.assertRaises(Exception):
-                        con.get_page_text(i[2])
-
     def _test__get_page_bs(self):
         # тестовые данные вида [подпапка, сайт, адрес_страницы, ожидается_ли_ответ]
         # подпапки нужны так как в тестовых данных встречаются разные сайты и их нужно разделить
