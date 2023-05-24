@@ -24,7 +24,7 @@ class TestDBConnection(CustomUnitTest):
 
     @classmethod
     def setUpClass(cls) -> None:
-        create_logger_for_tests(__name__+'.log')
+        create_logger_for_tests('test_dbconnection.log')
         cls.config = Config(get_correct_filename(cls.config_file, ''))
         cls.web_connection = WebWithCache(cls.config)
         logging.basicConfig(filename='log.log', level=logging.DEBUG, filemode='a',
