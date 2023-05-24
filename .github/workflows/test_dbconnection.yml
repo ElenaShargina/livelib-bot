@@ -23,3 +23,9 @@ jobs:
           pip install -r requirements.txt     
       - name: Test class DBConnection with unittest
         run: python -m unittest livelib/tests/test_dbconnection.py
+      - name: Upload artifact .log
+        uses: actions/upload-artifact@v3
+        with:
+          name: test_dbconnection.log
+          path: livelib/tests/logs/test_dbconnection.log
+          retention-days: 3

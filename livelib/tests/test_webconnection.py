@@ -3,7 +3,7 @@ import os, sys
 # скрипт для правильной отработки тестов в github.actions
 sys.path.append(os.path.dirname(os.path.abspath(__file__)))
 
-from utils import get_correct_filename
+from utils import get_correct_filename, create_logger_for_tests
 
 import shutil
 import unittest
@@ -26,6 +26,7 @@ class TestSimpleWeb(unittest.TestCase):
 
     @classmethod
     def setUpClass(cls) -> None:
+        create_logger_for_tests(__name__+'.log')
         cls.config_file = get_correct_filename(filename=cls.config_file, folder='')
 
     def test_get_page_status(self):

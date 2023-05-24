@@ -12,7 +12,7 @@ from livelib import *
 import logging
 import datetime
 
-from utils import get_correct_filename, CustomUnitTest, remove_file
+from utils import get_correct_filename, CustomUnitTest, remove_file, create_logger_for_tests
 
 
 class TestReader(CustomUnitTest):
@@ -25,6 +25,7 @@ class TestReader(CustomUnitTest):
 
     @classmethod
     def setUpClass(cls) -> None:
+        create_logger_for_tests(__name__+'.log')
         cls.config = Config(get_correct_filename(cls.config_file, ''))
         cls.config.web_connection.cache_folder = get_correct_filename('',cls.config.web_connection.cache_folder)
         # print('NEW CACHE '+cls.config.web_connection.cache_folder)

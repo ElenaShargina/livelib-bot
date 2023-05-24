@@ -33,4 +33,9 @@ jobs:
         with:
           name: log_for_test_web_connection
           path: livelib/tests/log.log
-
+      - name: Upload artifact .log
+        uses: actions/upload-artifact@v3
+        with:
+          name: test_webconnection.log
+          path: livelib/tests/logs/test_webconnection.log
+          retention-days: 3

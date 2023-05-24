@@ -6,7 +6,7 @@ import os, sys
 # скрипт для правильной отработки тестов в github.actions
 sys.path.append(os.path.dirname(os.path.abspath(__file__)))
 
-from utils import get_correct_filename, CustomUnitTest, remove_file
+from utils import get_correct_filename, CustomUnitTest, remove_file, create_logger_for_tests
 
 import sqlite3
 import unittest
@@ -24,6 +24,7 @@ class TestDBConnection(CustomUnitTest):
 
     @classmethod
     def setUpClass(cls) -> None:
+        create_logger_for_tests(__name__+'.log')
         cls.config = Config(get_correct_filename(cls.config_file, ''))
         cls.web_connection = WebWithCache(cls.config)
         logging.basicConfig(filename='log.log', level=logging.DEBUG, filemode='a',

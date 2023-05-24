@@ -1,4 +1,99 @@
-2023-05-24--13-26 : starting to run unit tests from test_export.log ... 
+2023-05-24--13-26 : starting to run unit tests from test_dbconnection.log ... 
+Create DB file C:/Users/user/PycharmProjects/livelib-bot/livelib/tests/data/sample/test_sqlite3\test.db
+Successfully connected to C:/Users/user/PycharmProjects/livelib-bot/livelib/tests/data/sample/test_sqlite3\test.db db.
+Starting to create new database.
+Creating new table: CREATE TABLE Book ( id INTEGER PRIMARY KEY AUTOINCREMENT ,book_id INTEGER,work_id INTEGER,book_name TEXT,author_name TEXT,author_id INTEGER,common_rating REAL,picture_url TEXT , UNIQUE(book_id), UNIQUE(work_id) )
+Creating new table: CREATE TABLE Reader ( id INTEGER PRIMARY KEY AUTOINCREMENT ,livelib_id INTEGER,login TEXT,update_time TEXT)
+Creating new table: CREATE TABLE ReadBook ( id INTEGER PRIMARY KEY AUTOINCREMENT ,book_id INTEGER ,reader_id INTEGER ,review_text TEXT,review_id INTEGER,tags TEXT,reader_rating REAL,month INTEGER,year INTEGER,CONSTRAINT fk_book_id FOREIGN KEY(book_id) REFERENCES Book(id) ON DELETE CASCADE ,CONSTRAINT fk_reader_id FOREIGN KEY(reader_id) REFERENCES Reader(id) ON DELETE CASCADE  UNIQUE(book_id, reader_id))
+Remove test database C:/Users/user/PycharmProjects/livelib-bot/livelib/tests/data/sample/test_sqlite3\test.db
+Create DB file C:/Users/user/PycharmProjects/livelib-bot/livelib/tests/data/sample/test_sqlite3/get_table_schema\test.db
+Successfully connected to C:/Users/user/PycharmProjects/livelib-bot/livelib/tests/data/sample/test_sqlite3/get_table_schema\test.db db.
+Remove test database C:/Users/user/PycharmProjects/livelib-bot/livelib/tests/data/sample/test_sqlite3/get_table_schema\test.db
+Create DB file C:/Users/user/PycharmProjects/livelib-bot/livelib/tests/data/sample/test_sqlite3\insert_values.db
+Successfully connected to C:/Users/user/PycharmProjects/livelib-bot/livelib/tests/data/sample/test_sqlite3\insert_values.db db.
+Error while processing sql! table = Foo, 
+field_names = col1, 
+place_holders = ?, 
+field_values = [1]
+[12, 'smth123']
+[34, 2323]
+Traceback (most recent call last):
+  File "C:\Users\user\PycharmProjects\livelib-bot\livelib\dbconnection.py", line 249, in insert_values
+    result = con.executemany(f"INSERT OR IGNORE INTO {table} ({field_names}) VALUES ({placeholders})",
+sqlite3.ProgrammingError: Incorrect number of bindings supplied. The current statement uses 1, and there are 2 supplied.
+Error while processing executemany in C:/Users/user/PycharmProjects/livelib-bot/livelib/tests/data/sample/test_sqlite3\insert_values.db SQLiteConnection! 
+Traceback (most recent call last):
+  File "C:\Users\user\PycharmProjects\livelib-bot\livelib\dbconnection.py", line 249, in insert_values
+    result = con.executemany(f"INSERT OR IGNORE INTO {table} ({field_names}) VALUES ({placeholders})",
+sqlite3.ProgrammingError: Incorrect number of bindings supplied. The current statement uses 1, and there are 2 supplied.
+Error while processing sql! table = Foo, 
+field_names = col1, col2, 
+place_holders = ?, ?, 
+field_values = [12, 'smth123']
+[34]
+Traceback (most recent call last):
+  File "C:\Users\user\PycharmProjects\livelib-bot\livelib\dbconnection.py", line 249, in insert_values
+    result = con.executemany(f"INSERT OR IGNORE INTO {table} ({field_names}) VALUES ({placeholders})",
+sqlite3.ProgrammingError: Incorrect number of bindings supplied. The current statement uses 2, and there are 1 supplied.
+Error while processing executemany in C:/Users/user/PycharmProjects/livelib-bot/livelib/tests/data/sample/test_sqlite3\insert_values.db SQLiteConnection! 
+Traceback (most recent call last):
+  File "C:\Users\user\PycharmProjects\livelib-bot\livelib\dbconnection.py", line 249, in insert_values
+    result = con.executemany(f"INSERT OR IGNORE INTO {table} ({field_names}) VALUES ({placeholders})",
+sqlite3.ProgrammingError: Incorrect number of bindings supplied. The current statement uses 2, and there are 1 supplied.
+Error while processing sql! table = Foo, 
+field_names = qwerty, col2, 
+place_holders = ?, ?, 
+field_values = [12, 'smth123']
+[34]
+Traceback (most recent call last):
+  File "C:\Users\user\PycharmProjects\livelib-bot\livelib\dbconnection.py", line 249, in insert_values
+    result = con.executemany(f"INSERT OR IGNORE INTO {table} ({field_names}) VALUES ({placeholders})",
+sqlite3.OperationalError: table Foo has no column named qwerty
+Error while processing executemany in C:/Users/user/PycharmProjects/livelib-bot/livelib/tests/data/sample/test_sqlite3\insert_values.db SQLiteConnection! 
+Traceback (most recent call last):
+  File "C:\Users\user\PycharmProjects\livelib-bot\livelib\dbconnection.py", line 249, in insert_values
+    result = con.executemany(f"INSERT OR IGNORE INTO {table} ({field_names}) VALUES ({placeholders})",
+sqlite3.OperationalError: table Foo has no column named qwerty
+Error while processing sql! table = Foo, 
+field_names = col1, col2, col3, 
+place_holders = ?, ?, ?, 
+field_values = [1, 12, 'smth123']
+[12, 'smth123']
+[34, 2323]
+Traceback (most recent call last):
+  File "C:\Users\user\PycharmProjects\livelib-bot\livelib\dbconnection.py", line 249, in insert_values
+    result = con.executemany(f"INSERT OR IGNORE INTO {table} ({field_names}) VALUES ({placeholders})",
+sqlite3.OperationalError: table Foo has no column named col3
+Error while processing executemany in C:/Users/user/PycharmProjects/livelib-bot/livelib/tests/data/sample/test_sqlite3\insert_values.db SQLiteConnection! 
+Traceback (most recent call last):
+  File "C:\Users\user\PycharmProjects\livelib-bot\livelib\dbconnection.py", line 249, in insert_values
+    result = con.executemany(f"INSERT OR IGNORE INTO {table} ({field_names}) VALUES ({placeholders})",
+sqlite3.OperationalError: table Foo has no column named col3
+Remove test database C:/Users/user/PycharmProjects/livelib-bot/livelib/tests/data/sample/test_sqlite3\insert_values.db
+Successfully connected to C:/Users/user/PycharmProjects/livelib-bot/livelib/tests/data/sample/test_sqlite3/run_single_sql\test.db db.
+Error while processing sql!
+Traceback (most recent call last):
+  File "C:\Users\user\PycharmProjects\livelib-bot\livelib\dbconnection.py", line 215, in run_single_sql
+    result = cur.execute(sql, params).fetchall()
+sqlite3.OperationalError: no such table: fooWrong
+Error while processing sql!
+Traceback (most recent call last):
+  File "C:\Users\user\PycharmProjects\livelib-bot\livelib\dbconnection.py", line 215, in run_single_sql
+    result = cur.execute(sql, params).fetchall()
+sqlite3.OperationalError: no such column: wrongcol
+Error while processing sql!
+Traceback (most recent call last):
+  File "C:\Users\user\PycharmProjects\livelib-bot\livelib\dbconnection.py", line 215, in run_single_sql
+    result = cur.execute(sql, params).fetchall()
+sqlite3.OperationalError: near "SE11111LECT": syntax error
+Create DB file C:/Users/user/PycharmProjects/livelib-bot/livelib/tests/data/sample/test_sqlite3/run_single_sql\test_insert.db
+Successfully connected to C:/Users/user/PycharmProjects/livelib-bot/livelib/tests/data/sample/test_sqlite3/run_single_sql\test_insert.db db.
+Starting to create new database.
+Creating new table: CREATE TABLE Book ( id INTEGER PRIMARY KEY AUTOINCREMENT ,book_id INTEGER,work_id INTEGER,book_name TEXT,author_name TEXT,author_id INTEGER,common_rating REAL,picture_url TEXT , UNIQUE(book_id), UNIQUE(work_id) )
+Creating new table: CREATE TABLE Reader ( id INTEGER PRIMARY KEY AUTOINCREMENT ,livelib_id INTEGER,login TEXT,update_time TEXT)
+Creating new table: CREATE TABLE ReadBook ( id INTEGER PRIMARY KEY AUTOINCREMENT ,book_id INTEGER ,reader_id INTEGER ,review_text TEXT,review_id INTEGER,tags TEXT,reader_rating REAL,month INTEGER,year INTEGER,CONSTRAINT fk_book_id FOREIGN KEY(book_id) REFERENCES Book(id) ON DELETE CASCADE ,CONSTRAINT fk_reader_id FOREIGN KEY(reader_id) REFERENCES Reader(id) ON DELETE CASCADE  UNIQUE(book_id, reader_id))
+Remove test file  C:/Users/user/PycharmProjects/livelib-bot/livelib/tests/data/sample/test_sqlite3/run_single_sql\test_insert.db
+Successfully connected to C:/Users/user/PycharmProjects/livelib-bot/livelib/tests/data/sample/test_sqlite3/table_exists/db.db db.
 Successfully connected to C:/Users/user/PycharmProjects/livelib-bot/livelib/tests/data/sample/test_export/main.db db.
 Page /reader/Eugenia_Novik/read/~0 is in dump at C:/Users/user/PycharmProjects/livelib-bot/livelib/tests/data/sample/test_export/xlsx/create_file/cache/reader/eugenia_novik/read/ ~0.html.
 Page /reader/Eugenia_Novik/read/~1 is in dump at C:/Users/user/PycharmProjects/livelib-bot/livelib/tests/data/sample/test_export/xlsx/create_file/cache/reader/eugenia_novik/read/ ~1.html.
