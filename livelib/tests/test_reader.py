@@ -4,6 +4,7 @@ import os, sys
 
 # скрипт для правильной отработки тестов в github.actions
 import random
+import time
 
 sys.path.append(os.path.dirname(os.path.abspath(__file__)))
 
@@ -159,7 +160,8 @@ class TestReader(CustomUnitTest):
         with self.subTest(f'Checking getting books from web for {reader_name}'):
             self.assertGreater(old_books_num, 0)
         # 3. Обновляем его книги
-        print('update books')
+        # приостанавливаем работу на 2 секунды, чтобы время точно сдвинулось
+        time.sleep(2)
         r.update_books()
         # 4. Проверяем, что книги в базе данных есть.
         new_books = r.get_read_books_from_db()
