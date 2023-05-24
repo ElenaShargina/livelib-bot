@@ -1,5 +1,7 @@
 import os
 import unittest, logging
+import datetime
+
 from livelib import Config, Parser, WebConnection, DBConnection
 import json
 import bs4
@@ -27,6 +29,14 @@ def remove_file(filename: str, log_msg='Remove test file ', error_msg='Can not r
     except Exception as exc:
         logging.exception(f'{error_msg} {filename}', exc_info=True)
 
+
+def create_logger_for_tests(filename):
+    log_filename = get_correct_filename(filename, 'logs')
+    with open(log_filename, mode='w') as f:
+        timestamp = datetime.datetime.now().strftime('%Y-%m-%d--%H-%M')
+        f.write(f'{timestamp} : starting to run unit tests from {filename} ... \n')
+    mylogger = logging.getLogger()
+    mylogger.addHandler(logging.FileHandler(log_filename, mode='a'))
 
 class CustomUnitTest(unittest.TestCase):
     object: Any

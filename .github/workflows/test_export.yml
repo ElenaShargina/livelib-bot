@@ -31,3 +31,4 @@ jobs:
         with:
           name: test_export.log
           path: livelib/tests/logs/test_export.log
+          retention-days: 3

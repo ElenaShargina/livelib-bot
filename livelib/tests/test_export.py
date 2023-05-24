@@ -5,7 +5,7 @@ import os, sys
 # скрипт для правильной отработки тестов в github.actions
 sys.path.append(os.path.dirname(os.path.abspath(__file__)))
 
-from utils import get_correct_filename, CustomUnitTest, remove_file
+from utils import get_correct_filename, CustomUnitTest, remove_file, create_logger_for_tests
 import unittest
 import logging
 import random
@@ -23,13 +23,8 @@ class TestXLSXExport(CustomUnitTest):
 
     @classmethod
     def setUpClass(cls) -> None:
+        create_logger_for_tests('test_export.log')
         cls.config = Config(get_correct_filename(cls.config_file, ''))
-        log_filename = get_correct_filename('test_export.log', 'logs')
-        with open(log_filename, mode='a') as f:
-            f.write('Starting to test... \n')
-        mylogger = logging.getLogger()
-        mylogger.addHandler(logging.FileHandler(log_filename, mode='a'))
-        mylogger.debug('hello from debugging')
         cls.config.web_connection.cache_folder = get_correct_filename('',cls.config.web_connection.cache_folder)
         cls.web_connection = WebWithCache(cls.config, random_sleep=False)
         cls.config.db.sqlite_db = get_correct_filename(cls.config.db.sqlite_db, "")
