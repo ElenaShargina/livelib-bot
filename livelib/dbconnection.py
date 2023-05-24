@@ -122,8 +122,8 @@ class SQLite3Connection(DBConnection):
         if not os.path.isfile(self.filename) and create_if_not_exist:
             try:
                 f = open(self.filename, mode='w')
-                self.create_db(BookDataFormatter)
                 f.close()
+                self.create_db(BookDataFormatter)
                 logging.info(f'Create DB file {self.filename}')
             except Exception as exc:
                 logging.exception(f'Can not create DB file {self.filename}', exc_info=True)
@@ -145,7 +145,7 @@ class SQLite3Connection(DBConnection):
                 defaults to BookDataFormatter
         :type formatter: type[BookDataFormatter]
         """
-        logging.debug('Starting to create new database.')
+        logging.info('Starting to create new database.')
         # создаем таблицу книг
         book_fields: dict[str, str] = {i: formatter.all_properties_db()[i] for i in formatter.book_properties_db}
         fields_str = ','.join(["id INTEGER PRIMARY KEY AUTOINCREMENT "] + [i + ' ' + j for i, j in book_fields.items()])

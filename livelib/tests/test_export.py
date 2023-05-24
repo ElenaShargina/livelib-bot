@@ -28,7 +28,7 @@ class TestXLSXExport(CustomUnitTest):
         cls.config.web_connection.cache_folder = get_correct_filename('',cls.config.web_connection.cache_folder)
         cls.web_connection = WebWithCache(cls.config, random_sleep=False)
         cls.config.db.sqlite_db = get_correct_filename(cls.config.db.sqlite_db, "")
-        cls.db_connection = SQLite3Connection(cls.config, create_if_not_exist=False)
+        cls.db_connection = SQLite3Connection(cls.config, create_if_not_exist=True)
         cls.parser = ParserFromHTML
         cls.config.export.xlsx.folder = get_correct_filename('',cls.config.export.xlsx.folder)
         cls.export = XLSXExport(cls.config)
@@ -82,6 +82,6 @@ class TestXLSXExport(CustomUnitTest):
 
             # 5. Удаляем данные
             # удаляем книги читателя из БД
-            my_reader.delete_read_books()
+            # my_reader.delete_read_books()
             # удаляем файл экспорта
             remove_file(output_filename)

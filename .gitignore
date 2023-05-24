@@ -4,3 +4,4 @@ offline_test/
 tests/log.log
 log.log
 /.env
+/livelib/tests/data/sample/test_export/main.db
