@@ -24,9 +24,12 @@ class TestXLSXExport(CustomUnitTest):
     @classmethod
     def setUpClass(cls) -> None:
         cls.config = Config(get_correct_filename(cls.config_file, ''))
-        logging.basicConfig(filename=get_correct_filename('log.log',''), level=logging.DEBUG, filemode='a',
-                            format="%(asctime)s %(levelname)s %(message)s")
-        logging.debug('hello')
+        log_filename = get_correct_filename('test_export.log', 'logs')
+        with open(log_filename, mode='a') as f:
+            f.write('Starting to test... \n')
+        mylogger = logging.getLogger()
+        mylogger.addHandler(logging.FileHandler(log_filename, mode='a'))
+        mylogger.debug('hello from debugging')
         cls.config.web_connection.cache_folder = get_correct_filename('',cls.config.web_connection.cache_folder)
         cls.web_connection = WebWithCache(cls.config, random_sleep=False)
         cls.config.db.sqlite_db = get_correct_filename(cls.config.db.sqlite_db, "")
@@ -45,7 +48,7 @@ class TestXLSXExport(CustomUnitTest):
             special_config = Config(get_correct_filename(self.config_file, ''))
             special_config.export.xlsx.folder = i['folder']
             export = XLSXExport(special_config)
-            self.assertEqual(i['output'], export._create_filename(i['reader_name']))
+            self.assertEqual(i['output'], export._create_filename(i['reader_name']).replace('\\','/'))
 
     def test_create_file(self):
         self.test_folder = get_correct_filename('',os.path.join(self.test_folder, 'create_file'))
