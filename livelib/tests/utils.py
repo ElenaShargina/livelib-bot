@@ -40,9 +40,13 @@ def create_logger_for_tests(filename: str) -> None:
     :type filename: str
     """
     log_filename = get_correct_filename(filename, 'logs')
-    with open(log_filename, mode='w+') as f:
+    try:
+        f = open(log_filename, mode='w+')
         timestamp = datetime.datetime.now().strftime('%Y-%m-%d--%H-%M')
         f.write(f'{timestamp} : starting to run unit tests from {filename} ... \n')
+        f.close()
+    except Exception as e:
+        print(f'Can not create log file {e}')
     mylogger = logging.getLogger()
     mylogger.addHandler(logging.FileHandler(log_filename, mode='a'))
 
