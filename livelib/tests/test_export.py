@@ -47,19 +47,20 @@ class TestXLSXExport(CustomUnitTest):
             self.assertEqual(i['output'], export._create_filename(i['reader_name']))
 
     def test_create_file(self):
-        self.test_folder = os.path.join(self.test_folder, 'create_file')
+        self.test_folder = get_correct_filename('',os.path.join(self.test_folder, 'create_file'))
         for reader_name in ['Eugenia_Novik', 'Humming_Bird']:
             # 1. Создаем нового читателя
             # Формируем особый конфиг, чтобы кеш страниц брался из подготовленных данных.
             # Если страница реального читателя поменяется, то сравнение в тесте будет все равно идти с сохраненной старой версией.
             special_config = self.config
-            special_config.web_connection.cache_folder = 'data/sample/test_export/xlsx/create_file/cache'
+            special_config.web_connection.cache_folder = get_correct_filename("",'data/sample/test_export/xlsx/create_file/cache')
             my_reader = Reader(reader_name, WebWithCache(special_config), self.db_connection, self.export)
             my_reader.register()
             my_reader.get_read_books_from_web()
 
             # 2. Формируем экспортный файл
             output_filename = my_reader.create_export_xlsx_file()
+            print(output_filename)
 
             # 3. Сравниваем с образцом
             # загружаем полученный ранее вариант
@@ -69,7 +70,8 @@ class TestXLSXExport(CustomUnitTest):
             my_output.close()
 
             # загружаем образец
-            correct_output_filename = get_correct_filename(reader_name+'-correct_output.xlsx',self.test_folder)
+            correct_output_filename = os.path.join(self.test_folder,reader_name+'-correct_output.xlsx')
+            print(correct_output_filename)
             correct_output = openpyxl.reader.excel.load_workbook(correct_output_filename, read_only = True)
             # correct_output = openpyxl.reader.excel.load_workbook(output_filename, read_only=True)
             wb = correct_output.active
